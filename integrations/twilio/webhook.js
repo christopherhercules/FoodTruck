@@ -55,12 +55,22 @@ function validateTwilioRequest(req) {
   const twilioSignature = req.headers['x-twilio-signature'];
   if (!twilioSignature) return false;
 
-  const host   = req.headers['x-forwarded-host'] || req.get('host');
-  const proto  = req.headers['x-forwarded-proto'] || req.protocol;
-  const url    = `${proto}://${host}${req.originalUrl}`;
-  const params = req.body;
+  // Use PUBLIC_URL env var if set, otherwise reconstruct carefully
+  // Render runs on port 10000 internally but is public on 443 — host header
+  // may include :10000 which would break signature matching
+  const publicUrl = process.env.PUBLIC_URL; // e.g. https://foodtruck-cymz.onrender.com
+  let url;
+  if (publicUrl) {
+    url = `${publicUrl.replace(/\/$/, '')}${req.originalUrl}`;
+  } else {
+    const host  = (req.headers['x-forwarded-host'] || req.get('host')).replace(/:\d+$/, '');
+    const proto = req.headers['x-forwarded-proto'] || req.protocol;
+    url = `${proto}://${host}${req.originalUrl}`;
+  }
 
-  // Sort params and build validation string
+  console.log(`  Validating against URL: ${url}`);
+
+  const params = req.body;
   const sortedKeys = Object.keys(params).sort();
   let validationStr = url;
   sortedKeys.forEach(key => { validationStr += key + params[key]; });
