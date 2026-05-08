@@ -37,6 +37,7 @@ const {
 const app  = express();
 const PORT = process.env.PORT || 3002;
 
+app.set('trust proxy', 1); // Trust Render/proxy SSL termination
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
@@ -54,7 +55,9 @@ function validateTwilioRequest(req) {
   const twilioSignature = req.headers['x-twilio-signature'];
   if (!twilioSignature) return false;
 
-  const url    = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+  const host   = req.headers['x-forwarded-host'] || req.get('host');
+  const proto  = req.headers['x-forwarded-proto'] || req.protocol;
+  const url    = `${proto}://${host}${req.originalUrl}`;
   const params = req.body;
 
   // Sort params and build validation string
