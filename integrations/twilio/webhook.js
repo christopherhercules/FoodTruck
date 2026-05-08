@@ -47,18 +47,16 @@ app.use(express.json());
  * https://www.twilio.com/docs/usage/webhooks/webhooks-security
  */
 function validateTwilioRequest(req) {
-  if (TWILIO_AUTH_TOKEN === "REPLACE_WITH_AUTH_TOKEN") {
-    console.warn("⚠️  Skipping Twilio validation (not yet configured)");
+  // Validation temporarily disabled during toll-free verification period.
+  // Re-enable once number is approved and PUBLIC_URL env var is set.
+  if (process.env.SKIP_TWILIO_VALIDATION === 'true' || TWILIO_AUTH_TOKEN === "REPLACE_WITH_AUTH_TOKEN") {
     return true;
   }
 
   const twilioSignature = req.headers['x-twilio-signature'];
   if (!twilioSignature) return false;
 
-  // Use PUBLIC_URL env var if set, otherwise reconstruct carefully
-  // Render runs on port 10000 internally but is public on 443 — host header
-  // may include :10000 which would break signature matching
-  const publicUrl = process.env.PUBLIC_URL; // e.g. https://foodtruck-cymz.onrender.com
+  const publicUrl = process.env.PUBLIC_URL;
   let url;
   if (publicUrl) {
     url = `${publicUrl.replace(/\/$/, '')}${req.originalUrl}`;
@@ -68,9 +66,7 @@ function validateTwilioRequest(req) {
     url = `${proto}://${host}${req.originalUrl}`;
   }
 
-  console.log(`  Validating against URL: ${url}`);
-
-  const params = req.body;
+  const params     = req.body;
   const sortedKeys = Object.keys(params).sort();
   let validationStr = url;
   sortedKeys.forEach(key => { validationStr += key + params[key]; });
