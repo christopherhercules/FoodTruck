@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Amplify artifacts
+.amplify/
+amplify_outputs*
+amplifyconfiguration*
+
+# Environment / secrets
+.env
+.env.*
+*.env
+
+# CDK output (large generated artifacts, not source)
+**/cdk.out/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.windsurf/
+*.swp

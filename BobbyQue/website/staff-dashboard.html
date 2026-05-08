@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staff Dashboard — BobbyQue</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--p:#0D0D0D;--pd:#000000;--a:#D32F2F;--bg:#0f0f0f;--bg2:#1a1a1a;--bg3:#242424;--border:#333;--text:#f0f0f0;--muted:#888;--green:#34D399;--blue:#4da6ff;--orange:#F59E0B}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    /* LOGIN */
+    #loginScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)}
+    .login-box{background:var(--bg2);border:1px solid var(--border);border-top:4px solid var(--p);border-radius:16px;padding:2.5rem;width:100%;max-width:400px;text-align:center}
+    .login-logo{font-family:'Bebas Neue',cursive;font-size:2rem;color:#fff;letter-spacing:2px;margin-bottom:.25rem}
+    .login-logo span{color:var(--p)}
+    .login-subtitle{color:var(--muted);font-size:.85rem;margin-bottom:2rem}
+    .login-input{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:.8rem 1rem;border-radius:8px;font-size:1rem;font-family:'Outfit',sans-serif;margin-bottom:1rem}
+    .login-input:focus{outline:none;border-color:var(--p)}
+    .login-btn{width:100%;background:var(--p);color:#fff;border:none;padding:.9rem;border-radius:8px;font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:1px;cursor:pointer;transition:background .2s}
+    .login-btn:hover{background:var(--pd)}
+    .login-error{color:#ff8888;font-size:.85rem;margin-top:.5rem;display:none}
+    /* DASHBOARD */
+    #dashboardScreen{display:none}
+    .dash-header{background:var(--bg2);border-bottom:3px solid var(--p);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between}
+    .dash-logo{font-family:'Bebas Neue',cursive;font-size:1.6rem;color:#fff;letter-spacing:1px}
+    .dash-logo span{color:var(--p)}
+    .header-right{display:flex;align-items:center;gap:1rem}
+    .new-order-alert{background:var(--orange);color:#000;padding:.4rem 1rem;border-radius:6px;font-weight:700;font-size:.85rem;display:none;animation:blink 1s infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
+    .staff-badge{display:flex;align-items:center;gap:.4rem;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);padding:.4rem .9rem;border-radius:6px;font-size:.8rem;color:var(--green);font-weight:700}
+    .staff-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .logout-btn{background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:.4rem .9rem;border-radius:6px;cursor:pointer;font-size:.82rem;font-family:'Outfit',sans-serif;transition:all .2s}
+    .logout-btn:hover{border-color:var(--p);color:var(--p)}
+    .stats-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:.75rem 2rem;display:flex;gap:.5rem;flex-wrap:wrap}
+    .stat-chip{background:var(--bg3);border:1px solid var(--border);padding:.4rem 1rem;border-radius:6px;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.4rem}
+    .stat-chip:hover,.stat-chip.active{border-color:var(--p);color:var(--p)}
+    .chip-count{background:var(--bg);padding:.1rem .45rem;border-radius:4px;font-size:.75rem;font-weight:700}
+    .chip-count.urgent{color:#ff8888}
+    .dashboard-main{padding:1.5rem 2rem;max-width:1400px;margin:0 auto}
+    .refresh-info{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;color:var(--muted);font-size:.82rem}
+    .refresh-btn{background:var(--bg2);border:1px solid var(--border);color:var(--muted);padding:.35rem .8rem;border-radius:6px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:.8rem;transition:all .2s}
+    .refresh-btn:hover{border-color:var(--p);color:var(--p)}
+    .refresh-btn.spinning{animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .orders-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
+    .order-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.3rem;border-left:4px solid var(--border)}
+    .order-card.status-Pending{border-left-color:var(--orange)}
+    .order-card.status-Preparing{border-left-color:var(--p)}
+    .order-card.status-Ready{border-left-color:var(--green)}
+    .order-card.status-Completed{border-left-color:var(--border);opacity:.6}
+    .oc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.8rem}
+    .oc-id{font-weight:700;color:#fff;font-size:.95rem}
+    .oc-time{font-size:.75rem;color:var(--muted)}
+    .oc-customer{font-size:.9rem;font-weight:600;color:var(--a);margin-bottom:.6rem}
+    .oc-items{font-size:.82rem;color:var(--muted);margin-bottom:.8rem;line-height:1.5}
+    .oc-total{font-weight:700;color:#fff;font-size:.9rem;margin-bottom:.8rem}
+    .oc-special{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:6px;padding:.4rem .6rem;font-size:.78rem;color:var(--orange);margin-bottom:.8rem}
+    .status-badge{display:inline-block;padding:.2rem .7rem;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:.8rem}
+    .badge-Pending{background:rgba(245,158,11,.12);color:var(--orange);border:1px solid rgba(245,158,11,.25)}
+    .badge-Preparing{background:rgba(13,13,13,.12);color:var(--p);border:1px solid rgba(13,13,13,.25)}
+    .badge-Ready{background:rgba(52,211,153,.12);color:var(--green);border:1px solid rgba(52,211,153,.25)}
+    .badge-Completed{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border)}
+    .action-btns{display:flex;gap:.5rem;flex-wrap:wrap}
+    .action-btn{border:none;padding:.5rem 1rem;border-radius:6px;font-weight:700;cursor:pointer;font-size:.82rem;font-family:'Outfit',sans-serif;transition:all .2s}
+    .btn-start{background:var(--p);color:#fff}
+    .btn-start:hover{background:var(--pd)}
+    .btn-ready{background:var(--green);color:#000}
+    .btn-ready:hover{opacity:.85}
+    .btn-complete{background:var(--bg3);border:1px solid var(--border);color:var(--muted)}
+    .btn-complete:hover{border-color:var(--green);color:var(--green)}
+    .empty-state{text-align:center;padding:4rem;color:var(--muted);grid-column:1/-1}
+    .empty-icon{font-size:3rem;margin-bottom:1rem}
+    .loading-overlay{text-align:center;padding:3rem;color:var(--muted);grid-column:1/-1}
+    .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--p);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1rem}
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">🥩 <span>BobbyQue</span></div>
+    <div class="login-subtitle">Staff Dashboard</div>
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <input class="login-input" type="password" id="loginPassword" placeholder="Staff password" autocomplete="current-password">
+      <button type="submit" class="login-btn">Sign In</button>
+      <div class="login-error" id="loginError"></div>
+    </form>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboardScreen">
+  <header class="dash-header">
+    <div class="dash-logo">🥩 <span>BobbyQue</span> — Orders</div>
+    <div class="header-right">
+      <div class="new-order-alert" id="newOrderAlert">🔔 New Order!</div>
+      <div class="staff-badge"><div class="staff-dot"></div><span>Live</span></div>
+      <button class="logout-btn" onclick="handleLogout()">Sign Out</button>
+    </div>
+  </header>
+  <div class="stats-bar">
+    <div class="stat-chip active" id="chip-active" onclick="setFilter('active')">Active <span class="chip-count" id="count-active">0</span></div>
+    <div class="stat-chip" id="chip-Pending" onclick="setFilter('Pending')">⏳ Pending <span class="chip-count urgent" id="count-Pending">0</span></div>
+    <div class="stat-chip" id="chip-Preparing" onclick="setFilter('Preparing')">🔥 Preparing <span class="chip-count" id="count-Preparing">0</span></div>
+    <div class="stat-chip" id="chip-Ready" onclick="setFilter('Ready')">✅ Ready <span class="chip-count" id="count-Ready">0</span></div>
+    <div class="stat-chip" id="chip-Completed" onclick="setFilter('Completed')">📦 Picked Up <span class="chip-count" id="count-Completed">0</span></div>
+  </div>
+  <div class="dashboard-main">
+    <div class="refresh-info">
+      <span id="lastRefreshText">Loading...</span>
+      <button class="refresh-btn" id="refreshBtn" onclick="loadOrders()">↻ Refresh</button>
+    </div>
+    <div class="orders-grid" id="ordersGrid">
+      <div class="loading-overlay"><div class="spinner"></div><p>Loading orders...</p></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const APPSYNC_URL="https://d2zlzofjerf4hd6gltypy2rnlm.appsync-api.us-east-1.amazonaws.com/graphql",API_KEY="da2-6l2dtmahczbbnlp3m2vmgihqby",STAFF_PASSWORD="BobbyQue2025!";
+function handleLogin(e){e.preventDefault();if(document.getElementById("loginPassword").value!==STAFF_PASSWORD){const el=document.getElementById("loginError");el.textContent="Incorrect password.";el.style.display="block";document.getElementById("loginPassword").value="";return}sessionStorage.setItem("staffAuth_BobbyQue","1");showDashboard()}
+function handleLogout(){sessionStorage.removeItem("staffAuth_BobbyQue");document.getElementById("dashboardScreen").style.display="none";document.getElementById("loginScreen").style.display="flex";clearInterval(refreshInterval);document.getElementById("loginForm").reset()}
+window.onload=function(){sessionStorage.getItem("staffAuth_BobbyQue")==="1"?showDashboard():(document.getElementById("loginScreen").style.display="flex")}
+function showDashboard(){document.getElementById("loginScreen").style.display="none";document.getElementById("dashboardScreen").style.display="block";startDashboard()}
+async function gql(q,v={}){const r=await fetch(APPSYNC_URL,{method:"POST",headers:{"Content-Type":"application/json","x-api-key":API_KEY},body:JSON.stringify({query:q,variables:v})});const j=await r.json();if(j.errors)throw new Error(j.errors[0].message);return j.data}
+let allOrders=[],activeFilter="active",refreshInterval=null,prevPendingIds=new Set();
+async function loadOrders(){
+  const btn=document.getElementById("refreshBtn");btn.classList.add("spinning");
+  try{
+    const d=await gql(`query{listOrders(limit:200,filter:{source:{eq:"BobbyQue"}}){items{id orderId customerName orderType tableNumber items totalPrice specialInstructions status assignedServer timestamp source}}}`);
+    const orders=d.listOrders.items||[];
+    const rank={Pending:0,Preparing:1,Ready:2,Completed:3};
+    orders.sort((a,b)=>{const r=(rank[a.status]??4)-(rank[b.status]??4);return r!==0?r:new Date(a.timestamp)-new Date(b.timestamp)});
+    const newIds=new Set(orders.filter(o=>o.status==="Pending").map(o=>o.id));
+    if([...newIds].some(id=>!prevPendingIds.has(id))&&prevPendingIds.size>0)flashNewOrder();
+    prevPendingIds=newIds;allOrders=orders;updateCounts();renderOrders();
+    document.getElementById("lastRefreshText").textContent="Last refreshed at "+new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  }catch(e){document.getElementById("ordersGrid").innerHTML='<div class="empty-state"><div class="empty-icon">⚠️</div><p style="color:#ff8888">'+e.message+'</p></div>'}
+  finally{btn.classList.remove("spinning")}
+}
+function flashNewOrder(){const el=document.getElementById("newOrderAlert");el.style.display="block";setTimeout(()=>{el.style.display="none"},5000)}
+function updateCounts(){const today=new Date().toDateString();const c={Pending:0,Preparing:0,Ready:0,Completed:0};allOrders.forEach(o=>{if(o.status==="Completed"){if(new Date(o.timestamp).toDateString()===today)c.Completed++}else{c[o.status]=(c[o.status]||0)+1}});document.getElementById("count-active").textContent=c.Pending+c.Preparing+c.Ready;["Pending","Preparing","Ready","Completed"].forEach(s=>{document.getElementById("count-"+s).textContent=c[s]})}
+function setFilter(f){activeFilter=f;document.querySelectorAll(".stat-chip").forEach(c=>c.classList.remove("active"));document.getElementById("chip-"+f).classList.add("active");renderOrders()}
+function renderOrders(){
+  const today=new Date().toDateString();
+  const filtered=activeFilter==="active"?allOrders.filter(o=>o.status!=="Completed"):activeFilter==="Completed"?allOrders.filter(o=>o.status==="Completed"&&new Date(o.timestamp).toDateString()===today):allOrders.filter(o=>o.status===activeFilter);
+  if(!filtered.length){document.getElementById("ordersGrid").innerHTML='<div class="empty-state"><div class="empty-icon">🥩</div><p>No orders here.</p></div>';return}
+  document.getElementById("ordersGrid").innerHTML=filtered.map(o=>{
+    let items=[];try{items=JSON.parse(o.items||"[]")}catch(e){}
+    const t2=new Date(o.timestamp);const elapsed=Math.floor((Date.now()-t2)/60000);
+    return `<div class="order-card status-${o.status}">
+      <div class="oc-header"><span class="oc-id">#${o.orderId}</span><span class="oc-time">${elapsed}m ago</span></div>
+      <div class="oc-customer">${o.customerName}</div>
+      <span class="status-badge badge-${o.status}">${o.status}</span>
+      <div class="oc-items">${items.map(i=>i.name+(i.customization?" — "+i.customization:"")).join("<br>")}</div>
+      <div class="oc-total">$${parseFloat(o.totalPrice).toFixed(2)}</div>
+      ${o.specialInstructions?'<div class="oc-special">📝 '+o.specialInstructions+'</div>':""}
+      <div class="action-btns">
+        ${o.status==="Pending"?'<button class="action-btn btn-start" onclick="updateStatus(\''+o.id+'\',\'Preparing\')">🔥 Start</button>':""}
+        ${o.status==="Preparing"?'<button class="action-btn btn-ready" onclick="updateStatus(\''+o.id+'\',\'Ready\')">✅ Mark Ready</button>':""}
+        ${o.status==="Ready"?'<button class="action-btn btn-complete" onclick="updateStatus(\''+o.id+'\',\'Completed\')">📦 Picked Up</button>':""}
+      </div>
+    </div>`;
+  }).join("");
+}
+async function updateStatus(id,status){try{await gql(`mutation UpdateOrder($input:UpdateOrderInput!){updateOrder(input:$input){id status}}`,{input:{id,status}});loadOrders()}catch(e){alert("Error: "+e.message)}}
+function startDashboard(){loadOrders();refreshInterval=setInterval(loadOrders,15000)}
+</script>
+</body>
+</html>

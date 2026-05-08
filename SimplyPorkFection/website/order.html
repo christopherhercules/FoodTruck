@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order for Pickup — Simply Pork Fection</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--p:#8B2500;--pd:#6B1C00;--a:#F59E0B;--bg:#0f0f0f;--bg2:#1a1a1a;--bg3:#242424;--border:#333;--text:#f0f0f0;--muted:#888}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    header{background:var(--bg2);border-bottom:3px solid var(--p);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+    .logo{font-family:'Bebas Neue',cursive;font-size:1.8rem;color:#fff;text-decoration:none;letter-spacing:2px}
+    .logo span{color:var(--p)}
+    .cart-badge{background:var(--p);color:#fff;padding:.5rem 1.2rem;border-radius:50px;font-weight:600;font-size:.9rem;cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:background .2s;border:none}
+    .cart-badge:hover{background:var(--pd)}
+    .cart-count{background:#fff;color:var(--p);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800}
+    .main-layout{display:grid;grid-template-columns:1fr 340px;gap:2rem;max-width:1200px;margin:2rem auto;padding:0 2rem}
+    .cat-tabs{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem}
+    .cat-tab{padding:.45rem 1.1rem;border-radius:6px;font-size:.82rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all .2s;font-family:'Outfit',sans-serif}
+    .cat-tab.active,.cat-tab:hover{background:var(--p);color:#fff;border-color:var(--p)}
+    .menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem}
+    .menu-item{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1.2rem;transition:all .2s}
+    .menu-item:hover{border-color:var(--p);transform:translateY(-1px)}
+    .item-name{font-weight:700;color:#fff;margin-bottom:.3rem;font-size:.95rem}
+    .item-desc{color:var(--muted);font-size:.8rem;line-height:1.5;margin-bottom:.8rem}
+    .item-footer{display:flex;justify-content:space-between;align-items:center}
+    .item-price{font-weight:800;color:var(--a);font-size:1rem}
+    .add-btn{background:var(--p);color:#fff;border:none;padding:.4rem 1rem;border-radius:6px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;font-size:.85rem;transition:background .2s}
+    .add-btn:hover{background:var(--pd)}
+    .customize-select{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:.4rem .6rem;border-radius:6px;font-family:'Outfit',sans-serif;font-size:.8rem;margin-bottom:.6rem}
+    .cart-section{background:var(--bg2);border-radius:14px;padding:1.5rem;position:sticky;top:90px;height:fit-content;border:1px solid var(--border)}
+    .cart-title{font-family:'Bebas Neue',cursive;font-size:1.6rem;color:#fff;letter-spacing:1px;margin-bottom:1rem;border-bottom:2px solid var(--p);padding-bottom:.5rem}
+    .cart-empty{text-align:center;padding:2rem;color:var(--muted)}
+    .cart-empty .emoji{font-size:2.5rem;display:block;margin-bottom:.5rem}
+    .cart-item{display:flex;align-items:flex-start;gap:.8rem;padding:.6rem 0;border-bottom:1px solid var(--border)}
+    .cart-item-info{flex:1}
+    .cart-item-name{font-size:.88rem;font-weight:600;color:#fff}
+    .cart-item-customization{font-size:.75rem;color:var(--muted)}
+    .cart-item-price{font-weight:700;color:var(--a);font-size:.9rem;white-space:nowrap}
+    .remove-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.85rem;padding:.1rem .3rem;transition:color .2s}
+    .remove-btn:hover{color:#ff6b6b}
+    .cart-total-row{display:flex;justify-content:space-between;font-weight:800;padding:.8rem 0 0;color:#fff;font-size:1rem}
+    .total-amount{color:var(--a);font-size:1.1rem}
+    .customer-form{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:.6rem}
+    .form-input{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:.65rem .9rem;border-radius:8px;font-family:'Outfit',sans-serif;font-size:.9rem}
+    .form-input:focus{outline:none;border-color:var(--p)}
+    .place-order-btn{background:var(--p);color:#fff;border:none;padding:.9rem;border-radius:8px;font-family:'Bebas Neue',cursive;font-size:1.2rem;letter-spacing:1px;cursor:pointer;width:100%;margin-top:.4rem;transition:background .2s}
+    .place-order-btn:hover:not(:disabled){background:var(--pd)}
+    .place-order-btn:disabled{opacity:.5;cursor:not-allowed}
+    .error-msg{text-align:center;padding:2rem;color:#ff8888}
+    #confirmationScreen{display:none;max-width:600px;margin:4rem auto;text-align:center;padding:2rem}
+    .confirm-icon{font-size:4rem;margin-bottom:1rem}
+    .confirm-title{font-family:'Bebas Neue',cursive;font-size:2.5rem;color:var(--a);letter-spacing:1px;margin-bottom:.5rem}
+    .order-number{background:var(--bg2);border:2px solid var(--p);border-radius:10px;padding:1.2rem;margin:1.5rem 0;font-size:1.1rem;font-weight:700;color:#fff}
+    .window-notice{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:1rem 1.5rem;margin:1rem 0;color:rgba(255,255,255,.8);font-size:.95rem}
+    .track-link,.new-order-btn{display:inline-block;margin-top:1rem;padding:.75rem 1.8rem;border-radius:8px;font-weight:700;text-decoration:none;font-size:.95rem}
+    .track-link{background:var(--p);color:#fff;margin-right:.5rem}
+    .new-order-btn{background:var(--bg2);border:1px solid var(--border);color:var(--text);cursor:pointer;font-family:'Outfit',sans-serif}
+    @media(max-width:768px){.main-layout{grid-template-columns:1fr}.cart-section{position:static}}
+  .consent-label{display:flex;align-items:flex-start;gap:0.6rem;cursor:pointer;font-size:0.78rem;color:var(--text-muted,#888);line-height:1.4;padding:0.6rem 0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px}.consent-label input[type=checkbox]{margin-top:2px;accent-color:#D62828;width:15px;height:15px;flex-shrink:0;cursor:pointer}.consent-label span a{color:inherit;text-decoration:underline}.sms-consent-wrap{margin-bottom:0.75rem}</style>
+</head>
+<body>
+<header>
+  <a href="index.html" class="logo">🍖 <span>Simply Pork Fection</span></a>
+  <button class="cart-badge" onclick="scrollToCart()">
+    🛒 Cart <span class="cart-count" id="cartCount">0</span>
+  </button>
+</header>
+
+<div id="mainContent">
+  <div class="main-layout">
+    <div>
+      <div id="catTabs" class="cat-tabs"></div>
+      <div id="menuContainer"><p style="color:var(--muted);text-align:center;padding:3rem">Loading menu...</p></div>
+    </div>
+    <div class="cart-section" id="cartSection">
+      <div class="cart-title">Your Order</div>
+      <div id="cartContent"><div class="cart-empty"><span class="emoji">🍖</span><p>Add items to get started!</p></div></div>
+      <div class="customer-form">
+        <input class="form-input" id="customerName" type="text" placeholder="Your name *" required>
+        <input class="form-input" id="customerPhone" type="tel" placeholder="Phone (optional)" oninput="document.getElementById('smsConsentGroup').style.display=this.value?'block':'none'">
+        <div class="sms-consent-wrap" id="smsConsentGroup" style="display:none"><label class="consent-label"><input type="checkbox" id="smsConsent"><span>Text me when my order is ready. Msg &amp; data rates may apply. Reply STOP to opt out.</span></label></div>
+        <textarea class="form-input" id="specialInstructions" rows="2" placeholder="Special instructions..." style="resize:none"></textarea>
+        <button class="place-order-btn" id="placeOrderBtn" disabled onclick="placeOrder()">PLACE PICKUP ORDER</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="confirmationScreen">
+  <div class="confirm-icon">✅</div>
+  <div class="confirm-title">Order Placed!</div>
+  <div class="order-number">Order #<span id="confirmOrderNumber"></span></div>
+  <div class="window-notice">📍 Pick up at: Salado, TX 76571</div>
+  <a href="" id="trackOrderLink" class="track-link">📍 Track Your Order</a>
+  <button class="new-order-btn" onclick="location.reload()">Place Another Order</button>
+</div>
+
+<script type="module">
+  const APPSYNC_URL="https://d2zlzofjerf4hd6gltypy2rnlm.appsync-api.us-east-1.amazonaws.com/graphql";
+  const API_KEY="da2-6l2dtmahczbbnlp3m2vmgihqby";
+  async function gql(q,v={}){const r=await fetch(APPSYNC_URL,{method:"POST",headers:{"Content-Type":"application/json","x-api-key":API_KEY},body:JSON.stringify({query:q,variables:v})});const j=await r.json();if(j.errors)throw new Error(j.errors[0].message);return j.data}
+  let allMenuItems=[],cart=[],activeCategory="All";
+  const CATEGORIES=["All",...["BBQ Plates","Sandwiches","Sides","Drinks"]];
+  async function loadMenu(){try{const d=await gql('query{listMenuItems(limit:200,filter:{itemId:{beginsWith:"SPF-"}}){items{id itemId name description price category available customizationOptions}}}');allMenuItems=(d.listMenuItems.items||[]).filter(i=>i.available!==false).sort((a,b)=>a.name.localeCompare(b.name));renderTabs();renderMenu()}catch(e){document.getElementById("menuContainer").innerHTML='<div class="error-msg">⚠️ Could not load menu.<br><small>'+e.message+'</small></div>'}}
+  function renderTabs(){const counts={};allMenuItems.forEach(i=>{counts[i.category]=(counts[i.category]||0)+1});document.getElementById("catTabs").innerHTML=CATEGORIES.filter(c=>c==="All"||counts[c]).map(c=>{const n=c==="All"?allMenuItems.length:(counts[c]||0);return`<button class="cat-tab ${c===activeCategory?"active":""}" onclick="window.setCategory('${c}')">${c} (${n})</button>`}).join("")}
+  function renderMenu(){const items=activeCategory==="All"?allMenuItems:allMenuItems.filter(i=>i.category===activeCategory);if(!items.length){document.getElementById("menuContainer").innerHTML='<p style="color:var(--muted);text-align:center;padding:2rem">No items.</p>';return}document.getElementById("menuContainer").innerHTML='<div class="menu-grid">'+items.map(item=>{let opts=[];try{opts=JSON.parse(item.customizationOptions||"[]")}catch(e){}const sid='opt_'+item.itemId;return`<div class="menu-item"><div class="item-name">${item.name}</div><div class="item-desc">${item.description||""}</div>${opts.length?'<select class="customize-select" id="'+sid+'"><option value="">Choose option...</option>'+opts.map(o=>'<option value="'+o+'">'+o+'</option>').join("")+'</select>':""}<div class="item-footer"><span class="item-price">$${parseFloat(item.price).toFixed(2)}</span><button class="add-btn" onclick="window.addToCart('${item.itemId}','${item.name.replace(/'/g,"\\'")}',${item.price},'${sid}',${opts.length>0})">+ Add</button></div></div>`}).join("")+"</div>"}
+  window.addToCart=function(id,name,price,sid,hasOpts){if(hasOpts){const s=document.getElementById(sid);if(!s||!s.value){s.style.borderColor="var(--p)";s.focus();setTimeout(()=>{s.style.borderColor=""},2000);return}cart.push({itemId:id,name,price:parseFloat(price),customization:s.value})}else{cart.push({itemId:id,name,price:parseFloat(price),customization:""})}renderCart()};
+  window.removeFromCart=function(i){cart.splice(i,1);renderCart()};
+  function renderCart(){const total=cart.reduce((s,i)=>s+i.price,0);document.getElementById("cartCount").textContent=cart.length;document.getElementById("placeOrderBtn").disabled=cart.length===0;if(!cart.length){document.getElementById("cartContent").innerHTML='<div class="cart-empty"><span class="emoji">🍖</span><p>Add items to get started!</p></div>';return}document.getElementById("cartContent").innerHTML=cart.map((item,i)=>'<div class="cart-item"><div class="cart-item-info"><div class="cart-item-name">'+item.name+'</div>'+(item.customization?'<div class="cart-item-customization">'+item.customization+'</div>':'')+'</div><span class="cart-item-price">$'+item.price.toFixed(2)+'</span><button class="remove-btn" onclick="window.removeFromCart('+i+')">✕</button></div>').join("")+'<div class="cart-total-row"><span>Total</span><span class="total-amount">$'+total.toFixed(2)+'</span></div>'}
+  window.placeOrder=async function(){const name=document.getElementById("customerName").value.trim();if(!name){alert("Please enter your name.");return}if(!cart.length){alert("Your cart is empty!");return}const btn=document.getElementById("placeOrderBtn");btn.disabled=true;btn.textContent="Placing Order...";const orderId='ORD-'+Date.now();try{await gql('mutation CreateOrder($input:CreateOrderInput!){createOrder(input:$input){id orderId}}',{input:{orderId,customerName:name,customerPhone:document.getElementById("customerPhone").value.trim()||null,smsConsent:!!(document.getElementById("customerPhone").value.trim()&&document.getElementById("smsConsent")?.checked),orderType:"Pickup",tableNumber:null,items:JSON.stringify(cart),totalPrice:cart.reduce((s,i)=>s+i.price,0),specialInstructions:document.getElementById("specialInstructions").value.trim(),status:"Pending",assignedServer:"Window",source:"SimplyPorkFection",timestamp:new Date().toISOString()}});document.getElementById("mainContent").style.display="none";document.getElementById("confirmationScreen").style.display="block";document.getElementById("confirmOrderNumber").textContent=orderId;document.getElementById("trackOrderLink").href="track-order.html?orderId="+orderId}catch(e){alert("Error: "+e.message);btn.disabled=false;btn.textContent="PLACE PICKUP ORDER"}};
+  window.setCategory=function(cat){activeCategory=cat;renderTabs();renderMenu()};
+  window.scrollToCart=function(){document.getElementById("cartSection").scrollIntoView({behavior:"smooth"})};
+  loadMenu();
+</script>
+</body>
+</html>

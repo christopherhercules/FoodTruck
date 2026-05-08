@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soda Fusion | Specialty Drinks & Loaded Hot Dogs · Salado, TX</title>
+  <meta name="description" content="Hand-crafted specialty sodas, loaded hot dogs, and loaded fries. Creative flavors you won't find anywhere else.">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --p:#6200EA;--pd:#4A00B4;--a:#00BCD4;
+      --dark:#111;--dark2:#1a1a1a;--dark3:#242424;
+      --light:#f8f8f8;--white:#fff;--muted:rgba(255,255,255,0.55);
+      --border:rgba(255,255,255,0.1);
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:'Outfit',sans-serif;background:var(--dark);color:#f0f0f0;overflow-x:hidden;line-height:1.6}
+
+    /* NAV */
+    header{position:fixed;top:0;width:100%;background:rgba(17,17,17,0.95);backdrop-filter:blur(12px);border-bottom:2px solid var(--p);z-index:100}
+    nav{max-width:1200px;margin:0 auto;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center}
+    .logo{font-family:'Bebas Neue',cursive;font-size:1.8rem;color:#fff;text-decoration:none;letter-spacing:1px}
+    .logo span{color:var(--p)}
+    .nav-links{display:flex;gap:1.5rem;list-style:none;align-items:center}
+    .nav-links a{color:rgba(255,255,255,0.65);text-decoration:none;font-size:.9rem;font-weight:500;transition:color .2s}
+    .nav-links a:hover{color:var(--a)}
+    .nav-cta{background:var(--p)!important;color:#fff!important;padding:.55rem 1.3rem!important;border-radius:6px!important;font-weight:700!important}
+    .nav-cta:hover{background:var(--pd)!important;opacity:.9}
+
+    /* HERO */
+    .hero{margin-top:68px;min-height:90vh;background:linear-gradient(135deg,rgba(0,0,0,.85) 0%,rgba(0,0,0,.6) 50%,rgba(0,0,0,.8) 100%),linear-gradient(135deg,var(--pd) 0%,var(--dark) 60%);display:flex;align-items:center;justify-content:center;text-align:center;padding:4rem 2rem;position:relative;overflow:hidden}
+    .hero::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;border:1px solid rgba(255,255,255,0.05);top:50%;left:50%;transform:translate(-50%,-50%)}
+    .hero-inner{position:relative;z-index:1;max-width:700px}
+    .hero-badge{display:inline-block;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);font-size:.75rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;padding:.5rem 1.3rem;border-radius:50px;margin-bottom:1.5rem}
+    .hero h1{font-family:'Bebas Neue',cursive;font-size:5rem;color:#fff;line-height:1;margin-bottom:.5rem;letter-spacing:2px}
+    .hero h1 span{color:var(--a)}
+    .hero-sub{font-size:1.1rem;color:rgba(255,255,255,.65);max-width:500px;margin:1rem auto 2.5rem;line-height:1.75}
+    .hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+    .btn-main{background:var(--p);color:#fff;padding:.9rem 2rem;border-radius:6px;text-decoration:none;font-weight:700;font-size:1rem;transition:all .25s;box-shadow:0 6px 25px rgba(0,0,0,.35)}
+    .btn-main:hover{background:var(--pd);transform:translateY(-2px)}
+    .btn-ghost{border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.7);padding:.9rem 2rem;border-radius:6px;text-decoration:none;font-weight:600;font-size:1rem;transition:all .25s}
+    .btn-ghost:hover{border-color:var(--a);color:var(--a)}
+
+    /* FEATURES STRIP */
+    .features{background:var(--p);padding:0}
+    .feat-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+    .feat-item{padding:1.6rem 2rem;border-right:1px solid rgba(0,0,0,.12);display:flex;align-items:center;gap:.8rem}
+    .feat-item:last-child{border-right:none}
+    .feat-item h3{color:#000;font-size:.88rem;font-weight:800;margin-bottom:.1rem}
+    .feat-item p{color:rgba(0,0,0,.55);font-size:.78rem}
+    .feat-icon{font-size:1.5rem;flex-shrink:0}
+
+    /* MENU PREVIEW */
+    .menu-sec{padding:5rem 2rem;background:var(--dark2)}
+    .menu-sec .inner{max-width:1100px;margin:0 auto}
+    .sec-label{font-size:.72rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--a);margin-bottom:.6rem;display:block}
+    .sec-title{font-family:'Bebas Neue',cursive;font-size:2.8rem;color:#fff;letter-spacing:1px;margin-bottom;margin-bottom:.5rem}
+    .menu-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2.5rem;flex-wrap:wrap;gap:1rem}
+    .view-all{color:var(--a);text-decoration:none;font-weight:600;font-size:.9rem;border-bottom:1px solid transparent;transition:border-color .2s}
+    .view-all:hover{border-bottom-color:var(--a)}
+    .menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+    .menu-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-left:3px solid var(--p);border-radius:10px;padding:1.2rem;transition:all .2s}
+    .menu-card:hover{background:rgba(255,255,255,.07);transform:translateY(-2px)}
+    .mc-header{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;margin-bottom:.4rem}
+    .mc-name{font-size:.95rem;font-weight:700;color:#fff;line-height:1.3}
+    .mc-price{font-size:1rem;font-weight:800;color:var(--a);white-space:nowrap}
+    .menu-card p{color:rgba(255,255,255,.45);font-size:.82rem;line-height:1.5}
+    .order-banner{margin-top:2.5rem;background:linear-gradient(135deg,rgba(255,255,255,.04) 0%,rgba(255,255,255,.02) 100%);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:2.5rem 3rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap}
+    .order-banner h3{font-family:'Bebas Neue',cursive;font-size:1.8rem;color:#fff;letter-spacing:1px}
+    .order-banner p{color:var(--muted);margin-top:.2rem;font-size:.9rem}
+
+    /* ABOUT */
+    .about{padding:5rem 2rem;background:var(--dark3)}
+    .about .inner{max-width:800px;margin:0 auto;text-align:center}
+    .about p{color:rgba(255,255,255,.7);font-size:1.05rem;line-height:1.85;margin-bottom:1rem}
+    .pills{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-top:1.5rem}
+    .pill{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);padding:.45rem 1rem;border-radius:4px;font-size:.82rem;font-weight:600;color:rgba(255,255,255,.7)}
+
+    /* LOCATION */
+    .location{padding:5rem 2rem;background:var(--dark2)}
+    .location .inner{max-width:1000px;margin:0 auto}
+    .loc-head{text-align:center;margin-bottom:3rem}
+    .loc-grid{display:grid;grid-template-columns:1fr 1.3fr;gap:2.5rem;align-items:start}
+    .loc-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:2rem}
+    .info-block{margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid rgba(255,255,255,.06)}
+    .info-block:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+    .info-block h4{font-size:.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--a);font-weight:700;margin-bottom:.5rem}
+    .info-block p,.info-block a{color:rgba(255,255,255,.75);text-decoration:none;font-size:.95rem;font-weight:500}
+    .info-block a:hover{color:var(--a)}
+    .hours-list{list-style:none}
+    .hours-list li{display:flex;justify-content:space-between;padding:.35rem 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.85rem}
+    .hours-list li:last-child{border-bottom:none}
+    .day{font-weight:600;color:rgba(255,255,255,.8)}
+    .time{color:var(--muted)}
+    .map-frame{border-radius:14px;overflow:hidden;height:360px;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+    .map-frame iframe{width:100%;height:100%;border:none}
+
+    /* FOOTER */
+    footer{background:var(--dark);border-top:1px solid rgba(255,255,255,.06);padding:2.5rem 2rem}
+    .foot-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+    .foot-logo{font-family:'Bebas Neue',cursive;font-size:1.4rem;color:#fff;letter-spacing:1px}
+    .foot-logo span{color:var(--p)}
+    .foot-copy{color:rgba(255,255,255,.25);font-size:.8rem}
+
+    @media(max-width:768px){
+      .feat-grid{grid-template-columns:1fr 1fr}
+      .feat-item{border-right:none;border-bottom:1px solid rgba(0,0,0,.1)}
+      .menu-grid{grid-template-columns:1fr}
+      .menu-head{flex-direction:column;align-items:flex-start}
+      .order-banner{flex-direction:column;text-align:center;padding:2rem}
+      .loc-grid{grid-template-columns:1fr}
+      .hero h1{font-size:3.5rem}
+      nav .nav-links{display:none}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="index.html" class="logo">🥤 <span>Soda Fusion</span></a>
+    <ul class="nav-links">
+      <li><a href="#menu">Menu</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#location">Hours &amp; Location</a></li>
+      <li><a href="order.html" class="nav-cta">🥤 Order Now</a></li>
+    </ul>
+  </nav>
+</header>
+
+<section class="hero" id="home">
+  <div class="hero-inner">
+    <div class="hero-badge">📍 Salado, TX · Demo</div>
+    <h1>SODA FUSION<span>.</span></h1>
+    <p class="hero-sub">Hand-crafted specialty sodas, loaded hot dogs, and loaded fries. Creative flavors you won't find anywhere else.</p>
+    <div class="hero-btns">
+      <a href="order.html" class="btn-main">🥤 Order Now</a>
+      <a href="#menu" class="btn-ghost">View Menu</a>
+    </div>
+  </div>
+</section>
+
+<div class="features">
+  <div class="feat-grid">
+    <div class="feat-item"><span class="feat-icon">✓</span><div><h3>Specialty Blended Sodas</h3></div></div>
+    <div class="feat-item"><span class="feat-icon">✓</span><div><h3>16-Hour Cold Brew</h3></div></div>
+    <div class="feat-item"><span class="feat-icon">✓</span><div><h3>Loaded Hot Dogs</h3></div></div>
+    <div class="feat-item"><span class="feat-icon">✓</span><div><h3>Custom Creations</h3></div></div>
+  </div>
+</div>
+
+<section class="menu-sec" id="menu">
+  <div class="inner">
+    <div class="menu-head">
+      <div>
+        <span class="sec-label">What We're Serving</span>
+        <h2 class="sec-title">Menu Highlights</h2>
+      </div>
+      <a href="order.html" class="view-all">Order the Full Menu →</a>
+    </div>
+    <div class="menu-grid">
+      <div class="menu-card"><div class="mc-header"><span class="mc-name">Specialty Blended Soda</span><span class="mc-price">$5.99</span></div><p>Custom-blended specialty soda — ask for today's creations</p></div>
+            <div class="menu-card"><div class="mc-header"><span class="mc-name">16-Hour Cold Brew</span><span class="mc-price">$5.99</span></div><p>Cold brew steeped in-house for 16 hours — smooth and rich</p></div>
+            <div class="menu-card"><div class="mc-header"><span class="mc-name">16-Hour Iced Tea</span><span class="mc-price">$4.99</span></div><p>Iced tea steeped in-house for 16 hours</p></div>
+            <div class="menu-card"><div class="mc-header"><span class="mc-name">Specialty Lemonade</span><span class="mc-price">$5.49</span></div><p>Fresh-squeezed lemonade with house blend flavoring</p></div>
+            <div class="menu-card"><div class="mc-header"><span class="mc-name">Classic Loaded Dog</span><span class="mc-price">$7.99</span></div><p>All-beef hot dog with mustard, ketchup, onions, relish</p></div>
+            <div class="menu-card"><div class="mc-header"><span class="mc-name">Bacon Chili Dog</span><span class="mc-price">$9.99</span></div><p>All-beef dog with beef chili, cheddar, bacon, jalapeños</p></div>
+    </div>
+    <div class="order-banner">
+      <div>
+        <h3>Order for Pickup</h3>
+        <p>Order ahead — we'll have it ready when you arrive</p>
+      </div>
+      <a href="order.html" class="btn-main">🥤 Order Now</a>
+    </div>
+  </div>
+</section>
+
+<section class="about" id="about">
+  <div class="inner">
+    <span class="sec-label">Our Story</span>
+    <h2 class="sec-title">About Soda Fusion</h2>
+    <p>Soda Fusion is Salado's most creative food truck — hand-blending specialty sodas with cold brew and iced tea steeped in-house for 16 hours, paired with a lineup of loaded hot dogs and loaded fries that defy expectations. Come for the drinks, stay for the food.</p>
+    <div class="pills">
+      <span class="pill">Specialty Blended Sodas</span>
+      <span class="pill">16-Hour Cold Brew</span>
+      <span class="pill">Loaded Hot Dogs</span>
+      <span class="pill">Custom Creations</span>
+    </div>
+  </div>
+</section>
+
+<section class="location" id="location">
+  <div class="inner">
+    <div class="loc-head">
+      <span class="sec-label">Find Us</span>
+      <h2 class="sec-title">Hours &amp; Location</h2>
+    </div>
+    <div class="loc-grid">
+      <div class="loc-card">
+        <div class="info-block">
+          <h4>📍 Address</h4>
+          <p>Salado, TX 76571</p>
+        </div>
+        <div class="info-block"><h4>📞 Phone</h4><a href="tel:8123914403">(812) 391-4403</a></div>
+        <div class="info-block">
+          <h4>🕐 Hours</h4>
+          <ul class="hours-list">
+            <li><span class="day">Varies</span><span class="time">Check social media for current location & hours</span></li>
+          </ul>
+        </div>
+        <div class="info-block">
+          <a href="order.html" class="btn-main" style="display:inline-block">🥤 Order for Pickup</a>
+        </div>
+      </div>
+      <div class="map-frame">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d27417.9!2d-97.535!3d30.9527!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x865b0440b84d!2sSalado%2C+TX+76571!5e0!3m2!1sen!2sus!4v1700000000000" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-inner">
+    <div class="foot-logo">🥤 <span>Soda Fusion</span></div>
+    <p class="foot-copy">&copy; 2026 Soda Fusion &mdash; <a href="staff-dashboard.html" style="color:rgba(255,255,255,.15);text-decoration:none;font-size:.75rem">Staff</a></p>
+  </div>
+</footer>
+
+</body>
+</html>

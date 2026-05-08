@@ -1,0 +1,15 @@
+{
+  "name": "toast-integration",
+  "version": "1.0.0",
+  "description": "Toast POS integration for aiagentassistance ordering system",
+  "scripts": {
+    "sync-menu":   "node menu-sync.js",
+    "sync-status": "node status-sync.js",
+    "watch-status":"node status-sync.js --watch",
+    "webhook":     "node webhook.js",
+    "test-auth":   "node -e \"require('./auth').getToken().then(t => console.log('Token OK:', t.substring(0,20)+'...')).catch(console.error)\""
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
