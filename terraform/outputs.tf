@@ -10,6 +10,6 @@ output "cloudfront_ids" {
   description = "CloudFront distribution IDs for cache invalidation"
   value = merge(
     { "main" = aws_cloudfront_distribution.main.id },
-    { for s in var.sites : s => aws_cloudfront_distribution.sites[s].id }
+    { for s in var.sites : s => try(aws_cloudfront_distribution.sites[s].id, "not-yet-imported") }
   )
 }

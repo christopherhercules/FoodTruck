@@ -4,15 +4,17 @@ resource "aws_cloudfront_distribution" "main" {
   default_root_object = "index.html"
   price_class         = "PriceClass_100"
   aliases             = [var.domain]
+  comment             = var.domain
+  is_ipv6_enabled     = true
 
   origin {
     domain_name              = aws_s3_bucket.main.bucket_regional_domain_name
-    origin_id                = "s3-${var.domain}"
+    origin_id                = "S3-${var.domain}"
     origin_access_control_id = var.oac_id
   }
 
   default_cache_behavior {
-    target_origin_id       = "s3-${var.domain}"
+    target_origin_id       = "S3-${var.domain}"
     viewer_protocol_policy = "redirect-to-https"
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
@@ -48,15 +50,17 @@ resource "aws_cloudfront_distribution" "sites" {
   default_root_object = "index.html"
   price_class         = "PriceClass_100"
   aliases             = ["${each.key}.${var.domain}"]
+  comment             = "${each.key}.${var.domain}"
+  is_ipv6_enabled     = true
 
   origin {
     domain_name              = aws_s3_bucket.sites[each.key].bucket_regional_domain_name
-    origin_id                = "s3-${each.key}.${var.domain}"
+    origin_id                = "S3-${each.key}.${var.domain}"
     origin_access_control_id = var.oac_id
   }
 
   default_cache_behavior {
-    target_origin_id       = "s3-${each.key}.${var.domain}"
+    target_origin_id       = "S3-${each.key}.${var.domain}"
     viewer_protocol_policy = "redirect-to-https"
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
