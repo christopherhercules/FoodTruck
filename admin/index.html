@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Agent Assistance — Client Dashboard</title>
+  <title>AI Agent Assistance — Sales Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -12,8 +12,9 @@
       --bg3:     #242424;
       --border:  #2e2e2e;
       --accent:  #4f8ef7;
-      --accent2: #7c3aed;
+      --purple:  #7c3aed;
       --green:   #22c55e;
+      --yellow:  #f59e0b;
       --text:    #f0f0f0;
       --muted:   #888;
     }
@@ -21,10 +22,7 @@
     body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
 
     /* ── LOGIN ── */
-    #loginScreen {
-      display:flex; align-items:center; justify-content:center;
-      min-height:100vh;
-    }
+    #loginScreen { display:flex; align-items:center; justify-content:center; min-height:100vh; }
     .login-box {
       background:var(--bg2); border:1px solid var(--border); border-radius:16px;
       padding:48px 40px; width:360px; text-align:center;
@@ -51,9 +49,9 @@
 
     header {
       background:var(--bg2); border-bottom:1px solid var(--border);
-      padding:18px 32px; display:flex; align-items:center; justify-content:space-between;
+      padding:16px 32px; display:flex; align-items:center; justify-content:space-between;
     }
-    .header-logo { font-size:18px; font-weight:700; letter-spacing:.5px; }
+    .header-logo { font-size:18px; font-weight:700; }
     .header-logo span { color:var(--accent); }
     .header-sub { color:var(--muted); font-size:13px; margin-top:2px; }
     .logout-btn {
@@ -63,34 +61,116 @@
     }
     .logout-btn:hover { border-color:var(--accent); color:var(--text); }
 
-    .container { max-width:1100px; margin:0 auto; padding:32px 24px; }
+    .container { max-width:1200px; margin:0 auto; padding:28px 24px; }
 
-    .search-bar {
-      margin-bottom:24px; position:relative;
+    /* ── TABS ── */
+    .tabs { display:flex; gap:4px; margin-bottom:28px; border-bottom:1px solid var(--border); }
+    .tab {
+      padding:10px 20px; border-radius:8px 8px 0 0; cursor:pointer; font-size:14px;
+      font-weight:500; color:var(--muted); border:1px solid transparent;
+      border-bottom:none; transition:all .2s; background:transparent;
+      font-family:'Outfit',sans-serif;
     }
-    .search-bar input {
-      width:100%; padding:12px 16px 12px 44px; background:var(--bg2); border:1px solid var(--border);
-      border-radius:10px; color:var(--text); font-size:15px; font-family:'Outfit',sans-serif; outline:none;
+    .tab.active { color:var(--text); background:var(--bg2); border-color:var(--border); }
+    .tab:hover:not(.active) { color:var(--text); }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+
+    /* ── PITCH CARD ── */
+    .pitch-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+    @media(max-width:768px) { .pitch-grid { grid-template-columns:1fr; } }
+
+    .pitch-card {
+      background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:20px 24px;
     }
-    .search-bar input:focus { border-color:var(--accent); }
-    .search-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:18px; }
+    .pitch-card h3 {
+      font-size:13px; font-weight:600; color:var(--muted); text-transform:uppercase;
+      letter-spacing:.8px; margin-bottom:14px; display:flex; align-items:center; gap:8px;
+    }
+    .pitch-card h3 .icon { font-size:16px; }
 
-    .site-count { color:var(--muted); font-size:13px; margin-bottom:16px; }
+    .script-block { margin-bottom:14px; }
+    .script-label {
+      font-size:11px; font-weight:700; color:var(--accent); text-transform:uppercase;
+      letter-spacing:.8px; margin-bottom:5px;
+    }
+    .script-text {
+      font-size:14px; line-height:1.65; color:#d0d0d0;
+      background:var(--bg3); border-left:3px solid var(--accent);
+      padding:10px 14px; border-radius:0 6px 6px 0;
+    }
+    .script-text em { color:var(--yellow); font-style:normal; font-weight:500; }
 
-    /* ── TABLE ── */
+    .value-list { list-style:none; display:flex; flex-direction:column; gap:10px; }
+    .value-list li {
+      display:flex; align-items:flex-start; gap:10px;
+      font-size:14px; line-height:1.5; color:#d0d0d0;
+    }
+    .value-list li .bullet {
+      background:rgba(79,142,247,.15); color:var(--accent);
+      border-radius:50%; width:24px; height:24px; min-width:24px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:12px; font-weight:700; margin-top:1px;
+    }
+
+    .objection-list { list-style:none; display:flex; flex-direction:column; gap:12px; }
+    .objection-list li { font-size:14px; line-height:1.5; }
+    .objection { color:var(--muted); font-style:italic; margin-bottom:3px; }
+    .response { color:#d0d0d0; padding-left:14px; border-left:2px solid var(--green); }
+
+    .highlight-box {
+      background:rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.25);
+      border-radius:10px; padding:16px 20px; text-align:center;
+    }
+    .highlight-box .big { font-size:28px; font-weight:700; color:var(--green); }
+    .highlight-box .label { font-size:13px; color:var(--muted); margin-top:4px; }
+
+    .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .stat-item {
+      background:var(--bg3); border-radius:8px; padding:14px;
+      text-align:center; border:1px solid var(--border);
+    }
+    .stat-item .num { font-size:22px; font-weight:700; color:var(--accent); }
+    .stat-item .desc { font-size:12px; color:var(--muted); margin-top:3px; line-height:1.4; }
+
+    /* ── CLIENT TABLE ── */
+    .toolbar { display:flex; gap:12px; margin-bottom:20px; align-items:center; flex-wrap:wrap; }
+    .search-wrap { position:relative; flex:1; min-width:200px; }
+    .search-wrap input {
+      width:100%; padding:10px 16px 10px 40px; background:var(--bg2); border:1px solid var(--border);
+      border-radius:8px; color:var(--text); font-size:14px; font-family:'Outfit',sans-serif; outline:none;
+    }
+    .search-wrap input:focus { border-color:var(--accent); }
+    .search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted); }
+
+    .count-badge { color:var(--muted); font-size:13px; white-space:nowrap; }
+
     .table-wrap { overflow-x:auto; }
     table { width:100%; border-collapse:collapse; }
     thead tr { border-bottom:2px solid var(--border); }
-    th { text-align:left; padding:10px 16px; font-size:12px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; }
+    th { text-align:left; padding:10px 14px; font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; white-space:nowrap; }
     tbody tr { border-bottom:1px solid var(--border); transition:background .15s; }
     tbody tr:hover { background:var(--bg2); }
-    td { padding:14px 16px; font-size:14px; vertical-align:middle; }
+    td { padding:13px 14px; font-size:14px; vertical-align:middle; }
 
-    .biz-name { font-weight:600; font-size:15px; }
+    .biz-name { font-weight:600; font-size:15px; white-space:nowrap; }
+    .biz-type { font-size:11px; color:var(--muted); margin-top:2px; }
+
+    .phone-link { color:var(--accent); text-decoration:none; font-size:13px; white-space:nowrap; }
+    .phone-link:hover { text-decoration:underline; }
+    .no-phone { color:var(--muted); font-size:13px; }
+
+    .location-text { font-size:13px; color:#bbb; max-width:160px; line-height:1.4; }
+
+    .badge-active {
+      display:inline-block; background:rgba(34,197,94,.12); color:var(--green);
+      border:1px solid rgba(34,197,94,.3); font-size:11px; font-weight:600;
+      padding:3px 10px; border-radius:20px; letter-spacing:.4px; white-space:nowrap;
+    }
 
     .link-btn {
-      display:inline-flex; align-items:center; gap:6px;
-      padding:6px 12px; border-radius:6px; font-size:13px; font-weight:500;
+      display:inline-flex; align-items:center; gap:5px;
+      padding:5px 11px; border-radius:6px; font-size:12px; font-weight:500;
       text-decoration:none; transition:all .2s; white-space:nowrap;
     }
     .link-site  { background:rgba(79,142,247,.12); color:var(--accent); border:1px solid rgba(79,142,247,.25); }
@@ -98,33 +178,29 @@
     .link-staff { background:rgba(124,58,237,.12); color:#a78bfa; border:1px solid rgba(124,58,237,.25); }
     .link-staff:hover { background:rgba(124,58,237,.22); }
 
-    .pass-cell { display:flex; align-items:center; gap:8px; }
+    .pass-cell { display:flex; align-items:center; gap:6px; }
     .pass-val {
-      font-family:monospace; font-size:13px; background:var(--bg3);
-      border:1px solid var(--border); padding:5px 10px; border-radius:6px;
-      letter-spacing:.5px; min-width:160px;
+      font-family:monospace; font-size:12px; background:var(--bg3);
+      border:1px solid var(--border); padding:4px 9px; border-radius:6px;
+      letter-spacing:.4px; white-space:nowrap;
     }
     .pass-hidden { filter:blur(5px); user-select:none; }
     .icon-btn {
       background:transparent; border:1px solid var(--border); color:var(--muted);
-      padding:5px 8px; border-radius:6px; cursor:pointer; font-size:13px;
+      padding:4px 7px; border-radius:6px; cursor:pointer; font-size:12px;
       transition:all .15s; display:inline-flex; align-items:center;
     }
     .icon-btn:hover { border-color:var(--accent); color:var(--text); }
     .copied { border-color:var(--green) !important; color:var(--green) !important; }
 
-    .main-site-row td { background:rgba(79,142,247,.04); }
-    .main-badge {
-      display:inline-block; background:rgba(79,142,247,.15); color:var(--accent);
-      font-size:11px; font-weight:600; padding:2px 8px; border-radius:20px;
-      margin-left:8px; letter-spacing:.5px;
+    .notes-input {
+      background:var(--bg3); border:1px solid var(--border); color:var(--text);
+      font-size:12px; font-family:'Outfit',sans-serif; padding:5px 9px;
+      border-radius:6px; width:140px; outline:none; resize:none;
     }
+    .notes-input:focus { border-color:var(--accent); }
 
-    @media(max-width:768px) {
-      header { padding:14px 16px; }
-      .container { padding:20px 12px; }
-      th, td { padding:10px 10px; }
-    }
+    .main-row td { background:rgba(79,142,247,.03); }
   </style>
 </head>
 <body>
@@ -133,7 +209,7 @@
 <div id="loginScreen">
   <div class="login-box">
     <div class="login-logo">AI Agent <span>Assistance</span></div>
-    <div class="login-sub">Client Management Portal</div>
+    <div class="login-sub">Sales & Client Dashboard</div>
     <form onsubmit="doLogin(event)">
       <input type="password" id="pin" placeholder="Enter your password" autocomplete="current-password" autofocus>
       <button class="login-btn" type="submit">Sign In</button>
@@ -147,31 +223,159 @@
   <header>
     <div>
       <div class="header-logo">AI Agent <span>Assistance</span></div>
-      <div class="header-sub">Client Site Dashboard</div>
+      <div class="header-sub">Sales & Client Dashboard</div>
     </div>
     <button class="logout-btn" onclick="doLogout()">Sign Out</button>
   </header>
 
   <div class="container">
-    <div class="search-bar">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="searchInput" placeholder="Search clients..." oninput="filterTable()">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('pitch',this)">📣 Sales Pitch</button>
+      <button class="tab" onclick="switchTab('clients',this)">🏪 Client Sites</button>
     </div>
-    <div class="site-count" id="siteCount"></div>
 
-    <div class="table-wrap">
-      <table id="siteTable">
-        <thead>
-          <tr>
-            <th>Client</th>
-            <th>Website</th>
-            <th>Staff Dashboard</th>
-            <th>Staff Password</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
+    <!-- ══ PITCH TAB ══ -->
+    <div class="tab-panel active" id="tab-pitch">
+
+      <div class="pitch-grid">
+
+        <!-- Opening Script -->
+        <div class="pitch-card">
+          <h3><span class="icon">🗣</span> Conversation Guide</h3>
+
+          <div class="script-block">
+            <div class="script-label">Opening</div>
+            <div class="script-text">
+              "Hey, quick question — when a customer wants to order from you but you're slammed, what do they do? <em>Wait? Leave? Call back?</em> What if they could just order from their phone and you'd see it the second it came in?"
+            </div>
+          </div>
+
+          <div class="script-block">
+            <div class="script-label">The Hook</div>
+            <div class="script-text">
+              "We built this for food trucks and restaurants right here in Salado. Every order shows up on a screen your staff watches in real time. <em>No missed orders. No 'sorry we're out.'</em> Customers get a text when it's ready."
+            </div>
+          </div>
+
+          <div class="script-block">
+            <div class="script-label">The Value</div>
+            <div class="script-text">
+              "Think about a Friday night — how many people walked past, looked at your line, and kept walking? <em>Those are orders you never got.</em> Online ordering captures them before they even leave home."
+            </div>
+          </div>
+
+          <div class="script-block">
+            <div class="script-label">The Ask</div>
+            <div class="script-text">
+              "You don't pay anything upfront. No monthly fees, no contracts. <em>We only make money when you do.</em> Want me to show you what it looks like? Takes 60 seconds on my phone."
+            </div>
+          </div>
+        </div>
+
+        <!-- Right column -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+
+          <!-- Value Props -->
+          <div class="pitch-card">
+            <h3><span class="icon">✅</span> What They Get</h3>
+            <ul class="value-list">
+              <li><span class="bullet">1</span> Their own website with online ordering</li>
+              <li><span class="bullet">2</span> Real-time staff dashboard — orders appear instantly</li>
+              <li><span class="bullet">3</span> SMS notification to customer when order is ready</li>
+              <li><span class="bullet">4</span> Works on any phone — no app to download</li>
+              <li><span class="bullet">5</span> Live in 48 hours or less</li>
+            </ul>
+          </div>
+
+          <!-- Numbers -->
+          <div class="pitch-card">
+            <h3><span class="icon">📊</span> The Math</h3>
+            <div class="stat-grid" style="margin-bottom:12px;">
+              <div class="stat-item">
+                <div class="num">$0</div>
+                <div class="desc">Upfront cost or monthly fee</div>
+              </div>
+              <div class="stat-item">
+                <div class="num">2%</div>
+                <div class="desc">Per transaction — only when they sell</div>
+              </div>
+              <div class="stat-item">
+                <div class="num">48h</div>
+                <div class="desc">Average time to go live</div>
+              </div>
+              <div class="stat-item">
+                <div class="num">24/7</div>
+                <div class="desc">Orders come in even when you're closed</div>
+              </div>
+            </div>
+            <div class="highlight-box">
+              <div class="big">$0 risk</div>
+              <div class="label">If it doesn't work, they've lost nothing</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Objections -->
+      <div class="pitch-card">
+        <h3><span class="icon">🛡</span> Common Objections</h3>
+        <ul class="objection-list">
+          <li>
+            <div class="objection">"We already take orders over the phone."</div>
+            <div class="response">"That's great — this doesn't replace that. It just captures the people who won't call. A lot of people, especially younger customers, would rather tap their phone than make a call."</div>
+          </li>
+          <li>
+            <div class="objection">"We're too busy to deal with new tech."</div>
+            <div class="response">"That's exactly why this works — you don't set anything up. Orders just show up on a screen. Your staff doesn't change what they do."</div>
+          </li>
+          <li>
+            <div class="objection">"We don't really need a website."</div>
+            <div class="response">"Totally fair. The website is just how customers find the ordering page. What they actually care about is not waiting in line."</div>
+          </li>
+          <li>
+            <div class="objection">"What's the catch?"</div>
+            <div class="response">"There's no catch. We only charge when an order goes through — 2 cents on every dollar. If you never use it, you never pay a thing."</div>
+          </li>
+          <li>
+            <div class="objection">"Can I think about it?"</div>
+            <div class="response">"Of course. Can I leave you the website so you can look at a live example? It's already running for a few businesses here in Salado."</div>
+          </li>
+        </ul>
+      </div>
+
+    </div><!-- /pitch tab -->
+
+    <!-- ══ CLIENTS TAB ══ -->
+    <div class="tab-panel" id="tab-clients">
+
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Search clients..." oninput="filterTable()">
+        </div>
+        <span class="count-badge" id="siteCount"></span>
+      </div>
+
+      <div class="table-wrap">
+        <table id="siteTable">
+          <thead>
+            <tr>
+              <th>Business</th>
+              <th>Phone</th>
+              <th>Location</th>
+              <th>Status</th>
+              <th>Website</th>
+              <th>Staff Dashboard</th>
+              <th>Staff Password</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
     </div>
+
   </div>
 </div>
 
@@ -180,114 +384,118 @@ const DASHBOARD_PASSWORD = "Michele2025!";
 const BASE = "aiagentassistance.com";
 
 const SITES = [
-  { name: "Main Landing Page",        sub: "",                      password: null,                isMain: true  },
-  { name: "Mas Chingon Restaurant",   sub: "maschingonrestaurant",  password: "MasChingon2025!"              },
-  { name: "Mas Chingon Food Truck",   sub: "maschingonfoodtruck",   password: "FoodTruck2025!"               },
-  { name: "Bar 1859",                 sub: "bar1859",               password: "1859Bar2025!"                 },
-  { name: "Sylvia's Tacos",           sub: "sylviastacos",          password: "Sylvias2025!"                 },
-  { name: "Don Julio's Tacos",        sub: "donjuliostacos",        password: "DonJulios2025!"               },
-  { name: "Hecho En Queso",           sub: "hechoenqueso",          password: "HechoEnQueso2025!"            },
-  { name: "Happy Pizza",              sub: "happypizza",            password: "HappyPizza2025!"              },
-  { name: "Sacred Sandwich",          sub: "sacredsandwich",        password: "Sacred2025!"                  },
-  { name: "That Green Trailer",       sub: "thatgreentrailer",      password: "GreenTrailer2025!"            },
-  { name: "Big Tony's",               sub: "bigtonys",              password: "BigTonys2025!"                },
-  { name: "Potato Wagon",             sub: "potatowagon",           password: "PotatoWagon2025!"             },
-  { name: "Rib Tips",                 sub: "ribtips",               password: "RibTips2025!"                 },
-  { name: "Simply Porkfection",       sub: "simplyporkfection",     password: "PorkFection2025!"             },
-  { name: "Bobby Que",                sub: "bobbyque",              password: "BobbyQue2025!"                },
-  { name: "Soda Fusion",              sub: "sodafusion",            password: "SodaFusion2025!"              },
+  { name:"Main Landing Page",       type:"Platform",          sub:"",                    phone:null,           location:"aiagentassistance.com",         password:null,                isMain:true  },
+  { name:"Mas Chingon Restaurant",  type:"Restaurant",        sub:"maschingonrestaurant",phone:"(254) 721-5510",location:"Salado, TX",                    password:"MasChingon2025!"               },
+  { name:"Mas Chingon Food Truck",  type:"Food Truck",        sub:"maschingonfoodtruck", phone:"(254) 721-5510",location:"Mobile — Salado, TX",           password:"FoodTruck2025!"                },
+  { name:"Bar 1859",                type:"Bar",               sub:"bar1859",             phone:"(254) 721-5510",location:"21 N. Main St., Salado, TX",    password:"1859Bar2025!"                  },
+  { name:"Sylvia's Tacos",          type:"Food Truck",        sub:"sylviastacos",        phone:"(254) 718-1873",location:"Salado, TX",                    password:"Sylvias2025!"                  },
+  { name:"Don Julio's Tacos",       type:"Food Truck",        sub:"donjuliostacos",      phone:"(254) 768-6409",location:"FM 1670, Salado, TX",           password:"DonJulios2025!"                },
+  { name:"Hecho En Queso",          type:"Food Truck",        sub:"hechoenqueso",        phone:"(254) 768-7336",location:"Salado, TX",                    password:"HechoEnQueso2025!"             },
+  { name:"Happy Pizza",             type:"Food Truck",        sub:"happypizza",          phone:"(254) 226-1684",location:"Barrow Brewing, Salado, TX",    password:"HappyPizza2025!"               },
+  { name:"Sacred Sandwich",         type:"Food Truck",        sub:"sacredsandwich",      phone:null,           location:"Barrow Brewing, Salado, TX",    password:"Sacred2025!"                   },
+  { name:"That Green Trailer",      type:"Food Truck",        sub:"thatgreentrailer",    phone:"(254) 563-9095",location:"FM 2484, Salado, TX",           password:"GreenTrailer2025!"             },
+  { name:"Big Tony's",              type:"Food Truck",        sub:"bigtonys",            phone:null,           location:"Mobile — Salado, TX",           password:"BigTonys2025!"                 },
+  { name:"Potato Wagon",            type:"Food Truck",        sub:"potatowagon",         phone:null,           location:"Salado, TX",                    password:"PotatoWagon2025!"              },
+  { name:"Rib Tips",                type:"Food Truck / Catering", sub:"ribtips",         phone:"(512) 661-7548",location:"Salado, TX",                   password:"RibTips2025!"                  },
+  { name:"Simply Porkfection",      type:"Food Truck",        sub:"simplyporkfection",   phone:"(512) 466-3102",location:"Salado, TX",                   password:"PorkFection2025!"              },
+  { name:"Bobby Que",               type:"Food Truck",        sub:"bobbyque",            phone:null,           location:"Barrow Brewing, Salado, TX",    password:"BobbyQue2025!"                 },
+  { name:"Soda Fusion",             type:"Food Truck",        sub:"sodafusion",          phone:"(812) 391-4403",location:"Salado, TX",                   password:"SodaFusion2025!"               },
 ];
 
 function doLogin(e) {
   e.preventDefault();
-  const val = document.getElementById("pin").value;
-  if (val === DASHBOARD_PASSWORD) {
-    sessionStorage.setItem("adminAuth", "1");
+  if (document.getElementById("pin").value === DASHBOARD_PASSWORD) {
+    sessionStorage.setItem("adminAuth","1");
     showDashboard();
   } else {
     document.getElementById("loginErr").style.display = "block";
     document.getElementById("pin").value = "";
   }
 }
-
 function doLogout() {
   sessionStorage.removeItem("adminAuth");
   document.getElementById("mainScreen").style.display = "none";
   document.getElementById("loginScreen").style.display = "flex";
   document.getElementById("pin").value = "";
 }
-
+function switchTab(id, btn) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  btn.classList.add("active");
+  document.getElementById("tab-"+id).classList.add("active");
+}
 function showDashboard() {
   document.getElementById("loginScreen").style.display = "none";
   document.getElementById("mainScreen").style.display = "block";
-  buildTable(SITES);
+  buildTable();
 }
-
-function buildTable(sites) {
+function buildTable() {
   const tbody = document.getElementById("tableBody");
   tbody.innerHTML = "";
-  sites.forEach(s => {
-    const siteUrl   = s.isMain ? `https://${BASE}` : `https://${s.sub}.${BASE}`;
-    const staffUrl  = s.isMain ? null : `https://${s.sub}.${BASE}/staff-dashboard.html`;
-    const passId    = `pass_${s.sub || "main"}`;
+  SITES.forEach(s => {
+    const siteUrl  = s.isMain ? `https://${BASE}` : `https://${s.sub}.${BASE}`;
+    const staffUrl = s.isMain ? null : `https://${s.sub}.${BASE}/staff-dashboard.html`;
+    const passId   = `pass_${s.sub||"main"}`;
+    const noteKey  = `note_${s.sub||"main"}`;
+    const savedNote = localStorage.getItem(noteKey) || "";
     const tr = document.createElement("tr");
-    if (s.isMain) tr.className = "main-site-row";
+    if (s.isMain) tr.className = "main-row";
     tr.dataset.name = s.name.toLowerCase();
     tr.innerHTML = `
-      <td class="biz-name">${s.name}${s.isMain ? '<span class="main-badge">MAIN</span>' : ""}</td>
       <td>
-        <a href="${siteUrl}" target="_blank" class="link-btn link-site">
-          🌐 Visit Site
-        </a>
+        <div class="biz-name">${s.name}</div>
+        <div class="biz-type">${s.type}</div>
       </td>
+      <td>${s.phone
+        ? `<a class="phone-link" href="tel:${s.phone.replace(/\D/g,'')}">${s.phone}</a>`
+        : `<span class="no-phone">—</span>`}
+      </td>
+      <td><div class="location-text">${s.location}</div></td>
+      <td><span class="badge-active">● Active</span></td>
+      <td><a href="${siteUrl}" target="_blank" class="link-btn link-site">🌐 Site</a></td>
       <td>${staffUrl
-        ? `<a href="${staffUrl}" target="_blank" class="link-btn link-staff">🖥 Staff Dashboard</a>`
+        ? `<a href="${staffUrl}" target="_blank" class="link-btn link-staff">🖥 Dashboard</a>`
         : `<span style="color:var(--muted);font-size:13px;">—</span>`}
       </td>
       <td>${s.password
         ? `<div class="pass-cell">
             <span class="pass-val pass-hidden" id="${passId}">${s.password}</span>
-            <button class="icon-btn" onclick="togglePass('${passId}',this)" title="Show/hide">👁</button>
+            <button class="icon-btn" onclick="togglePass('${passId}')" title="Show">👁</button>
             <button class="icon-btn" onclick="copyPass('${passId}',this)" title="Copy">📋</button>
            </div>`
         : `<span style="color:var(--muted);font-size:13px;">—</span>`}
+      </td>
+      <td>
+        <textarea class="notes-input" rows="2" placeholder="Add notes..."
+          onchange="saveNote('${noteKey}',this.value)">${savedNote}</textarea>
       </td>
     `;
     tbody.appendChild(tr);
   });
   updateCount();
 }
-
-function togglePass(id, btn) {
-  const el = document.getElementById(id);
-  el.classList.toggle("pass-hidden");
+function togglePass(id) {
+  document.getElementById(id).classList.toggle("pass-hidden");
 }
-
 function copyPass(id, btn) {
-  const text = document.getElementById(id).textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    btn.textContent = "✓";
-    btn.classList.add("copied");
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
+    btn.textContent = "✓"; btn.classList.add("copied");
     setTimeout(() => { btn.textContent = "📋"; btn.classList.remove("copied"); }, 1500);
   });
 }
-
+function saveNote(key, val) { localStorage.setItem(key, val); }
 function filterTable() {
   const q = document.getElementById("searchInput").value.toLowerCase();
-  const rows = document.querySelectorAll("#tableBody tr");
-  rows.forEach(r => {
+  document.querySelectorAll("#tableBody tr").forEach(r => {
     r.style.display = r.dataset.name.includes(q) ? "" : "none";
   });
   updateCount();
 }
-
 function updateCount() {
-  const visible = [...document.querySelectorAll("#tableBody tr")].filter(r => r.style.display !== "none").length;
-  document.getElementById("siteCount").textContent = `Showing ${visible} of ${SITES.length} clients`;
+  const vis = [...document.querySelectorAll("#tableBody tr")].filter(r=>r.style.display!=="none").length;
+  document.getElementById("siteCount").textContent = `${vis} of ${SITES.length} clients`;
 }
-
-// Auto-login if session active
-if (sessionStorage.getItem("adminAuth") === "1") showDashboard();
+if (sessionStorage.getItem("adminAuth")==="1") showDashboard();
 </script>
 </body>
 </html>
