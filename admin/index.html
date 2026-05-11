@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Agent Assistance — Client Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:      #0f0f0f;
+      --bg2:     #1a1a1a;
+      --bg3:     #242424;
+      --border:  #2e2e2e;
+      --accent:  #4f8ef7;
+      --accent2: #7c3aed;
+      --green:   #22c55e;
+      --text:    #f0f0f0;
+      --muted:   #888;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+    /* ── LOGIN ── */
+    #loginScreen {
+      display:flex; align-items:center; justify-content:center;
+      min-height:100vh;
+    }
+    .login-box {
+      background:var(--bg2); border:1px solid var(--border); border-radius:16px;
+      padding:48px 40px; width:360px; text-align:center;
+    }
+    .login-logo { font-size:22px; font-weight:700; letter-spacing:1px; margin-bottom:6px; }
+    .login-logo span { color:var(--accent); }
+    .login-sub { color:var(--muted); font-size:14px; margin-bottom:32px; }
+    .login-box input {
+      width:100%; padding:12px 16px; background:var(--bg3); border:1px solid var(--border);
+      border-radius:8px; color:var(--text); font-size:15px; font-family:'Outfit',sans-serif;
+      outline:none; margin-bottom:12px;
+    }
+    .login-box input:focus { border-color:var(--accent); }
+    .login-btn {
+      width:100%; padding:13px; background:var(--accent); border:none; border-radius:8px;
+      color:#fff; font-size:15px; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif;
+      transition:opacity .2s;
+    }
+    .login-btn:hover { opacity:.85; }
+    .login-err { color:#f87171; font-size:13px; margin-top:10px; display:none; }
+
+    /* ── MAIN ── */
+    #mainScreen { display:none; }
+
+    header {
+      background:var(--bg2); border-bottom:1px solid var(--border);
+      padding:18px 32px; display:flex; align-items:center; justify-content:space-between;
+    }
+    .header-logo { font-size:18px; font-weight:700; letter-spacing:.5px; }
+    .header-logo span { color:var(--accent); }
+    .header-sub { color:var(--muted); font-size:13px; margin-top:2px; }
+    .logout-btn {
+      background:transparent; border:1px solid var(--border); color:var(--muted);
+      padding:7px 16px; border-radius:8px; cursor:pointer; font-size:13px;
+      font-family:'Outfit',sans-serif; transition:all .2s;
+    }
+    .logout-btn:hover { border-color:var(--accent); color:var(--text); }
+
+    .container { max-width:1100px; margin:0 auto; padding:32px 24px; }
+
+    .search-bar {
+      margin-bottom:24px; position:relative;
+    }
+    .search-bar input {
+      width:100%; padding:12px 16px 12px 44px; background:var(--bg2); border:1px solid var(--border);
+      border-radius:10px; color:var(--text); font-size:15px; font-family:'Outfit',sans-serif; outline:none;
+    }
+    .search-bar input:focus { border-color:var(--accent); }
+    .search-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:18px; }
+
+    .site-count { color:var(--muted); font-size:13px; margin-bottom:16px; }
+
+    /* ── TABLE ── */
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; }
+    thead tr { border-bottom:2px solid var(--border); }
+    th { text-align:left; padding:10px 16px; font-size:12px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; }
+    tbody tr { border-bottom:1px solid var(--border); transition:background .15s; }
+    tbody tr:hover { background:var(--bg2); }
+    td { padding:14px 16px; font-size:14px; vertical-align:middle; }
+
+    .biz-name { font-weight:600; font-size:15px; }
+
+    .link-btn {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:6px 12px; border-radius:6px; font-size:13px; font-weight:500;
+      text-decoration:none; transition:all .2s; white-space:nowrap;
+    }
+    .link-site  { background:rgba(79,142,247,.12); color:var(--accent); border:1px solid rgba(79,142,247,.25); }
+    .link-site:hover  { background:rgba(79,142,247,.22); }
+    .link-staff { background:rgba(124,58,237,.12); color:#a78bfa; border:1px solid rgba(124,58,237,.25); }
+    .link-staff:hover { background:rgba(124,58,237,.22); }
+
+    .pass-cell { display:flex; align-items:center; gap:8px; }
+    .pass-val {
+      font-family:monospace; font-size:13px; background:var(--bg3);
+      border:1px solid var(--border); padding:5px 10px; border-radius:6px;
+      letter-spacing:.5px; min-width:160px;
+    }
+    .pass-hidden { filter:blur(5px); user-select:none; }
+    .icon-btn {
+      background:transparent; border:1px solid var(--border); color:var(--muted);
+      padding:5px 8px; border-radius:6px; cursor:pointer; font-size:13px;
+      transition:all .15s; display:inline-flex; align-items:center;
+    }
+    .icon-btn:hover { border-color:var(--accent); color:var(--text); }
+    .copied { border-color:var(--green) !important; color:var(--green) !important; }
+
+    .main-site-row td { background:rgba(79,142,247,.04); }
+    .main-badge {
+      display:inline-block; background:rgba(79,142,247,.15); color:var(--accent);
+      font-size:11px; font-weight:600; padding:2px 8px; border-radius:20px;
+      margin-left:8px; letter-spacing:.5px;
+    }
+
+    @media(max-width:768px) {
+      header { padding:14px 16px; }
+      .container { padding:20px 12px; }
+      th, td { padding:10px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">AI Agent <span>Assistance</span></div>
+    <div class="login-sub">Client Management Portal</div>
+    <form onsubmit="doLogin(event)">
+      <input type="password" id="pin" placeholder="Enter your password" autocomplete="current-password" autofocus>
+      <button class="login-btn" type="submit">Sign In</button>
+      <div class="login-err" id="loginErr">Incorrect password. Try again.</div>
+    </form>
+  </div>
+</div>
+
+<!-- ── MAIN ── -->
+<div id="mainScreen">
+  <header>
+    <div>
+      <div class="header-logo">AI Agent <span>Assistance</span></div>
+      <div class="header-sub">Client Site Dashboard</div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+  </header>
+
+  <div class="container">
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search clients..." oninput="filterTable()">
+    </div>
+    <div class="site-count" id="siteCount"></div>
+
+    <div class="table-wrap">
+      <table id="siteTable">
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Website</th>
+            <th>Staff Dashboard</th>
+            <th>Staff Password</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const DASHBOARD_PASSWORD = "Michele2025!";
+const BASE = "aiagentassistance.com";
+
+const SITES = [
+  { name: "Main Landing Page",        sub: "",                      password: null,                isMain: true  },
+  { name: "Mas Chingon Restaurant",   sub: "maschingonrestaurant",  password: "MasChingon2025!"              },
+  { name: "Mas Chingon Food Truck",   sub: "maschingonfoodtruck",   password: "FoodTruck2025!"               },
+  { name: "Bar 1859",                 sub: "bar1859",               password: "1859Bar2025!"                 },
+  { name: "Sylvia's Tacos",           sub: "sylviastacos",          password: "Sylvias2025!"                 },
+  { name: "Don Julio's Tacos",        sub: "donjuliostacos",        password: "DonJulios2025!"               },
+  { name: "Hecho En Queso",           sub: "hechoenqueso",          password: "HechoEnQueso2025!"            },
+  { name: "Happy Pizza",              sub: "happypizza",            password: "HappyPizza2025!"              },
+  { name: "Sacred Sandwich",          sub: "sacredsandwich",        password: "Sacred2025!"                  },
+  { name: "That Green Trailer",       sub: "thatgreentrailer",      password: "GreenTrailer2025!"            },
+  { name: "Big Tony's",               sub: "bigtonys",              password: "BigTonys2025!"                },
+  { name: "Potato Wagon",             sub: "potatowagon",           password: "PotatoWagon2025!"             },
+  { name: "Rib Tips",                 sub: "ribtips",               password: "RibTips2025!"                 },
+  { name: "Simply Porkfection",       sub: "simplyporkfection",     password: "PorkFection2025!"             },
+  { name: "Bobby Que",                sub: "bobbyque",              password: "BobbyQue2025!"                },
+  { name: "Soda Fusion",              sub: "sodafusion",            password: "SodaFusion2025!"              },
+];
+
+function doLogin(e) {
+  e.preventDefault();
+  const val = document.getElementById("pin").value;
+  if (val === DASHBOARD_PASSWORD) {
+    sessionStorage.setItem("adminAuth", "1");
+    showDashboard();
+  } else {
+    document.getElementById("loginErr").style.display = "block";
+    document.getElementById("pin").value = "";
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem("adminAuth");
+  document.getElementById("mainScreen").style.display = "none";
+  document.getElementById("loginScreen").style.display = "flex";
+  document.getElementById("pin").value = "";
+}
+
+function showDashboard() {
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("mainScreen").style.display = "block";
+  buildTable(SITES);
+}
+
+function buildTable(sites) {
+  const tbody = document.getElementById("tableBody");
+  tbody.innerHTML = "";
+  sites.forEach(s => {
+    const siteUrl   = s.isMain ? `https://${BASE}` : `https://${s.sub}.${BASE}`;
+    const staffUrl  = s.isMain ? null : `https://${s.sub}.${BASE}/staff-dashboard.html`;
+    const passId    = `pass_${s.sub || "main"}`;
+    const tr = document.createElement("tr");
+    if (s.isMain) tr.className = "main-site-row";
+    tr.dataset.name = s.name.toLowerCase();
+    tr.innerHTML = `
+      <td class="biz-name">${s.name}${s.isMain ? '<span class="main-badge">MAIN</span>' : ""}</td>
+      <td>
+        <a href="${siteUrl}" target="_blank" class="link-btn link-site">
+          🌐 Visit Site
+        </a>
+      </td>
+      <td>${staffUrl
+        ? `<a href="${staffUrl}" target="_blank" class="link-btn link-staff">🖥 Staff Dashboard</a>`
+        : `<span style="color:var(--muted);font-size:13px;">—</span>`}
+      </td>
+      <td>${s.password
+        ? `<div class="pass-cell">
+            <span class="pass-val pass-hidden" id="${passId}">${s.password}</span>
+            <button class="icon-btn" onclick="togglePass('${passId}',this)" title="Show/hide">👁</button>
+            <button class="icon-btn" onclick="copyPass('${passId}',this)" title="Copy">📋</button>
+           </div>`
+        : `<span style="color:var(--muted);font-size:13px;">—</span>`}
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  updateCount();
+}
+
+function togglePass(id, btn) {
+  const el = document.getElementById(id);
+  el.classList.toggle("pass-hidden");
+}
+
+function copyPass(id, btn) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = "✓";
+    btn.classList.add("copied");
+    setTimeout(() => { btn.textContent = "📋"; btn.classList.remove("copied"); }, 1500);
+  });
+}
+
+function filterTable() {
+  const q = document.getElementById("searchInput").value.toLowerCase();
+  const rows = document.querySelectorAll("#tableBody tr");
+  rows.forEach(r => {
+    r.style.display = r.dataset.name.includes(q) ? "" : "none";
+  });
+  updateCount();
+}
+
+function updateCount() {
+  const visible = [...document.querySelectorAll("#tableBody tr")].filter(r => r.style.display !== "none").length;
+  document.getElementById("siteCount").textContent = `Showing ${visible} of ${SITES.length} clients`;
+}
+
+// Auto-login if session active
+if (sessionStorage.getItem("adminAuth") === "1") showDashboard();
+</script>
+</body>
+</html>
