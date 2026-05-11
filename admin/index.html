@@ -193,14 +193,81 @@
     .icon-btn:hover { border-color:var(--accent); color:var(--text); }
     .copied { border-color:var(--green) !important; color:var(--green) !important; }
 
-    .notes-input {
-      background:var(--bg3); border:1px solid var(--border); color:var(--text);
-      font-size:12px; font-family:'Outfit',sans-serif; padding:5px 9px;
-      border-radius:6px; width:140px; outline:none; resize:none;
-    }
-    .notes-input:focus { border-color:var(--accent); }
-
     .main-row td { background:rgba(79,142,247,.03); }
+
+    /* ── CONTACT CARD (table summary) ── */
+    .contact-summary {
+      display:flex; flex-direction:column; gap:3px; min-width:160px;
+    }
+    .contact-name { font-size:13px; font-weight:600; color:var(--text); }
+    .contact-detail { font-size:12px; color:var(--muted); }
+    .contact-detail a { color:var(--accent); text-decoration:none; }
+    .contact-detail a:hover { text-decoration:underline; }
+    .contact-note-preview {
+      font-size:11px; color:#aaa; margin-top:4px; line-height:1.4;
+      max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .edit-contact-btn {
+      margin-top:6px; background:transparent; border:1px solid var(--border);
+      color:var(--muted); padding:3px 10px; border-radius:6px; cursor:pointer;
+      font-size:11px; font-family:'Outfit',sans-serif; transition:all .15s;
+      display:inline-flex; align-items:center; gap:4px;
+    }
+    .edit-contact-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .has-data .edit-contact-btn { border-color:rgba(79,142,247,.3); color:var(--accent); }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,.7);
+      z-index:100; align-items:center; justify-content:center; padding:20px;
+    }
+    .modal-overlay.open { display:flex; }
+    .modal {
+      background:var(--bg2); border:1px solid var(--border); border-radius:16px;
+      padding:28px 32px; width:100%; max-width:480px; position:relative;
+    }
+    .modal-title { font-size:17px; font-weight:700; margin-bottom:4px; }
+    .modal-sub { font-size:13px; color:var(--muted); margin-bottom:24px; }
+    .modal-close {
+      position:absolute; top:16px; right:16px; background:transparent;
+      border:1px solid var(--border); color:var(--muted); width:30px; height:30px;
+      border-radius:6px; cursor:pointer; font-size:16px; display:flex;
+      align-items:center; justify-content:center;
+    }
+    .modal-close:hover { border-color:var(--accent); color:var(--text); }
+    .form-group { margin-bottom:16px; }
+    .form-label { font-size:12px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; margin-bottom:6px; display:block; }
+    .form-input {
+      width:100%; padding:10px 14px; background:var(--bg3); border:1px solid var(--border);
+      border-radius:8px; color:var(--text); font-size:14px; font-family:'Outfit',sans-serif;
+      outline:none;
+    }
+    .form-input:focus { border-color:var(--accent); }
+    textarea.form-input { resize:vertical; min-height:80px; line-height:1.5; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .modal-actions { display:flex; gap:10px; margin-top:24px; justify-content:flex-end; }
+    .btn-save {
+      background:var(--accent); border:none; color:#fff; padding:10px 24px;
+      border-radius:8px; font-size:14px; font-weight:600; cursor:pointer;
+      font-family:'Outfit',sans-serif; transition:opacity .2s;
+    }
+    .btn-save:hover { opacity:.85; }
+    .btn-cancel {
+      background:transparent; border:1px solid var(--border); color:var(--muted);
+      padding:10px 20px; border-radius:8px; font-size:14px; cursor:pointer;
+      font-family:'Outfit',sans-serif; transition:all .2s;
+    }
+    .btn-cancel:hover { border-color:var(--accent); color:var(--text); }
+    .btn-clear {
+      background:transparent; border:1px solid rgba(239,68,68,.3); color:#f87171;
+      padding:10px 16px; border-radius:8px; font-size:14px; cursor:pointer;
+      font-family:'Outfit',sans-serif; transition:all .2s; margin-right:auto;
+    }
+    .btn-clear:hover { background:rgba(239,68,68,.08); }
+
+    /* last-contacted badge */
+    .last-contact { font-size:11px; color:var(--muted); margin-top:2px; }
+    .last-contact.recent { color:var(--green); }
   </style>
 </head>
 <body>
@@ -368,7 +435,7 @@
               <th>Website</th>
               <th>Staff Dashboard</th>
               <th>Staff Password</th>
-              <th>Notes</th>
+              <th>Contact & Notes</th>
             </tr>
           </thead>
           <tbody id="tableBody"></tbody>
@@ -376,6 +443,48 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- ── CONTACT MODAL ── -->
+<div class="modal-overlay" id="contactModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title" id="modalTitle">Contact Info</div>
+    <div class="modal-sub" id="modalSub"></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Owner Name</label>
+        <input class="form-input" id="m_owner" type="text" placeholder="e.g. John Smith">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Title / Role</label>
+        <input class="form-input" id="m_title" type="text" placeholder="e.g. Owner, Manager">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Owner Phone</label>
+        <input class="form-input" id="m_phone" type="tel" placeholder="(555) 000-0000">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Owner Email</label>
+        <input class="form-input" id="m_email" type="email" placeholder="owner@email.com">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-input" id="m_notes" placeholder="Conversation notes, follow-up items, best time to call..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Last Contacted</label>
+      <input class="form-input" id="m_date" type="date">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-clear" onclick="clearContact()">🗑 Clear</button>
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveContact()">Save</button>
+    </div>
   </div>
 </div>
 
@@ -402,6 +511,7 @@ const SITES = [
   { name:"Soda Fusion",             type:"Food Truck",        sub:"sodafusion",          phone:"(812) 391-4403",location:"Salado, TX",                   password:"SodaFusion2025!"               },
 ];
 
+// ── Auth ──
 function doLogin(e) {
   e.preventDefault();
   if (document.getElementById("pin").value === DASHBOARD_PASSWORD) {
@@ -418,17 +528,41 @@ function doLogout() {
   document.getElementById("loginScreen").style.display = "flex";
   document.getElementById("pin").value = "";
 }
+
+// ── Tabs ──
 function switchTab(id, btn) {
   document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
   document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
   btn.classList.add("active");
   document.getElementById("tab-"+id).classList.add("active");
 }
+
+// ── Dashboard ──
 function showDashboard() {
   document.getElementById("loginScreen").style.display = "none";
   document.getElementById("mainScreen").style.display = "block";
   buildTable();
 }
+
+// ── Contact data helpers ──
+function contactKey(sub) { return `contact_${sub||"main"}`; }
+function getContact(sub) {
+  try { return JSON.parse(localStorage.getItem(contactKey(sub))) || {}; } catch(e) { return {}; }
+}
+function setContact(sub, data) { localStorage.setItem(contactKey(sub), JSON.stringify(data)); }
+
+function formatDate(str) {
+  if (!str) return null;
+  const d = new Date(str + "T12:00:00");
+  return d.toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" });
+}
+function daysSince(str) {
+  if (!str) return null;
+  const diff = Date.now() - new Date(str + "T12:00:00").getTime();
+  return Math.floor(diff / 86400000);
+}
+
+// ── Build Table ──
 function buildTable() {
   const tbody = document.getElementById("tableBody");
   tbody.innerHTML = "";
@@ -436,11 +570,31 @@ function buildTable() {
     const siteUrl  = s.isMain ? `https://${BASE}` : `https://${s.sub}.${BASE}`;
     const staffUrl = s.isMain ? null : `https://${s.sub}.${BASE}/staff-dashboard.html`;
     const passId   = `pass_${s.sub||"main"}`;
-    const noteKey  = `note_${s.sub||"main"}`;
-    const savedNote = localStorage.getItem(noteKey) || "";
+    const key      = s.sub || "main";
+    const c        = getContact(key);
+    const hasData  = !!(c.owner || c.notes);
+
+    // Contact summary cell
+    let contactHtml = `<div class="contact-summary ${hasData ? 'has-data' : ''}">`;
+    if (c.owner) {
+      contactHtml += `<div class="contact-name">${c.owner}</div>`;
+      if (c.role) contactHtml += `<div class="contact-detail" style="color:var(--muted)">${c.role}</div>`;
+    }
+    if (c.ownerPhone) contactHtml += `<div class="contact-detail"><a href="tel:${c.ownerPhone.replace(/\D/g,'')}">${c.ownerPhone}</a></div>`;
+    if (c.email) contactHtml += `<div class="contact-detail"><a href="mailto:${c.email}">${c.email}</a></div>`;
+    if (c.notes) contactHtml += `<div class="contact-note-preview" title="${c.notes.replace(/"/g,'&quot;')}">📝 ${c.notes}</div>`;
+    if (c.date) {
+      const days = daysSince(c.date);
+      const cls = days <= 7 ? "recent" : "";
+      contactHtml += `<div class="last-contact ${cls}">Last contact: ${formatDate(c.date)}${days !== null ? ` (${days}d ago)` : ""}</div>`;
+    }
+    contactHtml += `<button class="edit-contact-btn" onclick="openModal('${key}')">✏️ ${hasData ? 'Edit' : 'Add contact'}</button>`;
+    contactHtml += `</div>`;
+
     const tr = document.createElement("tr");
     if (s.isMain) tr.className = "main-row";
     tr.dataset.name = s.name.toLowerCase();
+    tr.id = `row_${key}`;
     tr.innerHTML = `
       <td>
         <div class="biz-name">${s.name}</div>
@@ -465,25 +619,92 @@ function buildTable() {
            </div>`
         : `<span style="color:var(--muted);font-size:13px;">—</span>`}
       </td>
-      <td>
-        <textarea class="notes-input" rows="2" placeholder="Add notes..."
-          onchange="saveNote('${noteKey}',this.value)">${savedNote}</textarea>
-      </td>
+      <td id="contact_cell_${key}">${contactHtml}</td>
     `;
     tbody.appendChild(tr);
   });
   updateCount();
 }
-function togglePass(id) {
-  document.getElementById(id).classList.toggle("pass-hidden");
-}
+
+// ── Password helpers ──
+function togglePass(id) { document.getElementById(id).classList.toggle("pass-hidden"); }
 function copyPass(id, btn) {
   navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
     btn.textContent = "✓"; btn.classList.add("copied");
     setTimeout(() => { btn.textContent = "📋"; btn.classList.remove("copied"); }, 1500);
   });
 }
-function saveNote(key, val) { localStorage.setItem(key, val); }
+
+// ── Modal ──
+let _modalKey = null;
+function openModal(key) {
+  _modalKey = key;
+  const site = SITES.find(s => (s.sub||"main") === key);
+  const c = getContact(key);
+  document.getElementById("modalTitle").textContent = site ? site.name : "Contact Info";
+  document.getElementById("modalSub").textContent = site ? site.type + " · " + site.location : "";
+  document.getElementById("m_owner").value    = c.owner    || "";
+  document.getElementById("m_title").value    = c.role     || "";
+  document.getElementById("m_phone").value    = c.ownerPhone || "";
+  document.getElementById("m_email").value    = c.email    || "";
+  document.getElementById("m_notes").value    = c.notes    || "";
+  document.getElementById("m_date").value     = c.date     || new Date().toISOString().slice(0,10);
+  document.getElementById("contactModal").classList.add("open");
+}
+function closeModal() {
+  document.getElementById("contactModal").classList.remove("open");
+  _modalKey = null;
+}
+function saveContact() {
+  if (!_modalKey) return;
+  const data = {
+    owner:      document.getElementById("m_owner").value.trim(),
+    role:       document.getElementById("m_title").value.trim(),
+    ownerPhone: document.getElementById("m_phone").value.trim(),
+    email:      document.getElementById("m_email").value.trim(),
+    notes:      document.getElementById("m_notes").value.trim(),
+    date:       document.getElementById("m_date").value,
+  };
+  setContact(_modalKey, data);
+  closeModal();
+  refreshContactCell(_modalKey);
+}
+function clearContact() {
+  if (!_modalKey) return;
+  localStorage.removeItem(contactKey(_modalKey));
+  closeModal();
+  refreshContactCell(_modalKey);
+}
+function refreshContactCell(key) {
+  // Re-render just the contact cell without rebuilding whole table
+  const c = getContact(key);
+  const hasData = !!(c.owner || c.notes);
+  const site = SITES.find(s => (s.sub||"main") === key);
+  let html = `<div class="contact-summary ${hasData ? 'has-data' : ''}">`;
+  if (c.owner) {
+    html += `<div class="contact-name">${c.owner}</div>`;
+    if (c.role) html += `<div class="contact-detail" style="color:var(--muted)">${c.role}</div>`;
+  }
+  if (c.ownerPhone) html += `<div class="contact-detail"><a href="tel:${c.ownerPhone.replace(/\D/g,'')}">${c.ownerPhone}</a></div>`;
+  if (c.email) html += `<div class="contact-detail"><a href="mailto:${c.email}">${c.email}</a></div>`;
+  if (c.notes) html += `<div class="contact-note-preview" title="${c.notes.replace(/"/g,'&quot;')}">📝 ${c.notes}</div>`;
+  if (c.date) {
+    const days = daysSince(c.date);
+    const cls = days <= 7 ? "recent" : "";
+    html += `<div class="last-contact ${cls}">Last contact: ${formatDate(c.date)}${days !== null ? ` (${days}d ago)` : ""}</div>`;
+  }
+  html += `<button class="edit-contact-btn" onclick="openModal('${key}')">✏️ ${hasData ? 'Edit' : 'Add contact'}</button>`;
+  html += `</div>`;
+  const cell = document.getElementById(`contact_cell_${key}`);
+  if (cell) cell.innerHTML = html;
+}
+
+// Close modal on overlay click
+document.getElementById("contactModal").addEventListener("click", function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ── Filter ──
 function filterTable() {
   const q = document.getElementById("searchInput").value.toLowerCase();
   document.querySelectorAll("#tableBody tr").forEach(r => {
@@ -495,6 +716,7 @@ function updateCount() {
   const vis = [...document.querySelectorAll("#tableBody tr")].filter(r=>r.style.display!=="none").length;
   document.getElementById("siteCount").textContent = `${vis} of ${SITES.length} clients`;
 }
+
 if (sessionStorage.getItem("adminAuth")==="1") showDashboard();
 </script>
 </body>
