@@ -268,6 +268,32 @@
     /* last-contacted badge */
     .last-contact { font-size:11px; color:var(--muted); margin-top:2px; }
     .last-contact.recent { color:var(--green); }
+
+    /* ── PROSPECT STATUS ── */
+    .filter-btn {
+      background:transparent; border:1px solid var(--border); color:var(--muted);
+      padding:6px 14px; border-radius:20px; cursor:pointer; font-size:12px; font-weight:500;
+      font-family:'Outfit',sans-serif; transition:all .2s; white-space:nowrap;
+    }
+    .filter-btn:hover { border-color:var(--accent); color:var(--text); }
+    .filter-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+
+    .status-select {
+      background:var(--bg3); border:1px solid var(--border); color:var(--text);
+      font-size:12px; font-family:'Outfit',sans-serif; padding:5px 10px;
+      border-radius:6px; outline:none; cursor:pointer; width:100%;
+    }
+    .status-select:focus { border-color:var(--accent); }
+
+    .badge-new        { background:rgba(99,102,241,.12); color:#818cf8; border:1px solid rgba(99,102,241,.3); }
+    .badge-demo       { background:rgba(245,158,11,.12);  color:var(--yellow); border:1px solid rgba(245,158,11,.3); }
+    .badge-followup   { background:rgba(79,142,247,.12);  color:var(--accent); border:1px solid rgba(79,142,247,.3); }
+    .badge-nope       { background:rgba(107,114,128,.1);  color:var(--muted);  border:1px solid rgba(107,114,128,.2); }
+
+    .status-badge {
+      display:inline-block; font-size:11px; font-weight:600;
+      padding:3px 10px; border-radius:20px; letter-spacing:.3px; white-space:nowrap;
+    }
   </style>
 </head>
 <body>
@@ -299,6 +325,7 @@
     <div class="tabs">
       <button class="tab active" onclick="switchTab('pitch',this)">📣 Sales Pitch</button>
       <button class="tab" onclick="switchTab('clients',this)">🏪 Client Sites</button>
+      <button class="tab" onclick="switchTab('prospects',this)">🎯 Prospects</button>
     </div>
 
     <!-- ══ PITCH TAB ══ -->
@@ -443,6 +470,39 @@
       </div>
     </div>
 
+    <!-- ══ PROSPECTS TAB ══ -->
+    <div class="tab-panel" id="tab-prospects">
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="prospectSearch" placeholder="Search prospects..." oninput="filterProspects()">
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <button class="filter-btn active" onclick="setProspectFilter('all',this)">All</button>
+          <button class="filter-btn" onclick="setProspectFilter('Not Contacted',this)">Not Contacted</button>
+          <button class="filter-btn" onclick="setProspectFilter('Demo Scheduled',this)">Demo Scheduled</button>
+          <button class="filter-btn" onclick="setProspectFilter('Follow Up',this)">Follow Up</button>
+          <button class="filter-btn" onclick="setProspectFilter('Not Interested',this)">Not Interested</button>
+        </div>
+        <span class="count-badge" id="prospectCount"></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Business</th>
+              <th>Type</th>
+              <th>City</th>
+              <th>Phone</th>
+              <th>Status</th>
+              <th>Contact & Notes</th>
+            </tr>
+          </thead>
+          <tbody id="prospectBody"></tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -535,6 +595,7 @@ function switchTab(id, btn) {
   document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
   btn.classList.add("active");
   document.getElementById("tab-"+id).classList.add("active");
+  if (id === "prospects") buildProspects();
 }
 
 // ── Dashboard ──
@@ -718,6 +779,234 @@ function updateCount() {
 }
 
 if (sessionStorage.getItem("adminAuth")==="1") showDashboard();
+
+// ══════════════════════════════════════════
+// PROSPECTS
+// ══════════════════════════════════════════
+
+const PROSPECTS = [
+  // ── TEMPLE, TX ──
+  { id:"pustka",      name:"Pustka Family Barbeque",    type:"BBQ / Food Truck",       city:"Temple",        phone:"(512) 466-5949" },
+  { id:"flexintexan", name:"Flexin' Texan",             type:"Burgers / Sandwiches",   city:"Temple",        phone:"(254) 718-6875" },
+  { id:"lulamaes",    name:"Lulamae's Cajun Cuisine",   type:"Cajun / Food Truck",     city:"Temple",        phone:null             },
+  { id:"estellas",    name:"Estella's Food Truck",      type:"Mexican / Food Truck",   city:"Temple",        phone:null             },
+  { id:"neldas",      name:"Nelda's Real Mexican Food", type:"Mexican / Food Truck",   city:"Temple",        phone:null             },
+  { id:"taconmadre",  name:"Taco'n Madre GDL",         type:"Mexican / Food Truck",   city:"Temple",        phone:null             },
+  { id:"hautedog",    name:"Haute Dog",                 type:"Hot Dogs / Food Truck",  city:"Temple",        phone:null             },
+  { id:"tacostroncos",name:"Tacos Los Troncos",         type:"Mexican / Food Truck",   city:"Temple",        phone:null             },
+  { id:"watthatruck", name:"WAT THA TRUCK",             type:"Burgers / Food Truck",   city:"Temple",        phone:null             },
+  { id:"bahlerpizza", name:"Bahler Street Pizza",       type:"Pizza / Food Truck",     city:"Temple",        phone:null             },
+  { id:"minirepar",   name:"Mini Tacos El Reparo",      type:"Mexican / Food Truck",   city:"Temple",        phone:"(254) 727-8874" },
+  { id:"badgirlbbq",  name:"Bad Girl BBQ",              type:"BBQ / Food Truck",       city:"Temple",        phone:null             },
+  { id:"jbsmoke",     name:"JB's Smokehouse",           type:"BBQ / Food Truck",       city:"Temple",        phone:null             },
+  { id:"bigdogbbq",   name:"Big Dog BBQ",               type:"BBQ / Food Truck",       city:"Temple",        phone:null             },
+  { id:"cupcakeave",  name:"Cupcake Avenue",            type:"Desserts / Food Truck",  city:"Temple",        phone:null             },
+  { id:"mamalama",    name:"Mama Lama Mobile Kitchen",  type:"Mediterranean / Mexican",city:"Temple",        phone:null             },
+  { id:"otgcoffee",   name:"On the Go Coffee Co.",      type:"Coffee / Beverages",     city:"Temple",        phone:null             },
+  // ── BELTON, TX ──
+  { id:"elpatron",    name:"El Patrón Taco Truck",      type:"Mexican / Food Truck",   city:"Belton",        phone:null             },
+  { id:"loscompadres",name:"Los Compadres Street Tacos",type:"Mexican / Food Truck",   city:"Belton",        phone:null             },
+  // ── KILLEEN, TX ──
+  { id:"jamaikil",    name:"Jamaican Food Truck",        type:"Jamaican / Food Truck",  city:"Killeen",       phone:"(254) 462-1267" },
+  { id:"food4soul",   name:"Food 4 Yo Soul",             type:"Soul Food / Food Truck", city:"Killeen",       phone:"(512) 701-6888" },
+  { id:"tacosymas",   name:"Tacos Y Mas",                type:"Mexican / Food Truck",   city:"Killeen",       phone:"(737) 781-0686" },
+  { id:"jbfire",      name:"JB Fireside",                type:"Jamaican / Food Truck",  city:"Killeen",       phone:null             },
+  { id:"joneses",     name:"Keeping Up w/ Them Joneses", type:"Soul Food / Food Truck", city:"Killeen",       phone:null             },
+  { id:"manjekay",    name:"Manje Lakay",                type:"Caribbean / Food Truck", city:"Killeen",       phone:null             },
+  // ── JARRELL / GEORGETOWN, TX ──
+  { id:"curbtruck",   name:"Curb Food Truck",            type:"Burgers / Food Truck",   city:"Jarrell",       phone:null             },
+  { id:"granary",     name:"The Granary TX",             type:"Restaurant / BBQ",       city:"Jarrell",       phone:null             },
+  { id:"twinstacs",   name:"Twins Tacos",                type:"Mexican / Food Truck",   city:"Jarrell area",  phone:null             },
+  { id:"killertyaco", name:"The Killer Taco",            type:"Mexican / Food Truck",   city:"Georgetown",    phone:null             },
+  { id:"patsbbq",     name:"Pat's BBQ",                  type:"BBQ / Food Truck",       city:"Georgetown",    phone:null             },
+  { id:"carnivorous", name:"Carnivorous",                type:"BBQ / Food Truck",       city:"Georgetown",    phone:null             },
+];
+
+const STATUS_OPTIONS = ["Not Contacted","Demo Scheduled","Follow Up","Not Interested"];
+let _prospectFilter = "all";
+
+function statusKey(id) { return `pstatus_${id}`; }
+function getProspectStatus(id) { return localStorage.getItem(statusKey(id)) || "Not Contacted"; }
+function setProspectStatus(id, val) { localStorage.setItem(statusKey(id), val); }
+
+function statusBadgeClass(s) {
+  if (s === "Demo Scheduled") return "badge-demo";
+  if (s === "Follow Up")      return "badge-followup";
+  if (s === "Not Interested") return "badge-nope";
+  return "badge-new";
+}
+
+function buildProspects() {
+  const tbody = document.getElementById("prospectBody");
+  tbody.innerHTML = "";
+  PROSPECTS.forEach(p => {
+    const status = getProspectStatus(p.id);
+    const cKey = `prospect_${p.id}`;
+    const c = getContactByKey(cKey);
+    const hasData = !!(c.owner || c.notes);
+
+    let contactHtml = `<div class="contact-summary ${hasData ? 'has-data' : ''}">`;
+    if (c.owner) {
+      contactHtml += `<div class="contact-name">${c.owner}</div>`;
+      if (c.role) contactHtml += `<div class="contact-detail" style="color:var(--muted)">${c.role}</div>`;
+    }
+    if (c.ownerPhone) contactHtml += `<div class="contact-detail"><a href="tel:${c.ownerPhone.replace(/\D/g,'')}">${c.ownerPhone}</a></div>`;
+    if (c.email) contactHtml += `<div class="contact-detail"><a href="mailto:${c.email}">${c.email}</a></div>`;
+    if (c.notes) contactHtml += `<div class="contact-note-preview" title="${c.notes.replace(/"/g,'&quot;')}">📝 ${c.notes}</div>`;
+    if (c.date) {
+      const days = daysSince(c.date);
+      const cls = days <= 7 ? "recent" : "";
+      contactHtml += `<div class="last-contact ${cls}">Last contact: ${formatDate(c.date)} (${days}d ago)</div>`;
+    }
+    contactHtml += `<button class="edit-contact-btn" onclick="openProspectModal('${cKey}','${p.name}','${p.type} · ${p.city}')">✏️ ${hasData ? 'Edit' : 'Add contact'}</button>`;
+    contactHtml += `</div>`;
+
+    const tr = document.createElement("tr");
+    tr.dataset.name = p.name.toLowerCase();
+    tr.dataset.city = p.city.toLowerCase();
+    tr.dataset.status = status;
+    tr.id = `prow_${p.id}`;
+    tr.innerHTML = `
+      <td><div class="biz-name">${p.name}</div></td>
+      <td><div class="biz-type" style="white-space:nowrap">${p.type}</div></td>
+      <td><div class="location-text">${p.city}, TX</div></td>
+      <td>${p.phone
+        ? `<a class="phone-link" href="tel:${p.phone.replace(/\D/g,'')}">${p.phone}</a>`
+        : `<span class="no-phone">—</span>`}
+      </td>
+      <td>
+        <select class="status-select" onchange="updateStatus('${p.id}',this)">
+          ${STATUS_OPTIONS.map(o => `<option${o===status?' selected':''}>${o}</option>`).join('')}
+        </select>
+        <div style="margin-top:5px;">
+          <span class="status-badge ${statusBadgeClass(status)}" id="sbadge_${p.id}">● ${status}</span>
+        </div>
+      </td>
+      <td id="pcell_${p.id}">${contactHtml}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  applyProspectFilter();
+}
+
+function getContactByKey(key) {
+  try { return JSON.parse(localStorage.getItem(key)) || {}; } catch(e) { return {}; }
+}
+
+function updateStatus(id, sel) {
+  const val = sel.value;
+  setProspectStatus(id, val);
+  const badge = document.getElementById(`sbadge_${id}`);
+  if (badge) { badge.textContent = "● " + val; badge.className = `status-badge ${statusBadgeClass(val)}`; }
+  const row = document.getElementById(`prow_${id}`);
+  if (row) row.dataset.status = val;
+  applyProspectFilter();
+}
+
+function setProspectFilter(val, btn) {
+  _prospectFilter = val;
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  applyProspectFilter();
+}
+
+function applyProspectFilter() {
+  const q = document.getElementById("prospectSearch").value.toLowerCase();
+  let vis = 0;
+  document.querySelectorAll("#prospectBody tr").forEach(r => {
+    const matchFilter = _prospectFilter === "all" || r.dataset.status === _prospectFilter;
+    const matchSearch = r.dataset.name.includes(q) || r.dataset.city.includes(q);
+    r.style.display = (matchFilter && matchSearch) ? "" : "none";
+    if (matchFilter && matchSearch) vis++;
+  });
+  document.getElementById("prospectCount").textContent = `${vis} of ${PROSPECTS.length} prospects`;
+}
+
+function filterProspects() { applyProspectFilter(); }
+
+function openProspectModal(cKey, title, sub) {
+  _modalKey = cKey;
+  const c = getContactByKey(cKey);
+  document.getElementById("modalTitle").textContent = title;
+  document.getElementById("modalSub").textContent = sub;
+  document.getElementById("m_owner").value     = c.owner      || "";
+  document.getElementById("m_title").value     = c.role       || "";
+  document.getElementById("m_phone").value     = c.ownerPhone || "";
+  document.getElementById("m_email").value     = c.email      || "";
+  document.getElementById("m_notes").value     = c.notes      || "";
+  document.getElementById("m_date").value      = c.date       || new Date().toISOString().slice(0,10);
+  // Flag that this is a prospect modal so save goes to right key
+  _modalIsProspect = true;
+  document.getElementById("contactModal").classList.add("open");
+}
+
+// Patch saveContact to handle prospects
+const _origSaveContact = saveContact;
+let _modalIsProspect = false;
+
+// Override saveContact
+window.saveContact = function() {
+  if (!_modalKey) return;
+  const data = {
+    owner:      document.getElementById("m_owner").value.trim(),
+    role:       document.getElementById("m_title").value.trim(),
+    ownerPhone: document.getElementById("m_phone").value.trim(),
+    email:      document.getElementById("m_email").value.trim(),
+    notes:      document.getElementById("m_notes").value.trim(),
+    date:       document.getElementById("m_date").value,
+  };
+  localStorage.setItem(_modalKey, JSON.stringify(data));
+  closeModal();
+  // Re-render correct cell
+  if (_modalIsProspect) {
+    const pid = _modalKey.replace("prospect_","");
+    const p = PROSPECTS.find(x => x.id === pid);
+    if (p) refreshProspectCell(p);
+  } else {
+    const clientKey = _modalKey.replace("contact_","");
+    refreshContactCell(clientKey);
+  }
+  _modalIsProspect = false;
+};
+
+window.clearContact = function() {
+  if (!_modalKey) return;
+  localStorage.removeItem(_modalKey);
+  const wasProspect = _modalIsProspect;
+  closeModal();
+  if (wasProspect) {
+    const pid = _modalKey.replace("prospect_","");
+    const p = PROSPECTS.find(x => x.id === pid);
+    if (p) refreshProspectCell(p);
+  } else {
+    const clientKey = _modalKey.replace("contact_","");
+    refreshContactCell(clientKey);
+  }
+  _modalIsProspect = false;
+};
+
+function refreshProspectCell(p) {
+  const cKey = `prospect_${p.id}`;
+  const c = getContactByKey(cKey);
+  const hasData = !!(c.owner || c.notes);
+  let html = `<div class="contact-summary ${hasData ? 'has-data' : ''}">`;
+  if (c.owner) {
+    html += `<div class="contact-name">${c.owner}</div>`;
+    if (c.role) html += `<div class="contact-detail" style="color:var(--muted)">${c.role}</div>`;
+  }
+  if (c.ownerPhone) html += `<div class="contact-detail"><a href="tel:${c.ownerPhone.replace(/\D/g,'')}">${c.ownerPhone}</a></div>`;
+  if (c.email) html += `<div class="contact-detail"><a href="mailto:${c.email}">${c.email}</a></div>`;
+  if (c.notes) html += `<div class="contact-note-preview" title="${c.notes.replace(/"/g,'&quot;')}">📝 ${c.notes}</div>`;
+  if (c.date) {
+    const days = daysSince(c.date);
+    const cls = days <= 7 ? "recent" : "";
+    html += `<div class="last-contact ${cls}">Last contact: ${formatDate(c.date)} (${days}d ago)</div>`;
+  }
+  html += `<button class="edit-contact-btn" onclick="openProspectModal('${cKey}','${p.name}','${p.type} · ${p.city}')">✏️ ${hasData ? 'Edit' : 'Add contact'}</button>`;
+  html += `</div>`;
+  const cell = document.getElementById(`pcell_${p.id}`);
+  if (cell) cell.innerHTML = html;
+}
 </script>
 </body>
 </html>
