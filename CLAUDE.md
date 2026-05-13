@@ -138,16 +138,59 @@ Amplify. This is intentional. Do not import them.
 
 ---
 
+## Completed This Session
+
+- [x] SSH keys set up for GitLab and GitHub — no more tokens needed
+- [x] Exposed tokens revoked (GitHub PATs + old GitLab token)
+- [x] Admin sales dashboard live at `https://aiagentassistance.com/admin/index.html`
+      - Password: `Michele2025!`
+      - Tabs: Sales Pitch, Client Sites (15), Prospects (31 businesses)
+      - Contact card modal per client/prospect — saves to localStorage
+      - Prospect status tracking (Not Contacted / Demo Scheduled / Follow Up / Not Interested)
+- [x] Terraform drift detection tested and confirmed working
+- [x] DynamoDB PITR discussed — not yet enabled
+- [x] IAM user `corp-tf-test` created for second GitLab environment testing
+      - Access Key: `AKIA2FTQ45WYSFG2EOAI` (delete when done testing)
+- [x] Terraform state versioning discussed — not yet enabled on state bucket
+
+---
+
 ## Pending / Next Steps
 
 - [ ] **Twilio toll-free approval** — waiting on Twilio (submitted 2026-05-08). Once
       approved, remove `SKIP_TWILIO_VALIDATION=true` from Render and set real
       `TWILIO_AUTH_TOKEN` env var.
-- [ ] **Revoke exposed tokens** — GitHub PATs and GitLab token were shared in chat.
-      Revoke at github.com/settings/tokens and gitlab.com/-/profile/personal_access_tokens
 - [ ] **Cognito** — add when real customers need accounts (not needed yet)
 - [ ] **Render → GitLab** — check if Render service is connected to GitHub; if so,
       switch to GitLab repo for auto-deploys
+- [ ] **Enable S3 versioning on state bucket** — one-liner:
+      `aws s3api put-bucket-versioning --bucket terraform-state-foodtruck-699242704305 --versioning-configuration Status=Enabled`
+- [ ] **Enable DynamoDB PITR** — point-in-time recovery on Orders table
+- [ ] **Delete IAM user corp-tf-test** when done testing second GitLab env
+- [ ] **Second GitLab environment** — in progress, Terraform setup for corp environment
+
+---
+
+## Git Remotes
+
+| Remote | URL | Auth |
+|---|---|---|
+| `origin` | `git@gitlab.com:aiagentassistant/FoodTruck.git` | SSH key |
+| `github` | `git@github.com:christopherhercules/FoodTruck.git` | SSH key |
+
+SSH key is at `~/.ssh/id_ed25519` — added to both GitLab and GitHub. No tokens needed.
+
+---
+
+## AWS Cost Check
+
+Run at start of session to check current spend:
+
+```powershell
+aws ce get-cost-and-usage --time-period Start=2026-05-01,End=2026-05-31 --granularity MONTHLY --metrics "BlendedCost" --group-by Type=DIMENSION,Key=SERVICE --profile default --region us-east-1
+```
+
+Flag anything not in: S3, CloudFront, Route53, ACM, AppSync, DynamoDB, Amplify, Lambda
 
 ---
 
@@ -160,3 +203,5 @@ Amplify. This is intentional. Do not import them.
   until toll-free is verified and `PUBLIC_URL` env var is set
 - Amplify regenerates DynamoDB/AppSync on each deploy — do not manage with Terraform
 - Windows PowerShell: use `.ps1` scripts, not `.sh`; `bash` is not in PATH
+- Terraform only detects drift on resources IN state — unmanaged resources are invisible
+- DynamoDB/AppSync/Cognito are Amplify-managed — revert via Git + redeploy, not Terraform
