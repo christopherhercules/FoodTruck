@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Your Order - Mas Chingon Food Truck</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --red: #D62828;
+            --red-dark: #a81f1f;
+            --yellow: #F5C518;
+            --yellow-dark: #D4A800;
+            --green: #2D6A4F;
+            --green-light: #52B788;
+            --bg: #0f0f0f;
+            --bg2: #1a1a1a;
+            --bg3: #242424;
+            --border: #333;
+            --text: #f0f0f0;
+            --text-muted: #888;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--bg2);
+            border-bottom: 3px solid var(--yellow);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.8rem;
+            color: var(--text);
+            letter-spacing: 2px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .logo .accent { color: var(--yellow); }
+        .logo .truck-badge {
+            background: var(--yellow);
+            color: #000;
+            font-size: 0.65rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            letter-spacing: 1px;
+        }
+
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--yellow); }
+
+        .page {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section-card {
+            background: var(--bg2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.4rem;
+            color: var(--yellow);
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .lookup-form {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: var(--bg3);
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        input:focus { outline: none; border-color: var(--yellow); }
+        input::placeholder { text-transform: none; letter-spacing: 0; color: var(--text-muted); }
+
+        .track-btn {
+            background: var(--yellow);
+            color: #000;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+        .track-btn:hover { background: var(--yellow-dark); }
+        .track-btn:disabled { background: #444; color: #888; cursor: not-allowed; }
+
+        /* STATUS PIPELINE */
+        .status-pipeline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .status-pipeline::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 10%;
+            right: 10%;
+            height: 3px;
+            background: var(--border);
+            z-index: 0;
+        }
+
+        .pipeline-progress {
+            position: absolute;
+            top: 20px;
+            left: 10%;
+            height: 3px;
+            background: var(--green-light);
+            z-index: 1;
+            transition: width 0.5s ease;
+        }
+
+        .status-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 2;
+            flex: 1;
+        }
+
+        .step-dot {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid var(--border);
+            background: var(--bg3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+
+        .step-dot.active {
+            border-color: var(--green-light);
+            background: var(--green);
+            box-shadow: 0 0 12px rgba(82, 183, 136, 0.4);
+        }
+
+        .step-dot.completed {
+            border-color: var(--green-light);
+            background: var(--green-light);
+        }
+
+        .step-dot.current {
+            border-color: var(--yellow);
+            background: #2a2000;
+            box-shadow: 0 0 12px rgba(245, 197, 24, 0.5);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 12px rgba(245, 197, 24, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(245, 197, 24, 0.9); }
+        }
+
+        .step-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .step-label.current { color: var(--yellow); }
+        .step-label.completed { color: var(--green-light); }
+
+        /* ORDER STATUS BANNER */
+        .status-banner {
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-banner.pending {
+            background: #2a2000;
+            border: 1px solid var(--yellow);
+        }
+        .status-banner.preparing {
+            background: #1a2a3a;
+            border: 1px solid #4da6ff;
+        }
+        .status-banner.ready {
+            background: #1a3a2a;
+            border: 1px solid var(--green-light);
+        }
+        .status-banner.completed {
+            background: #1a2a1a;
+            border: 1px solid #666;
+        }
+
+        .status-icon { font-size: 2rem; flex-shrink: 0; }
+        .status-text-main {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+        }
+        .status-banner.pending .status-text-main { color: var(--yellow); }
+        .status-banner.preparing .status-text-main { color: #4da6ff; }
+        .status-banner.ready .status-text-main { color: var(--green-light); }
+        .status-banner.completed .status-text-main { color: #aaa; }
+
+        .status-subtext { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+        /* WINDOW PICKUP NOTICE */
+        .window-notice {
+            background: #2a2000;
+            border: 1.5px solid var(--yellow);
+            border-radius: 10px;
+            padding: 0.9rem 1.1rem;
+            font-size: 0.85rem;
+            color: var(--yellow);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* ORDER DETAILS */
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border);
+            gap: 1rem;
+        }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+        .detail-value { font-size: 0.95rem; text-align: right; }
+
+        /* ITEMS LIST */
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+        .order-item:last-child { border-bottom: none; }
+        .order-item-name { color: var(--text); }
+        .order-item-custom { font-size: 0.78rem; color: var(--text-muted); }
+        .order-item-price { color: var(--green-light); font-weight: 600; white-space: nowrap; }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 1.1rem;
+            padding-top: 0.75rem;
+            margin-top: 0.25rem;
+        }
+        .total-amount { color: var(--green-light); }
+
+        /* REFRESH */
+        .refresh-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+        .refresh-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green-light);
+            display: inline-block;
+            margin-right: 0.4rem;
+            animation: blink 2s ease-in-out infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .manual-refresh {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.3rem 0.8rem;
+            border-radius: 6px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .manual-refresh:hover { border-color: var(--yellow); color: var(--text); }
+
+        /* STATES */
+        .loading-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+        .spinner {
+            border: 3px solid var(--border);
+            border-top-color: var(--yellow);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .error-msg {
+            background: #3a1a1a;
+            border: 1px solid var(--red);
+            border-radius: 8px;
+            padding: 1rem;
+            color: #ff8888;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .not-found {
+            text-align: center;
+            padding: 2rem;
+        }
+        .not-found .emoji { font-size: 3rem; display: block; margin-bottom: 1rem; }
+        .not-found p { color: var(--text-muted); margin-bottom: 1rem; }
+
+        .new-order-link {
+            display: inline-block;
+            background: var(--yellow);
+            color: #000;
+            text-decoration: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 8px;
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            margin-top: 0.5rem;
+        }
+
+        #orderResult { display: none; }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="logo">
+        MAS <span class="accent">CHINGON</span>
+        <span class="truck-badge">🚚 FOOD TRUCK</span>
+    </a>
+    <a href="order.html" class="back-link">← Back to Menu</a>
+</header>
+
+<div class="page">
+
+    <!-- Lookup Form -->
+    <div class="section-card">
+        <div class="section-title">🔍 Track Your Order</div>
+        <div class="lookup-form">
+            <input type="text" id="orderIdInput" placeholder="Enter your order number (ORD-...)" maxlength="30">
+            <button class="track-btn" onclick="trackOrder()">Track</button>
+        </div>
+        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.75rem;">
+            Your order number was shown on the confirmation screen after placing your order.
+        </p>
+    </div>
+
+    <!-- Loading / Error / Result -->
+    <div id="loadingState" style="display:none">
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Looking up your order...</p>
+        </div>
+    </div>
+
+    <div id="errorState" style="display:none">
+        <div class="error-msg" id="errorMsg"></div>
+    </div>
+
+    <div id="orderResult">
+        <!-- Refresh bar -->
+        <div class="refresh-bar">
+            <span><span class="refresh-dot"></span>Live updates every 30 seconds</span>
+            <button class="manual-refresh" onclick="refreshOrder()">↻ Refresh</button>
+        </div>
+
+        <!-- Status Banner -->
+        <div class="status-banner" id="statusBanner">
+            <div class="status-icon" id="statusIcon"></div>
+            <div>
+                <div class="status-text-main" id="statusTextMain"></div>
+                <div class="status-subtext" id="statusSubtext"></div>
+            </div>
+        </div>
+
+        <!-- Window Pickup Notice (shown when Ready) -->
+        <div class="window-notice" id="windowNotice" style="display:none">
+            🚚 Walk up to the truck window and give your name or show order number <strong id="windowOrderId"></strong>
+        </div>
+
+        <!-- Pipeline -->
+        <div class="section-card">
+            <div class="status-pipeline" id="statusPipeline">
+                <div class="pipeline-progress" id="pipelineProgress" style="width:0%"></div>
+                <div class="status-step">
+                    <div class="step-dot" id="step-Pending">📋</div>
+                    <div class="step-label" id="label-Pending">Received</div>
+                </div>
+                <div class="status-step">
+                    <div class="step-dot" id="step-Preparing">👨‍🍳</div>
+                    <div class="step-label" id="label-Preparing">Cooking</div>
+                </div>
+                <div class="status-step">
+                    <div class="step-dot" id="step-Ready">🔔</div>
+                    <div class="step-label" id="label-Ready">Ready!</div>
+                </div>
+                <div class="status-step">
+                    <div class="step-dot" id="step-Completed">✅</div>
+                    <div class="step-label" id="label-Completed">Picked Up</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Info -->
+        <div class="section-card">
+            <div class="section-title">📄 Order Details</div>
+            <div class="detail-row">
+                <span class="detail-label">Order #</span>
+                <span class="detail-value" id="detailOrderId" style="font-family:'Bebas Neue'; font-size:1.1rem; color:var(--yellow); letter-spacing:1px;"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Name</span>
+                <span class="detail-value" id="detailName"></span>
+            </div>
+            <div class="detail-row" id="phoneRow" style="display:none">
+                <span class="detail-label">Phone</span>
+                <span class="detail-value" id="detailPhone" style="color:var(--text-muted);"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Type</span>
+                <span class="detail-value" id="detailType"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Ordered</span>
+                <span class="detail-value" id="detailTime"></span>
+            </div>
+            <div class="detail-row" id="etaRow" style="display:none">
+                <span class="detail-label">Est. Ready</span>
+                <span class="detail-value" id="detailEta" style="color:var(--yellow);font-weight:600;"></span>
+            </div>
+            <div class="detail-row" id="specialRow" style="display:none">
+                <span class="detail-label">Notes</span>
+                <span class="detail-value" id="detailSpecial" style="color:var(--text-muted);font-style:italic;"></span>
+            </div>
+        </div>
+
+        <!-- Items -->
+        <div class="section-card">
+            <div class="section-title">🌮 Your Items</div>
+            <div id="itemsList"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const APPSYNC_URL = "https://d2zlzofjerf4hd6gltypy2rnlm.appsync-api.us-east-1.amazonaws.com/graphql";
+    const API_KEY = "da2-6l2dtmahczbbnlp3m2vmgihqby";
+
+    let currentOrderId = null;
+    let refreshInterval = null;
+
+    async function gql(query, variables = {}) {
+        const res = await fetch(APPSYNC_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
+            body: JSON.stringify({ query, variables })
+        });
+        const json = await res.json();
+        if (json.errors) throw new Error(json.errors[0].message);
+        return json.data;
+    }
+
+    async function fetchOrderById(orderId) {
+        const query = `
+            query FindOrder($filter: ModelOrderFilterInput) {
+                listOrders(filter: $filter, limit: 1000) {
+                    items {
+                        id orderId customerName orderType tableNumber items totalPrice
+                        specialInstructions status assignedServer timestamp estimatedReadyTime
+                    }
+                }
+            }
+        `;
+        const data = await gql(query, { filter: { orderId: { eq: orderId } } });
+        return (data.listOrders.items || [])[0] || null;
+    }
+
+    async function trackOrder() {
+        const raw = document.getElementById("orderIdInput").value.trim().toUpperCase();
+        if (!raw) { alert("Please enter your order number."); return; }
+        const orderId = raw.startsWith("ORD-") ? raw : `ORD-${raw}`;
+        currentOrderId = orderId;
+
+        document.getElementById("orderIdInput").value = orderId;
+        showState("loading");
+
+        clearInterval(refreshInterval);
+
+        try {
+            const order = await fetchOrderById(orderId);
+            if (!order) {
+                showState("notFound");
+                return;
+            }
+            renderOrder(order);
+            showState("result");
+            refreshInterval = setInterval(refreshOrder, 30000);
+        } catch (err) {
+            showState("error", err.message);
+        }
+    }
+
+    async function refreshOrder() {
+        if (!currentOrderId) return;
+        try {
+            const order = await fetchOrderById(currentOrderId);
+            if (order) renderOrder(order);
+        } catch (err) {
+            // silently fail on refresh
+        }
+    }
+
+    function renderOrder(order) {
+        const STATUS_CONFIG = {
+            Pending:   { icon: "⏳", text: "Order Received!", sub: "We got your order — fire up the grill! Preparing shortly.", cls: "pending", progress: "5%" },
+            Preparing: { icon: "🔥", text: "Cooking Now!", sub: "Our crew is working on your order right now!", cls: "preparing", progress: "40%" },
+            Ready:     { icon: "🔔", text: "Ready for Pickup!", sub: "Walk up to the truck window and give your name.", cls: "ready", progress: "80%" },
+            Completed: { icon: "✅", text: "Order Picked Up", sub: "Enjoy your food! Thanks for rolling with Mas Chingon 🌮", cls: "completed", progress: "100%" }
+        };
+
+        const cfg = STATUS_CONFIG[order.status] || STATUS_CONFIG["Pending"];
+
+        // Status banner
+        const banner = document.getElementById("statusBanner");
+        banner.className = `status-banner ${cfg.cls}`;
+        document.getElementById("statusIcon").textContent = cfg.icon;
+        document.getElementById("statusTextMain").textContent = cfg.text;
+
+        // ETA in subtext
+        let subtext = cfg.sub;
+        if (order.estimatedReadyTime && order.status === "Preparing") {
+            const eta = new Date(order.estimatedReadyTime);
+            subtext = `Estimated ready at ${eta.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} — we'll have it hot for you!`;
+        }
+        document.getElementById("statusSubtext").textContent = subtext;
+
+        // Window notice (show when Ready)
+        const windowNotice = document.getElementById("windowNotice");
+        if (order.status === "Ready") {
+            windowNotice.style.display = "flex";
+            document.getElementById("windowOrderId").textContent = order.orderId;
+        } else {
+            windowNotice.style.display = "none";
+        }
+
+        // Pipeline
+        const steps = ["Pending", "Preparing", "Ready", "Completed"];
+        const currentIdx = steps.indexOf(order.status);
+        steps.forEach((step, i) => {
+            const dot = document.getElementById(`step-${step}`);
+            const label = document.getElementById(`label-${step}`);
+            dot.className = "step-dot";
+            label.className = "step-label";
+            if (i < currentIdx) {
+                dot.classList.add("completed");
+                label.classList.add("completed");
+            } else if (i === currentIdx) {
+                dot.classList.add("current");
+                label.classList.add("current");
+            }
+        });
+        document.getElementById("pipelineProgress").style.width = cfg.progress;
+
+        // Details
+        document.getElementById("detailOrderId").textContent = order.orderId;
+        document.getElementById("detailName").textContent = order.customerName;
+        document.getElementById("detailType").textContent = "Pickup 🚚";
+
+        const orderTime = new Date(order.timestamp);
+        const timeAgo = getTimeAgo(orderTime);
+        document.getElementById("detailTime").textContent = `${orderTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} (${timeAgo})`;
+
+        if (order.estimatedReadyTime) {
+            document.getElementById("etaRow").style.display = "flex";
+            const eta = new Date(order.estimatedReadyTime);
+            document.getElementById("detailEta").textContent = eta.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        if (order.specialInstructions) {
+            document.getElementById("specialRow").style.display = "flex";
+            document.getElementById("detailSpecial").textContent = order.specialInstructions;
+        }
+
+        // Items
+        let items = [];
+        try { items = JSON.parse(order.items || "[]"); } catch(e) {}
+        const total = order.totalPrice || items.reduce((s, i) => s + (i.price || 0), 0);
+
+        document.getElementById("itemsList").innerHTML = `
+            ${items.map(item => `
+                <div class="order-item">
+                    <div>
+                        <div class="order-item-name">${item.name}</div>
+                        ${item.customization ? `<div class="order-item-custom">${item.customization}</div>` : ''}
+                    </div>
+                    <span class="order-item-price">$${parseFloat(item.price).toFixed(2)}</span>
+                </div>
+            `).join('')}
+            <div class="total-row">
+                <span>Total</span>
+                <span class="total-amount">$${parseFloat(total).toFixed(2)}</span>
+            </div>
+        `;
+    }
+
+    function showState(state, msg) {
+        document.getElementById("loadingState").style.display = "none";
+        document.getElementById("errorState").style.display = "none";
+        document.getElementById("orderResult").style.display = "none";
+
+        if (state === "loading") {
+            document.getElementById("loadingState").style.display = "block";
+        } else if (state === "error") {
+            document.getElementById("errorState").style.display = "block";
+            document.getElementById("errorMsg").innerHTML = `⚠️ ${msg || "Something went wrong. Please try again."}`;
+        } else if (state === "notFound") {
+            document.getElementById("errorState").style.display = "block";
+            document.getElementById("errorMsg").innerHTML = `
+                <div class="not-found">
+                    <span class="emoji">🔍</span>
+                    <p>Order not found. Double-check your order number and try again.</p>
+                    <a href="order.html" class="new-order-link">Place a New Order</a>
+                </div>`;
+        } else if (state === "result") {
+            document.getElementById("orderResult").style.display = "block";
+        }
+    }
+
+    function getTimeAgo(date) {
+        const mins = Math.floor((Date.now() - date) / 60000);
+        if (mins < 1) return "just now";
+        if (mins < 60) return `${mins}m ago`;
+        const hrs = Math.floor(mins / 60);
+        return `${hrs}h ${mins % 60}m ago`;
+    }
+
+    // Check URL param on load
+    window.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get("orderId");
+        if (id) {
+            document.getElementById("orderIdInput").value = id;
+            trackOrder();
+        }
+        document.getElementById("orderIdInput").addEventListener("keydown", e => {
+            if (e.key === "Enter") trackOrder();
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mas Chingon Food Truck | Authentic Mexican Street Food</title>
+    <meta name="description" content="Mas Chingon Food Truck — Authentic Mexican street food on wheels. Follow us around Salado, TX. Order ahead for fast pickup.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Bebas+Neue&family=Playfair+Display:ital,wght@0,900;1,700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --red: #D62828;
+            --red-dark: #A81F1F;
+            --yellow: #F5C518;
+            --yellow-dark: #D4A800;
+            --dark: #1A1A1A;
+            --dark2: #2A2A2A;
+            --light: #FFFBF0;
+            --white: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            overflow-x: hidden;
+            background: var(--dark);
+        }
+
+        /* ── HEADER ── */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(26,26,26,0.97);
+            backdrop-filter: blur(8px);
+            border-bottom: 3px solid var(--yellow);
+            z-index: 1000;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0.9rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.8rem;
+            color: var(--white);
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+
+        .logo span { color: var(--yellow); }
+
+        .nav-links {
+            display: flex;
+            gap: 1.8rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--yellow); }
+
+        .nav-cta {
+            background: var(--red) !important;
+            color: white !important;
+            padding: 0.6rem 1.4rem !important;
+            border-radius: 4px !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.5px !important;
+            transition: all 0.2s !important;
+        }
+
+        .nav-cta:hover {
+            background: var(--red-dark) !important;
+            transform: translateY(-1px);
+        }
+
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+        }
+
+        .menu-toggle span {
+            width: 24px;
+            height: 2px;
+            background: var(--yellow);
+        }
+
+        /* ── HERO ── */
+        .hero {
+            margin-top: 68px;
+            min-height: 95vh;
+            background:
+                linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.45) 50%, rgba(0,0,0,0.75) 100%),
+                url('https://aiagentassistance.com/MoreTacos.webp') center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .hero-logo {
+            width: 280px;
+            height: 280px;
+            object-fit: contain;
+            border-radius: 50%;
+            margin-bottom: 0.5rem;
+            animation: fadeInUp 0.6s ease both;
+            filter: drop-shadow(0 8px 32px rgba(0,0,0,0.6));
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: var(--yellow);
+            color: var(--dark);
+            font-family: 'Bebas Neue', cursive;
+            font-size: 0.9rem;
+            letter-spacing: 3px;
+            padding: 0.4rem 1.4rem;
+            margin-bottom: 1.2rem;
+            animation: fadeInUp 0.6s ease both;
+        }
+
+        .hero-content h1 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 7rem;
+            color: var(--white);
+            line-height: 0.9;
+            letter-spacing: 3px;
+            margin-bottom: 0.3rem;
+            animation: fadeInUp 0.7s ease 0.1s both;
+        }
+
+        .hero-content h1 span { color: var(--yellow); }
+
+        .hero-subtitle {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2rem;
+            color: rgba(255,255,255,0.6);
+            letter-spacing: 4px;
+            margin-bottom: 1rem;
+            animation: fadeInUp 0.7s ease 0.15s both;
+        }
+
+        .hero-divider {
+            width: 60px;
+            height: 3px;
+            background: var(--yellow);
+            margin: 1.2rem auto;
+            animation: fadeInUp 0.7s ease 0.2s both;
+        }
+
+        .hero-content p {
+            font-size: 1.15rem;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 2.5rem;
+            animation: fadeInUp 0.7s ease 0.25s both;
+            max-width: 480px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.7s ease 0.3s both;
+        }
+
+        .btn {
+            padding: 0.9rem 2.2rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Bebas Neue', cursive;
+            letter-spacing: 1.5px;
+            font-size: 1.1rem;
+        }
+
+        .btn-red {
+            background: var(--red);
+            color: white;
+            box-shadow: 0 6px 20px rgba(214,40,40,0.4);
+        }
+
+        .btn-red:hover {
+            background: var(--red-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(214,40,40,0.5);
+        }
+
+        .btn-yellow {
+            background: var(--yellow);
+            color: var(--dark);
+        }
+
+        .btn-yellow:hover {
+            background: var(--yellow-dark);
+            transform: translateY(-3px);
+        }
+
+        .btn-ghost {
+            border: 2px solid rgba(255,255,255,0.5);
+            color: white;
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--yellow);
+            color: var(--yellow);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── FEATURE STRIP ── */
+        .features {
+            background: var(--yellow);
+        }
+
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .feature-item {
+            padding: 1.8rem 2.5rem;
+            border-right: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+
+        .feature-item:last-child { border-right: none; }
+        .feature-icon { font-size: 1.8rem; flex-shrink: 0; }
+
+        .feature-item h3 {
+            color: var(--dark);
+            font-size: 0.95rem;
+            font-weight: 800;
+            margin-bottom: 0.1rem;
+        }
+
+        .feature-item p { color: rgba(0,0,0,0.6); font-size: 0.82rem; }
+
+        /* ── SECTION LABELS ── */
+        .section-label {
+            display: inline-block;
+            color: var(--red);
+            font-family: 'Bebas Neue', cursive;
+            font-size: 0.9rem;
+            letter-spacing: 3px;
+            margin-bottom: 0.6rem;
+        }
+
+        .section-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 3.5rem;
+            line-height: 1;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+
+        .section-title-light { color: var(--white); }
+        .section-title-dark { color: var(--dark); }
+
+        /* ── HOW IT WORKS ── */
+        .how-it-works {
+            padding: 6rem 2rem;
+            background: var(--dark2);
+        }
+
+        .how-it-works .inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .step {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(245,197,24,0.15);
+            border-top: 3px solid var(--yellow);
+            border-radius: 8px;
+            padding: 2.5rem 2rem;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: var(--yellow);
+            color: var(--dark);
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2rem;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        .step h3 {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.7rem;
+        }
+
+        .step p { color: rgba(255,255,255,0.5); font-size: 0.9rem; line-height: 1.7; }
+
+        /* ── FOOD GALLERY ── */
+        .gallery {
+            padding: 6rem 2rem;
+            background: var(--light);
+        }
+
+        .gallery .inner { max-width: 1200px; margin: 0 auto; }
+
+        .gallery-header { text-align: center; margin-bottom: 3.5rem; }
+        .gallery-header .section-label { color: var(--red); }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: 240px 240px;
+            gap: 1rem;
+        }
+
+        .gallery-item {
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .gallery-item:first-child { grid-column: span 2; grid-row: span 2; }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .gallery-item:hover img { transform: scale(1.06); }
+
+        .gallery-item .label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            color: white;
+            font-weight: 700;
+            font-size: 0.85rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .gallery-item:hover .label { opacity: 1; }
+
+        /* ── MENU PREVIEW ── */
+        .menu-preview {
+            padding: 6rem 2rem;
+            background: var(--dark);
+        }
+
+        .menu-preview .inner { max-width: 1200px; margin: 0 auto; }
+
+        .menu-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 3rem;
+        }
+
+        .view-full-menu {
+            color: var(--yellow);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+            padding-bottom: 2px;
+        }
+
+        .view-full-menu:hover { border-bottom-color: var(--yellow); }
+
+        .menu-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .menu-tab {
+            padding: 0.45rem 1.2rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: transparent;
+            color: rgba(255,255,255,0.5);
+            transition: all 0.2s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .menu-tab.active, .menu-tab:hover {
+            background: var(--red);
+            color: white;
+            border-color: var(--red);
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .menu-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-top: 3px solid var(--yellow);
+            border-radius: 6px;
+            padding: 1.3rem;
+            transition: all 0.25s;
+        }
+
+        .menu-card:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateY(-2px);
+        }
+
+        .menu-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .menu-card h3 { font-size: 0.95rem; font-weight: 700; color: var(--white); line-height: 1.3; }
+        .menu-card .price { font-size: 1rem; font-weight: 800; color: var(--yellow); white-space: nowrap; }
+        .menu-card p { color: rgba(255,255,255,0.4); font-size: 0.82rem; line-height: 1.5; }
+
+        .order-cta-banner {
+            margin-top: 3rem;
+            background: var(--red);
+            border-radius: 8px;
+            padding: 3rem 4rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+
+        .order-cta-banner h3 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2.5rem;
+            color: white;
+            letter-spacing: 2px;
+        }
+
+        .order-cta-banner p { color: rgba(255,255,255,0.75); margin-top: 0.3rem; }
+
+        .btn-yellow-solid {
+            background: var(--yellow);
+            color: var(--dark);
+            padding: 0.9rem 2rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 800;
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.2rem;
+            letter-spacing: 1.5px;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .btn-yellow-solid:hover { background: var(--yellow-dark); transform: translateY(-2px); }
+
+        /* ── WHERE TO FIND US ── */
+        .location-schedule {
+            padding: 6rem 2rem;
+            background: var(--light);
+        }
+
+        .location-schedule .inner { max-width: 1100px; margin: 0 auto; }
+
+        .location-schedule-header { text-align: center; margin-bottom: 4rem; }
+
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .schedule-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-top: 4px solid var(--red);
+            text-align: center;
+        }
+
+        .schedule-day {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            color: var(--red);
+            margin-bottom: 0.3rem;
+        }
+
+        .schedule-location {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .schedule-hours {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .schedule-card.closed { border-top-color: #ccc; }
+        .schedule-card.closed .schedule-day { color: #999; }
+        .schedule-card.closed .schedule-location { color: #999; }
+
+        .location-info-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .info-card h3 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.3rem;
+            letter-spacing: 2px;
+            color: var(--red);
+            margin-bottom: 1rem;
+        }
+
+        .info-card p {
+            color: #555;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-card a {
+            color: var(--red);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            background: var(--dark);
+            border-top: 3px solid var(--yellow);
+            color: white;
+            padding: 3rem 2rem 2rem;
+        }
+
+        .footer-inner { max-width: 1100px; margin: 0 auto; }
+
+        .footer-top {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 4rem;
+            padding-bottom: 2.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-brand .logo { display: block; margin-bottom: 1rem; font-size: 2rem; }
+
+        .footer-brand p {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            max-width: 280px;
+        }
+
+        .footer-col h4 {
+            color: var(--yellow);
+            font-family: 'Bebas Neue', cursive;
+            letter-spacing: 2px;
+            font-size: 1rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .footer-col ul { list-style: none; }
+        .footer-col li { margin-bottom: 0.6rem; }
+
+        .footer-col a {
+            color: rgba(255,255,255,0.45);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-col a:hover { color: var(--yellow); }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            color: rgba(255,255,255,0.25);
+            font-size: 0.8rem;
+        }
+
+        /* ── MOBILE ── */
+        @media (max-width: 768px) {
+            .menu-toggle { display: flex; }
+
+            .nav-links {
+                position: fixed;
+                left: -100%;
+                top: 68px;
+                flex-direction: column;
+                background: var(--dark);
+                width: 100%;
+                text-align: center;
+                transition: 0.3s;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+                padding: 2rem 0;
+                gap: 1.2rem;
+            }
+
+            .nav-links.active { left: 0; }
+
+            .hero-content h1 { font-size: 4rem; }
+            .hero-logo { width: 200px; height: 200px; }
+            .hero-buttons { flex-direction: column; align-items: center; }
+            .features-grid { grid-template-columns: 1fr; }
+            .feature-item { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); }
+            .steps-grid { grid-template-columns: 1fr; }
+            .gallery-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+            .gallery-item:first-child { grid-column: span 2; grid-row: span 1; }
+            .menu-grid { grid-template-columns: 1fr; }
+            .menu-preview-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+            .order-cta-banner { flex-direction: column; text-align: center; padding: 2rem; }
+            .schedule-grid { grid-template-columns: 1fr; }
+            .location-info-row { grid-template-columns: 1fr; }
+            .footer-top { grid-template-columns: 1fr; gap: 2rem; }
+            .footer-bottom { flex-direction: column; gap: 0.5rem; text-align: center; }
+            .section-title { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+    <nav>
+        <a href="index.html" class="logo">MAS <span>CHINGON</span></a>
+        <div class="menu-toggle" onclick="toggleMenu()">
+            <span></span><span></span><span></span>
+        </div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#menu">Menu</a></li>
+            <li><a href="#find-us">Find Us</a></li>
+            <li><a href="order.html" class="nav-cta">🌮 Order for Pickup</a></li>
+        </ul>
+    </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="home">
+    <div class="hero-content">
+        <img src="https://aiagentassistance.com/FoodTruck.jpg" alt="Mas Chingon Food Truck" class="hero-logo">
+        <div class="hero-divider"></div>
+        <p>Authentic Mexican street food on wheels. Order ahead for fast pickup — no waiting in line.</p>
+        <div class="hero-buttons">
+            <a href="order.html" class="btn btn-red">🌮 Order for Pickup</a>
+            <a href="#find-us" class="btn btn-yellow">📍 Find the Truck</a>
+            <a href="#menu" class="btn btn-ghost">View Menu</a>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURE STRIP -->
+<div class="features">
+    <div class="features-grid">
+        <div class="feature-item">
+            <div class="feature-icon">📱</div>
+            <div>
+                <h3>Order Ahead</h3>
+                <p>Place your order before you arrive — skip the line entirely</p>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon">⚡</div>
+            <div>
+                <h3>Fast Pickup</h3>
+                <p>Your order is ready when you get there — no waiting</p>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon">📍</div>
+            <div>
+                <h3>Track It Live</h3>
+                <p>Know exactly when your food is ready before you walk up</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how-it-works">
+    <div class="inner">
+        <span class="section-label">Simple Pickup Process</span>
+        <h2 class="section-title section-title-light">Order in 3 Steps</h2>
+        <p style="color:rgba(255,255,255,0.45); font-size:1rem; max-width:420px; margin:0.5rem auto 0;">No app needed. Just fast, fresh food.</p>
+
+        <div class="steps-grid">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Order Online</h3>
+                <p>Browse the full menu and place your pickup order from your phone — even before you leave the house.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>We Prepare It</h3>
+                <p>Your order goes straight to the truck's kitchen. Track the status live — Received → Preparing → Ready.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Walk Up & Grab It</h3>
+                <p>Pull up to the window, give your name, and grab your food. Done. No line, no wait.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- GALLERY -->
+<section class="gallery" id="gallery">
+    <div class="inner">
+        <div class="gallery-header">
+            <span class="section-label">Fresh Every Day</span>
+            <h2 class="section-title section-title-dark">Real Street Food</h2>
+        </div>
+        <div class="gallery-grid">
+            <div class="gallery-item">
+                <img src="https://aiagentassistance.com/MoreTacos.webp" alt="Street Tacos">
+                <div class="label">Street Tacos</div>
+            </div>
+            <div class="gallery-item">
+                <img src="https://aiagentassistance.com/Tacos.jpg" alt="Tacos">
+                <div class="label">Handcrafted Tacos</div>
+            </div>
+            <div class="gallery-item">
+                <img src="https://aiagentassistance.com/Burrito.webp" alt="Burrito">
+                <div class="label">Loaded Burritos</div>
+            </div>
+            <div class="gallery-item">
+                <img src="https://aiagentassistance.com/ShrimpPlate.webp" alt="Shrimp">
+                <div class="label">Shrimp Plates</div>
+            </div>
+            <div class="gallery-item">
+                <img src="https://aiagentassistance.com/BeansRice.jpg" alt="Rice & Beans">
+                <div class="label">Sides</div>
+            </div>
+            <div class="gallery-item">
+                <img src="https://aiagentassistance.com/Plate2.webp" alt="Plate">
+                <div class="label">Combo Plates</div>
+            </div>
+            <div class="gallery-item">
+                <img src="https://aiagentassistance.com/AnotherPlate.webp" alt="Food">
+                <div class="label">Daily Specials</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MENU PREVIEW -->
+<section class="menu-preview" id="menu">
+    <div class="inner">
+        <div class="menu-preview-header">
+            <div>
+                <span class="section-label" style="color:var(--yellow);">What We're Serving</span>
+                <h2 class="section-title section-title-light">The Menu</h2>
+            </div>
+            <a href="order.html" class="view-full-menu">Order the Full Menu →</a>
+        </div>
+
+        <div class="menu-tabs">
+            <button class="menu-tab active" onclick="showCategory('breakfast')">🍳 Breakfast</button>
+            <button class="menu-tab" onclick="showCategory('mains')">🌮 Mains</button>
+            <button class="menu-tab" onclick="showCategory('specialties')">⭐ Specialties</button>
+            <button class="menu-tab" onclick="showCategory('antojitos')">🦐 Antojitos</button>
+        </div>
+
+        <div id="cat-breakfast" class="menu-grid">
+            <div class="menu-card"><div class="menu-card-header"><h3>Huevo a la Mexicana</h3><span class="price">$10.44</span></div><p>Mexican-style scrambled eggs, beans, potatoes &amp; tortillas</p></div>
+            <div class="menu-card"><div class="menu-card-header"><h3>Chorizo and Eggs</h3><span class="price">$10.44</span></div><p>Spicy sausage with eggs, beans &amp; potatoes</p></div>
+            <div class="menu-card"><div class="menu-card-header"><h3>Pancake Plate</h3><span class="price">$12.54</span></div><p>2 bacon, 2 eggs, 2 pancakes</p></div>
+            <div class="menu-card"><div class="menu-card-header"><h3>Breakfast Tacos</h3><span class="price">$4.15</span></div><p>Choice of filling, corn or flour tortilla</p></div>
+            <div class="menu-card"><div class="menu-card-header"><h3>Breakfast Burritos</h3><span class="price">$9.39</span></div><p>Loaded breakfast burrito your way</p></div>
+            <div class="menu-card"><div class="menu-card-header"><h3>Breakfast Sandwich</h3><span class="price">$9.39</span></div><p>Egg, bacon, cheese, avocado on toasted bread</p></div>
+        </div>
+
+        <div id="cat-mains" class="menu-grid" style="display:none;">
+            <div class="menu-card"><div class="menu-card-header"><h3>Street Tacos</h3><span class="price">$4.94</span></div><p>Cilantro, onion, choice of meat — corn or flour</p></div>
+            <div class="menu-card"><div class="menu-card-header"><h3>Burritos</h3><span class="price">$10.44</span></div><p>Choice of meat, lettuce, tomato, cheese &amp; beans</p></div>
+            <div class="menu-card"><div class="menu-card-header"><h3>Quesadillas</h3><span class="price">$4.94</span></div><p>Choice of meat and cheese, your way</p></div>
+            <div class="menu-card"><div class="menu-card-header"><h3>Tortas</h3><span class="price">$10.44</span></div><p>Mexican sandwich with meat, lettuce, sour cream &amp; avocado</p></div>
+            <div class="menu-card"><div class="menu-card-header"><h3>Asada Fries</h3><span class="price">$13.59</span></div><p>Fries with meat, cheese, sour cream &amp; pico</p></div>
+            <div class="menu-card"><div class="menu-card-header"><h3>Mas Chingon Cheeseburger</h3><span class="price">$16.74</span></div><p>Double bacon, jalapeño, avocado &amp; fries</p></div>
+        </div>
+
+        <div id="cat-specialties" class="menu-grid" style="display:none;">
+            <div class="menu-card"><div class="menu-card-header"><h3>El Jefe de Jefes</h3><span class="price">$18.84</span></div><p>3 steak tacos with pico &amp; 3 cheese quesadillas</p></div>
+            <div class="menu-card"><div class="menu-card-header"><h3>El Señor De Los Cielos</h3><span class="price">$16.74</span></div><p>4 steak tacos a la mexicana</p></div>
+            <div class="menu-card"><div class="menu-card-header"><h3>La Chapiza</h3><span class="price">$29.35</span></div><p>15 mini tacos — great for sharing</p></div>
+            <div class="menu-card"><div class="menu-card-header"><h3>El Chapo</h3><span class="price">$16.74</span></div><p>4 tacos: have it your way</p></div>
+            <div class="menu-card"><div class="menu-card-header"><h3>Los Ninis</h3><span class="price">$12.54</span></div><p>5 mini tacos, 1 choice of meat</p></div>
+            <div class="menu-card"><div class="menu-card-header"><h3>Ivan Archivaldo</h3><span class="price">$17.79</span></div><p>Burrito + fries + cheese quesadilla</p></div>
+        </div>
+
+        <div id="cat-antojitos" class="menu-grid" style="display:none;">
+            <div class="menu-card"><div class="menu-card-header"><h3>Cevichaso</h3><span class="price">$20.95</span></div><p>32oz bowl with cucumber, avocado &amp; tostadas</p></div>
+            <div class="menu-card"><div class="menu-card-header"><h3>Shrimp Cocktail</h3><span class="price">$16.74</span></div><p>Mexican-style chilled shrimp cocktail</p></div>
+            <div class="menu-card"><div class="menu-card-header"><h3>Tostada de Ceviche Shrimp</h3><span class="price">$8.34</span></div><p>Crispy tostada with ceviche shrimp</p></div>
+            <div class="menu-card"><div class="menu-card-header"><h3>Vaso de Elote</h3><span class="price">$8.34</span></div><p>Mexican street corn cup</p></div>
+            <div class="menu-card"><div class="menu-card-header"><h3>Duros Preparado</h3><span class="price">$10.44</span></div><p>With cabbage, cueritos, tomato, cream &amp; salsa</p></div>
+        </div>
+
+        <div class="order-cta-banner">
+            <div>
+                <h3>Ready to Order?</h3>
+                <p>Order ahead — skip the line, grab and go</p>
+            </div>
+            <a href="order.html" class="btn-yellow-solid">🌮 Order for Pickup</a>
+        </div>
+    </div>
+</section>
+
+<!-- WHERE TO FIND US -->
+<section class="location-schedule" id="find-us">
+    <div class="inner">
+        <div class="location-schedule-header">
+            <span class="section-label">We Move Around</span>
+            <h2 class="section-title section-title-dark">Find the Truck</h2>
+            <p style="color:#666; max-width:480px; margin:0.5rem auto 0; font-size:1rem;">We rotate locations around Salado. Here's where to find us this week.</p>
+        </div>
+
+        <div class="schedule-grid">
+            <div class="schedule-card">
+                <div class="schedule-day">Monday – Tuesday</div>
+                <div class="schedule-location">1105 W Village Rd, Salado</div>
+                <div class="schedule-hours">6:00 AM – 3:00 PM</div>
+            </div>
+            <div class="schedule-card">
+                <div class="schedule-day">Wednesday – Thursday</div>
+                <div class="schedule-location">Salado Town Center</div>
+                <div class="schedule-hours">11:00 AM – 8:00 PM</div>
+            </div>
+            <div class="schedule-card">
+                <div class="schedule-day">Friday – Saturday</div>
+                <div class="schedule-location">Main St & Thomas Arnold Rd</div>
+                <div class="schedule-hours">10:00 AM – 9:00 PM</div>
+            </div>
+            <div class="schedule-card">
+                <div class="schedule-day">Sunday</div>
+                <div class="schedule-location">Salado Creek Park</div>
+                <div class="schedule-hours">9:00 AM – 4:00 PM</div>
+            </div>
+            <div class="schedule-card">
+                <div class="schedule-day">Private Events</div>
+                <div class="schedule-location">Available for Catering</div>
+                <div class="schedule-hours">Contact us to book</div>
+            </div>
+            <div class="schedule-card" style="border-top-color: var(--yellow); background: #fffbf0;">
+                <div class="schedule-day" style="color:var(--dark);">Follow Us</div>
+                <div class="schedule-location">For real-time location</div>
+                <div class="schedule-hours">📱 Facebook &amp; Instagram</div>
+            </div>
+        </div>
+
+        <div class="location-info-row">
+            <div class="info-card">
+                <h3>📞 Contact</h3>
+                <p><a href="tel:2547215510">(254) 721-5510</a></p>
+                <p style="margin-top:0.5rem; font-size:0.9rem;">Call ahead to confirm today's location or place a large order.</p>
+            </div>
+            <div class="info-card">
+                <h3>🎉 Catering & Events</h3>
+                <p>Book the Mas Chingon truck for your next event — parties, corporate lunches, weddings, and more.</p>
+                <p style="margin-top:0.5rem;"><a href="tel:2547215510">Call to Book →</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-inner">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <a href="index.html" class="logo">MAS <span>CHINGON</span></a>
+                <p>Authentic Mexican street food on wheels. Salado, TX. Order ahead for fast pickup.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="order.html">Order for Pickup</a></li>
+                    <li><a href="track-order.html">Track Your Order</a></li>
+                    <li><a href="#menu">Menu</a></li>
+                    <li><a href="#find-us">Find the Truck</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact</h4>
+                <ul>
+                    <li><a href="tel:2547215510">(254) 721-5510</a></li>
+                    <li><a href="#">Salado, TX 76571</a></li>
+                    <li><a href="#">Facebook</a></li>
+                    <li><a href="#">Instagram</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Mas Chingon Food Truck. All rights reserved.</p>
+            <a href="staff-dashboard.html" style="color:rgba(255,255,255,0.15); font-size:0.75rem; text-decoration:none;">Staff Login</a>
+        </div>
+    </div>
+</footer>
+
+<script>
+    function toggleMenu() {
+        document.getElementById('navLinks').classList.toggle('active');
+    }
+
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+            document.getElementById('navLinks').classList.remove('active');
+        });
+    });
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href === '#') return;
+            e.preventDefault();
+            const target = document.querySelector(href);
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+
+    function showCategory(cat) {
+        ['breakfast','mains','specialties','antojitos'].forEach(c => {
+            document.getElementById('cat-' + c).style.display = c === cat ? 'grid' : 'none';
+        });
+        document.querySelectorAll('.menu-tab').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+</script>
+</body>
+</html>

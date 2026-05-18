@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estimate Dashboard — Hunter Land Clearing</title>
+
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-dark:  #1E3D0F;
+      --green-mid:   #2E5E12;
+      --green-light: #4A8A20;
+      --amber:       #D4821A;
+      --amber-light: #F0A030;
+      --bg:          #F4F6F0;
+      --card:        #FFFFFF;
+      --text:        #1A2410;
+      --text-mid:    #4A5C3A;
+      --border:      #D8E0D0;
+      --red:         #C0392B;
+    }
+
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── LOGIN GATE ── */
+    #login-screen {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; background: var(--green-dark);
+    }
+    .login-card {
+      background: white; border-radius: 16px; padding: 48px 40px; width: 360px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.3); text-align: center;
+    }
+    .login-logo { font-size: 2.5rem; margin-bottom: 8px; }
+    .login-card h1 { font-size: 1.3rem; color: var(--green-dark); margin-bottom: 4px; }
+    .login-card p { font-size: .9rem; color: var(--text-mid); margin-bottom: 28px; }
+    .login-card input {
+      width: 100%; padding: 12px 16px; border: 2px solid var(--border);
+      border-radius: 8px; font-size: 1rem; margin-bottom: 14px; outline: none;
+    }
+    .login-card input:focus { border-color: var(--green-mid); }
+    .login-btn {
+      width: 100%; padding: 13px; background: var(--green-mid); color: white;
+      border: none; border-radius: 8px; font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: background .2s;
+    }
+    .login-btn:hover { background: var(--green-dark); }
+    .login-error { color: var(--red); font-size: .85rem; margin-top: 10px; display: none; }
+
+    /* ── DASHBOARD LAYOUT ── */
+    #dashboard { display: none; }
+
+    header {
+      background: var(--green-dark); color: white;
+      padding: 0 28px; height: 60px; display: flex; align-items: center;
+      justify-content: space-between; position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+    .header-brand { display: flex; align-items: center; gap: 12px; }
+    .header-brand span:first-child { font-size: 1.5rem; }
+    .header-brand h1 { font-size: 1rem; font-weight: 700; letter-spacing: .3px; }
+    .header-brand p { font-size: .75rem; opacity: .7; margin-top: 1px; }
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+    .btn-refresh {
+      background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 7px; padding: 7px 14px; font-size: .85rem; cursor: pointer;
+      display: flex; align-items: center; gap: 6px; transition: background .2s;
+    }
+    .btn-refresh:hover { background: rgba(255,255,255,0.2); }
+    .btn-logout {
+      background: transparent; color: rgba(255,255,255,0.6); border: none;
+      font-size: .8rem; cursor: pointer; padding: 6px 10px;
+    }
+    .btn-logout:hover { color: white; }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      display: flex; gap: 16px; padding: 20px 28px; flex-wrap: wrap;
+    }
+    .stat-card {
+      background: var(--card); border-radius: 10px; padding: 14px 20px;
+      border: 1px solid var(--border); min-width: 120px; flex: 1;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .stat-icon { font-size: 1.6rem; }
+    .stat-num { font-size: 1.6rem; font-weight: 700; color: var(--green-dark); line-height: 1; }
+    .stat-label { font-size: .75rem; color: var(--text-mid); margin-top: 2px; }
+
+    /* ── FILTERS ── */
+    .filters {
+      padding: 0 28px 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    }
+    .filter-btn {
+      padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+      background: white; font-size: .83rem; cursor: pointer; font-weight: 500;
+      transition: all .15s; color: var(--text-mid);
+    }
+    .filter-btn.active, .filter-btn:hover { border-color: var(--green-mid); color: var(--green-mid); background: #EDF5E7; }
+    .filter-btn.active { font-weight: 700; }
+    .filter-search {
+      margin-left: auto; padding: 7px 14px; border: 1.5px solid var(--border);
+      border-radius: 20px; font-size: .85rem; outline: none; min-width: 200px;
+    }
+    .filter-search:focus { border-color: var(--green-mid); }
+
+    /* ── TABLE ── */
+    .table-wrap { padding: 0 28px 40px; }
+    .table-card { background: var(--card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: var(--green-dark); color: white; }
+    th { padding: 12px 16px; font-size: .8rem; font-weight: 600; text-align: left; white-space: nowrap; }
+    tbody tr { border-bottom: 1px solid var(--border); cursor: pointer; transition: background .12s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #F0F6EC; }
+    td { padding: 12px 16px; font-size: .88rem; vertical-align: middle; }
+    .td-name { font-weight: 600; }
+    .td-addr { color: var(--text-mid); font-size: .82rem; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .td-acres { font-weight: 600; color: var(--green-dark); }
+    .td-date { color: var(--text-mid); font-size: .82rem; white-space: nowrap; }
+
+    /* ── STATUS BADGES ── */
+    .badge {
+      display: inline-block; padding: 3px 10px; border-radius: 12px;
+      font-size: .75rem; font-weight: 700; white-space: nowrap;
+    }
+    .badge-New      { background: #E3F0FF; color: #1565C0; }
+    .badge-Called   { background: #FFF8E1; color: #E65100; }
+    .badge-Quoted   { background: #FFF3E0; color: #BF360C; }
+    .badge-Won      { background: #E8F5E9; color: #2E7D32; }
+    .badge-Lost     { background: #FFEBEE; color: #B71C1C; }
+
+    .empty-state { padding: 60px; text-align: center; color: var(--text-mid); }
+    .empty-state .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+
+    /* ── DETAIL MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      z-index: 200; align-items: flex-start; justify-content: center;
+      padding: 24px; overflow-y: auto;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: white; border-radius: 16px; width: 100%; max-width: 760px;
+      box-shadow: 0 16px 60px rgba(0,0,0,0.3); overflow: hidden;
+      margin: auto;
+    }
+    .modal-header {
+      background: var(--green-dark); color: white;
+      padding: 18px 24px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-header h2 { font-size: 1.1rem; font-weight: 700; }
+    .modal-header p { font-size: .8rem; opacity: .7; margin-top: 2px; }
+    .modal-close {
+      background: rgba(255,255,255,0.15); border: none; color: white;
+      width: 32px; height: 32px; border-radius: 50%; font-size: 1.1rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .modal-delete {
+      background: rgba(220,38,38,0.7); border: none; color: white;
+      width: 32px; height: 32px; border-radius: 50%; font-size: 1rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      margin-right: 8px;
+    }
+    .modal-delete:hover { background: rgba(220,38,38,1); }
+    .modal-body { padding: 24px; }
+    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .modal-field label { font-size: .72rem; font-weight: 700; color: var(--text-mid); text-transform: uppercase; letter-spacing: .5px; display: block; margin-bottom: 4px; }
+    .modal-field p { font-size: .93rem; color: var(--text); }
+    .modal-field a { color: var(--green-mid); text-decoration: none; }
+    .modal-field a:hover { text-decoration: underline; }
+    .modal-divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+    #detail-map { height: 260px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 20px; }
+    .modal-actions { display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap; }
+    .status-select {
+      padding: 9px 14px; border: 2px solid var(--border); border-radius: 8px;
+      font-size: .9rem; font-weight: 600; cursor: pointer; outline: none; background: white;
+    }
+    .status-select:focus { border-color: var(--green-mid); }
+    .notes-area {
+      flex: 1; min-width: 180px; padding: 9px 13px; border: 2px solid var(--border);
+      border-radius: 8px; font-size: .88rem; font-family: inherit; resize: vertical;
+      min-height: 70px; outline: none;
+    }
+    .notes-area:focus { border-color: var(--green-mid); }
+    .btn-save {
+      padding: 9px 20px; background: var(--green-mid); color: white;
+      border: none; border-radius: 8px; font-size: .9rem; font-weight: 600;
+      cursor: pointer; white-space: nowrap; align-self: flex-end;
+    }
+    .btn-save:hover { background: var(--green-dark); }
+    .save-confirm { font-size: .8rem; color: var(--green-mid); align-self: center; display: none; }
+
+    /* ── STAGE CARDS ── */
+    .stage {
+      border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px;
+      margin-bottom: 10px; background: white; transition: all .2s;
+    }
+    .stage.done   { background: #F0F7EC; border-color: var(--green-mid); }
+    .stage.active { background: #FFF8E6; border-color: var(--amber); box-shadow: 0 2px 10px rgba(212,130,26,.15); }
+    .stage-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .stage-icon { font-size: 1.3rem; }
+    .stage-title { font-weight: 700; font-size: .92rem; color: var(--green-dark); }
+    .stage.done .stage-title::after { content: ' ✓'; color: var(--green-mid); }
+    .stage-status { margin-left: auto; font-size: .78rem; color: var(--text-mid); }
+    .stage-body { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+    .stage-input { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 130px; }
+    .stage-input label { font-size: .72rem; font-weight: 600; color: var(--text-mid); }
+    .stage-input input[type="number"], .stage-input input[type="date"] {
+      padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 7px;
+      font-size: .9rem; outline: none; font-family: inherit;
+    }
+    .stage-input input:focus { border-color: var(--green-mid); }
+    .stage-input input[type="range"] {
+      -webkit-appearance: none; appearance: none; background: var(--border);
+      height: 8px; border-radius: 4px; outline: none; padding: 0;
+    }
+    .stage-input input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none; width: 22px; height: 22px;
+      background: var(--amber); border-radius: 50%; cursor: pointer; border: 2.5px solid white;
+      box-shadow: 0 2px 6px rgba(0,0,0,.25);
+    }
+    .stage-btn {
+      padding: 9px 16px; border: none; border-radius: 7px; cursor: pointer;
+      font-weight: 700; font-size: .85rem; white-space: nowrap; transition: opacity .15s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .stage-btn:hover { opacity: .9; }
+    .stage-btn-amber { background: var(--amber); color: white; }
+    .stage-btn-green { background: var(--green-mid); color: white; }
+
+    @media (max-width: 640px) {
+      .stats-bar, .filters, .table-wrap { padding-left: 14px; padding-right: 14px; }
+      .modal-grid { grid-template-columns: 1fr; }
+      th, td { padding: 10px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── LOGIN ─────────────────────────────────────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">🌿</div>
+    <h1>Hunter Land Clearing</h1>
+    <p>Estimate Dashboard</p>
+    <input type="password" id="login-pw" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()" />
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="login-error">Incorrect password.</div>
+  </div>
+</div>
+
+<!-- ── DASHBOARD ──────────────────────────────────────────────────────────── -->
+<div id="dashboard">
+  <header>
+    <div class="header-brand">
+      <span>🌿</span>
+      <div>
+        <h1>Hunter Land Clearing</h1>
+        <p>Estimate Requests</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-refresh" onclick="loadEstimates()">↻ Refresh</button>
+      <button class="btn-logout" onclick="logout()">Sign Out</button>
+    </div>
+  </header>
+
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-card"><span class="stat-icon">📋</span><div><div class="stat-num" id="stat-total">—</div><div class="stat-label">Total Leads</div></div></div>
+    <div class="stat-card"><span class="stat-icon">🆕</span><div><div class="stat-num" id="stat-new">—</div><div class="stat-label">New</div></div></div>
+    <div class="stat-card"><span class="stat-icon">📞</span><div><div class="stat-num" id="stat-called">—</div><div class="stat-label">Called</div></div></div>
+    <div class="stat-card"><span class="stat-icon">💰</span><div><div class="stat-num" id="stat-won">—</div><div class="stat-label">Won</div></div></div>
+    <div class="stat-card"><span class="stat-icon">🌳</span><div><div class="stat-num" id="stat-acres">—</div><div class="stat-label">Total Acres</div></div></div>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" data-status="All" onclick="setFilter('All', this)">All</button>
+    <button class="filter-btn" data-status="New"    onclick="setFilter('New', this)">🆕 New</button>
+    <button class="filter-btn" data-status="Called" onclick="setFilter('Called', this)">📞 Called</button>
+    <button class="filter-btn" data-status="Quoted" onclick="setFilter('Quoted', this)">📄 Quoted</button>
+    <button class="filter-btn" data-status="Won"    onclick="setFilter('Won', this)">✅ Won</button>
+    <button class="filter-btn" data-status="Lost"   onclick="setFilter('Lost', this)">❌ Lost</button>
+    <input class="filter-search" id="search-input" placeholder="🔍  Search name, address..." oninput="renderTable()" />
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Property</th>
+            <th>Acres</th>
+            <th>County</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+      <div class="empty-state" id="empty-state" style="display:none">
+        <div class="empty-icon">📋</div>
+        <div>No estimates found.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── DETAIL MODAL ───────────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h2 id="modal-name">—</h2>
+        <p id="modal-submitted">—</p>
+      </div>
+      <button class="modal-delete" onclick="deleteEstimate()" title="Delete this lead">🗑️</button>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-grid">
+        <div class="modal-field">
+          <label>Phone</label>
+          <p><a id="modal-phone" href="#">—</a></p>
+        </div>
+        <div class="modal-field">
+          <label>Email</label>
+          <p id="modal-email">—</p>
+        </div>
+        <div class="modal-field" style="grid-column:1/-1">
+          <label>Property Address</label>
+          <p id="modal-address">—</p>
+        </div>
+        <div class="modal-field">
+          <label>Parcel Owner</label>
+          <p id="modal-owner">—</p>
+        </div>
+        <div class="modal-field">
+          <label>County</label>
+          <p id="modal-county">—</p>
+        </div>
+        <div class="modal-field">
+          <label>Clearing Area</label>
+          <p id="modal-acres">—</p>
+        </div>
+        <div class="modal-field">
+          <label>Lead Status</label>
+          <p id="modal-status-display">—</p>
+        </div>
+      </div>
+
+      <hr class="modal-divider" />
+      <div id="detail-map"></div>
+
+      <!-- ── INTERNAL (sales pipeline) ───────────────────────────────── -->
+      <div style="background:#FAFBF7;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:16px;">
+        <div style="font-size:.78rem;font-weight:700;color:var(--text-mid);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">🔒 Internal — not visible to customer</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+          <div style="display:flex;flex-direction:column;gap:6px;flex:none">
+            <label style="font-size:.72rem;font-weight:700;color:var(--text-mid);">Lead Status</label>
+            <select class="status-select" id="modal-status-select">
+              <option value="New">🆕 New</option>
+              <option value="Called">📞 Called</option>
+              <option value="Quoted">📄 Quoted</option>
+              <option value="Won">✅ Won</option>
+              <option value="Lost">❌ Lost</option>
+            </select>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:180px">
+            <label style="font-size:.72rem;font-weight:700;color:var(--text-mid);">Internal Notes</label>
+            <textarea class="notes-area" id="modal-notes" placeholder="Private notes — not shown to customer..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── JOB WORKFLOW ────────────────────────────────────────────── -->
+      <div style="font-size:.78rem;font-weight:700;color:var(--green-dark);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">🚜 Job workflow — each action saves + texts customer</div>
+
+      <!-- STAGE 1: QUOTE -->
+      <div class="stage" id="stage-quote">
+        <div class="stage-head">
+          <div class="stage-icon">📄</div>
+          <div class="stage-title">1. Send Quote</div>
+          <div class="stage-status" id="quote-status"></div>
+        </div>
+        <div class="stage-body">
+          <div class="stage-input">
+            <label>Quote Amount ($)</label>
+            <input type="number" id="f-quote" placeholder="2500" step="50" />
+          </div>
+          <button class="stage-btn stage-btn-amber" onclick="actionSendQuote()">📄 Save Quote & Text Customer</button>
+        </div>
+      </div>
+
+      <!-- STAGE 2: SCHEDULE -->
+      <div class="stage" id="stage-schedule">
+        <div class="stage-head">
+          <div class="stage-icon">📅</div>
+          <div class="stage-title">2. Schedule Job</div>
+          <div class="stage-status" id="schedule-status"></div>
+        </div>
+        <div class="stage-body">
+          <div class="stage-input">
+            <label>Scheduled Date</label>
+            <input type="date" id="f-scheduled" />
+          </div>
+          <button class="stage-btn stage-btn-amber" onclick="actionSchedule()">📅 Confirm Schedule & Text Customer</button>
+        </div>
+      </div>
+
+      <!-- STAGE 3: START -->
+      <div class="stage" id="stage-start">
+        <div class="stage-head">
+          <div class="stage-icon">🚜</div>
+          <div class="stage-title">3. Start Work</div>
+          <div class="stage-status" id="start-status"></div>
+        </div>
+        <div class="stage-body">
+          <button class="stage-btn stage-btn-amber" onclick="actionStartJob()" style="width:100%;">🚜 Start Job Today & Text Customer</button>
+        </div>
+      </div>
+
+      <!-- STAGE 4: PROGRESS -->
+      <div class="stage" id="stage-progress">
+        <div class="stage-head">
+          <div class="stage-icon">📊</div>
+          <div class="stage-title">4. Update Progress</div>
+          <div class="stage-status" id="progress-status"></div>
+        </div>
+        <div class="stage-body">
+          <div class="stage-input" style="flex:1;">
+            <label>Percent Complete: <span id="f-pct-label" style="font-weight:800;color:var(--green-dark);">0%</span></label>
+            <input type="range" id="f-pct" min="0" max="100" step="5" value="0" oninput="document.getElementById('f-pct-label').textContent=this.value+'%'" />
+          </div>
+          <button class="stage-btn stage-btn-amber" onclick="actionUpdateProgress()">📊 Update Progress & Text Customer</button>
+        </div>
+      </div>
+
+      <!-- STAGE 5: COMPLETE -->
+      <div class="stage" id="stage-complete">
+        <div class="stage-head">
+          <div class="stage-icon">✅</div>
+          <div class="stage-title">5. Mark Complete</div>
+          <div class="stage-status" id="complete-status"></div>
+        </div>
+        <div class="stage-body">
+          <div class="stage-input">
+            <label>Final Price ($)</label>
+            <input type="number" id="f-final" placeholder="2500" step="50" />
+          </div>
+          <button class="stage-btn stage-btn-green" onclick="actionComplete()">✅ Mark Complete & Text Customer</button>
+        </div>
+      </div>
+
+      <!-- STAGE 6: BILL -->
+      <div class="stage" id="stage-bill">
+        <div class="stage-head">
+          <div class="stage-icon">💰</div>
+          <div class="stage-title">6. Send Bill</div>
+          <div class="stage-status" id="bill-status"></div>
+        </div>
+        <div class="stage-body">
+          <button class="stage-btn stage-btn-green" onclick="actionSendBill()" style="flex:1;">💰 Email Invoice to Customer</button>
+          <button class="stage-btn" onclick="actionTextBill()" style="background:#f5f5f5;color:var(--text-mid);">💬 Text Bill Reminder</button>
+        </div>
+      </div>
+
+      <!-- INTERNAL NOTES + SAVE -->
+      <div style="display:flex;gap:10px;justify-content:flex-end;align-items:center;margin-top:12px;">
+        <span class="save-confirm" id="save-confirm">✓ Saved</span>
+        <button class="btn-save" onclick="saveInternal()" style="padding:9px 20px;font-size:.9rem;background:#f0f0f0;color:var(--text-mid);">💾 Save Lead Status & Internal Notes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const APPSYNC_URL = 'https://d2zlzofjerf4hd6gltypy2rnlm.appsync-api.us-east-1.amazonaws.com/graphql';
+  const APPSYNC_KEY = 'da2-6l2dtmahczbbnlp3m2vmgihqby';
+  const MAPBOX_TOKEN = 'pk.eyJ1IjoiY2hyaXN0b3BoZXJoZXJjdWxlcyIsImEiOiJjbXA4aHRrMHcwN3RiMnJzNjBzeWZ3ZHIxIn0.Kgx5YEB2aA4TchyXR989Zw';
+  const PASSWORD = 'Hunter2025!';
+
+  let allEstimates = [];
+  let activeFilter = 'All';
+  let activeId = null;
+  let detailMap = null;
+
+  // ── AUTH ──────────────────────────────────────────────────────────────────
+  function doLogin() {
+    const pw = document.getElementById('login-pw').value;
+    if (pw === PASSWORD) {
+      sessionStorage.setItem('hlc-auth', '1');
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      loadEstimates();
+    } else {
+      document.getElementById('login-error').style.display = 'block';
+    }
+  }
+
+  function logout() {
+    sessionStorage.removeItem('hlc-auth');
+    location.reload();
+  }
+
+  if (sessionStorage.getItem('hlc-auth') === '1') {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadEstimates();
+  }
+
+  // ── GRAPHQL ───────────────────────────────────────────────────────────────
+  async function gql(query, variables = {}) {
+    const res = await fetch(APPSYNC_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': APPSYNC_KEY },
+      body: JSON.stringify({ query, variables }),
+    });
+    const json = await res.json();
+    if (json.errors) throw new Error(json.errors[0].message);
+    return json.data;
+  }
+
+  // ── LOAD DATA ─────────────────────────────────────────────────────────────
+  async function loadEstimates() {
+    try {
+      let items = [], nextToken = null;
+      do {
+        const vars = { limit: 1000, nextToken };
+        const data = await gql(`
+          query List($limit: Int, $nextToken: String) {
+            listHunterEstimates(limit: $limit, nextToken: $nextToken) {
+              items {
+                id name phone email address lat lng
+                parcelOwner parcelCounty parcelGeoJSON acres drawnGeoJSON
+                status notes
+                jobStatus quotedPrice finalPrice scheduledDate startedDate completedDate
+                percentComplete customerNotes photoUrls invoiceSent
+                submittedAt createdAt
+              }
+              nextToken
+            }
+          }`, vars);
+        items = items.concat(data.listHunterEstimates.items);
+        nextToken = data.listHunterEstimates.nextToken;
+      } while (nextToken);
+
+      allEstimates = items.sort((a, b) =>
+        new Date(b.submittedAt || b.createdAt) - new Date(a.submittedAt || a.createdAt)
+      );
+      updateStats();
+      renderTable();
+    } catch(e) {
+      console.error('Load failed:', e);
+    }
+  }
+
+  // ── STATS ─────────────────────────────────────────────────────────────────
+  function updateStats() {
+    const counts = { New: 0, Called: 0, Quoted: 0, Won: 0, Lost: 0 };
+    let totalAcres = 0;
+    allEstimates.forEach(e => {
+      counts[e.status] = (counts[e.status] || 0) + 1;
+      if (e.acres) totalAcres += parseFloat(e.acres);
+    });
+    document.getElementById('stat-total').textContent  = allEstimates.length;
+    document.getElementById('stat-new').textContent    = counts.New;
+    document.getElementById('stat-called').textContent = counts.Called;
+    document.getElementById('stat-won').textContent    = counts.Won;
+    document.getElementById('stat-acres').textContent  = totalAcres > 0 ? totalAcres.toFixed(1) : '0';
+  }
+
+  // ── FILTER / TABLE ────────────────────────────────────────────────────────
+  function setFilter(status, btn) {
+    activeFilter = status;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderTable();
+  }
+
+  function renderTable() {
+    const q = (document.getElementById('search-input').value || '').toLowerCase();
+    const rows = allEstimates.filter(e => {
+      if (activeFilter !== 'All' && e.status !== activeFilter) return false;
+      if (q && !`${e.name} ${e.address} ${e.phone}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
+
+    const tbody = document.getElementById('table-body');
+    const empty = document.getElementById('empty-state');
+
+    if (rows.length === 0) {
+      tbody.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    tbody.innerHTML = rows.map(e => {
+      const dt = new Date(e.submittedAt || e.createdAt);
+      const date = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const addrShort = (e.address || '—').split(',')[0];
+      const acres = e.acres ? `${parseFloat(e.acres).toFixed(1)} ac` : '—';
+      return `<tr onclick="openModal('${e.id}')">
+        <td class="td-date">${date}</td>
+        <td class="td-name">${esc(e.name)}</td>
+        <td><a href="tel:${e.phone}" onclick="event.stopPropagation()">${esc(e.phone)}</a></td>
+        <td class="td-addr">${esc(addrShort)}</td>
+        <td class="td-acres">${acres}</td>
+        <td>${esc(e.parcelCounty || '—')}</td>
+        <td><span class="badge badge-${e.status}">${e.status}</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── MODAL ─────────────────────────────────────────────────────────────────
+  function openModal(id) {
+    const e = allEstimates.find(x => x.id === id);
+    if (!e) return;
+    activeId = id;
+
+    const dt = new Date(e.submittedAt || e.createdAt);
+    const dateStr = dt.toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+    document.getElementById('modal-name').textContent = e.name;
+    document.getElementById('modal-submitted').textContent = `Submitted ${dateStr}`;
+    const phoneEl = document.getElementById('modal-phone');
+    phoneEl.textContent = e.phone;
+    phoneEl.href = `tel:${e.phone}`;
+    document.getElementById('modal-email').textContent = e.email || '—';
+    document.getElementById('modal-address').textContent = e.address || '—';
+    document.getElementById('modal-owner').textContent = e.parcelOwner || '—';
+    document.getElementById('modal-county').textContent = e.parcelCounty ? `${e.parcelCounty} County` : '—';
+    document.getElementById('modal-acres').textContent = e.acres ? `${parseFloat(e.acres).toFixed(2)} acres` : '—';
+    document.getElementById('modal-status-display').innerHTML = `<span class="badge badge-${e.status}">${e.status}</span>`;
+
+    // Internal
+    document.getElementById('modal-status-select').value = e.status;
+    document.getElementById('modal-notes').value = e.notes || '';
+
+    // Stage form values (pre-fill from existing data)
+    document.getElementById('f-quote').value     = e.quotedPrice != null ? e.quotedPrice : '';
+    document.getElementById('f-scheduled').value = e.scheduledDate ? e.scheduledDate.slice(0,10) : '';
+    const pct = e.percentComplete != null ? e.percentComplete : 0;
+    document.getElementById('f-pct').value = pct;
+    document.getElementById('f-pct-label').textContent = pct + '%';
+    document.getElementById('f-final').value = e.finalPrice != null ? e.finalPrice : (e.quotedPrice != null ? e.quotedPrice : '');
+
+    // Stage status badges + done/active highlighting
+    refreshStageStates(e);
+
+    document.getElementById('save-confirm').style.display = 'none';
+    document.getElementById('modal-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    setTimeout(() => initDetailMap(e), 100);
+  }
+
+  function refreshStageStates(e) {
+    const stages = ['quote', 'schedule', 'start', 'progress', 'complete', 'bill'];
+    stages.forEach(s => {
+      const el = document.getElementById(`stage-${s}`);
+      if (el) el.classList.remove('done', 'active');
+    });
+
+    const set = (s, status, done) => {
+      const el = document.getElementById(`stage-${s}`);
+      if (el) el.classList.add(done ? 'done' : 'active');
+      const st = document.getElementById(`${s}-status`);
+      if (st) st.textContent = status;
+    };
+
+    // Quote
+    if (e.quotedPrice != null) set('quote', `Quoted $${fmt$(e.quotedPrice)}`, true);
+    // Schedule
+    if (e.scheduledDate) set('schedule', `Scheduled ${fmtDate(e.scheduledDate)}`, true);
+    // Start
+    if (e.startedDate) set('start', `Started ${fmtDate(e.startedDate)}`, true);
+    // Progress
+    if (e.percentComplete != null && e.percentComplete > 0) set('progress', `${e.percentComplete}% complete`, e.percentComplete >= 100);
+    // Complete
+    if (e.completedDate) set('complete', `Completed ${fmtDate(e.completedDate)}`, true);
+    // Bill
+    if (e.invoiceSent) set('bill', 'Invoice sent', true);
+
+    // Mark current active stage (first non-done)
+    const order = e.completedDate ? (e.invoiceSent ? null : 'bill')
+                 : e.startedDate  ? (e.percentComplete >= 100 ? 'complete' : 'progress')
+                 : e.scheduledDate ? 'start'
+                 : e.quotedPrice != null ? 'schedule'
+                 : 'quote';
+    if (order) {
+      const cur = document.getElementById(`stage-${order}`);
+      if (cur && !cur.classList.contains('done')) cur.classList.add('active');
+    }
+  }
+
+  function fmt$(n)    { return Number(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); }
+  function fmtDate(s) { return new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+  function fmtDay(s)  { return new Date(s).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }); }
+
+  // ── SMS helper — opens user's SMS app with prefilled message ──────────────
+  function openSMS(phone, msg) {
+    if (!phone) { alert('No phone number on file for this customer.'); return; }
+    const clean = String(phone).replace(/[^0-9+]/g, '');
+    window.location.href = `sms:${clean}?&body=${encodeURIComponent(msg)}`;
+  }
+
+  function flashSaved(text) {
+    const conf = document.getElementById('save-confirm');
+    conf.textContent = text || '✓ Saved';
+    conf.style.display = 'block';
+    setTimeout(() => { conf.textContent = '✓ Saved'; conf.style.display = 'none'; }, 2500);
+  }
+
+  async function applyAndRefresh(input, successText) {
+    await gql(`
+      mutation Update($input: UpdateHunterEstimateInput!) {
+        updateHunterEstimate(input: $input) {
+          id status notes jobStatus quotedPrice finalPrice
+          scheduledDate startedDate completedDate percentComplete
+          customerNotes invoiceSent
+        }
+      }`, { input });
+    const est = allEstimates.find(x => x.id === activeId);
+    if (est) Object.assign(est, input);
+    refreshStageStates(est);
+    updateStats();
+    renderTable();
+    flashSaved(successText);
+  }
+
+  function firstName(e) { return (e.name || 'there').split(' ')[0]; }
+  function acresStr(e)  { return e.acres ? `${parseFloat(e.acres).toFixed(2)}-acre` : ''; }
+
+  // ── STAGE ACTIONS ─────────────────────────────────────────────────────────
+
+  async function actionSendQuote() {
+    const est = allEstimates.find(x => x.id === activeId); if (!est) return;
+    const v = parseFloat(document.getElementById('f-quote').value);
+    if (!v || v <= 0) { alert('Enter a quote amount first.'); return; }
+    try {
+      await applyAndRefresh({
+        id: activeId, status: 'Quoted', jobStatus: 'Quoted', quotedPrice: v,
+      }, '✓ Quote saved');
+      const msg = `Hi ${firstName(est)}, this is Jason with Hunter Land Clearing. Your quote for clearing ${acresStr(est)}your property is $${fmt$(v)}. Reply YES to schedule, or call me at (830) 832-7065 with any questions.`;
+      openSMS(est.phone, msg);
+    } catch(e) { alert('Save failed: ' + e.message); }
+  }
+
+  async function actionSchedule() {
+    const est = allEstimates.find(x => x.id === activeId); if (!est) return;
+    const d = document.getElementById('f-scheduled').value;
+    if (!d) { alert('Pick a scheduled date first.'); return; }
+    const iso = new Date(d + 'T12:00:00').toISOString();
+    try {
+      await applyAndRefresh({
+        id: activeId, jobStatus: 'Scheduled', scheduledDate: iso,
+      }, '✓ Scheduled');
+      const msg = `Hi ${firstName(est)}, we're scheduled to start clearing your property on ${fmtDay(iso)}. We'll arrive between 7-9am. — Jason, Hunter Land Clearing`;
+      openSMS(est.phone, msg);
+    } catch(e) { alert('Save failed: ' + e.message); }
+  }
+
+  async function actionStartJob() {
+    const est = allEstimates.find(x => x.id === activeId); if (!est) return;
+    try {
+      await applyAndRefresh({
+        id: activeId, status: 'Won', jobStatus: 'In Progress',
+        startedDate: new Date().toISOString(), percentComplete: 0,
+      }, '✓ Job started');
+      const msg = `Hi ${firstName(est)}, we're at your property now and starting the clearing work today. I'll send updates as we go. — Jason`;
+      openSMS(est.phone, msg);
+    } catch(e) { alert('Save failed: ' + e.message); }
+  }
+
+  async function actionUpdateProgress() {
+    const est = allEstimates.find(x => x.id === activeId); if (!est) return;
+    const p = parseInt(document.getElementById('f-pct').value);
+    try {
+      await applyAndRefresh({
+        id: activeId, jobStatus: 'In Progress', percentComplete: p,
+      }, `✓ ${p}% saved`);
+      const msg = `Hi ${firstName(est)}, quick update — we're ${p}% complete on your clearing job. Things are looking good! — Jason`;
+      openSMS(est.phone, msg);
+    } catch(e) { alert('Save failed: ' + e.message); }
+  }
+
+  async function actionComplete() {
+    const est = allEstimates.find(x => x.id === activeId); if (!est) return;
+    const v = parseFloat(document.getElementById('f-final').value);
+    if (!v || v <= 0) { alert('Enter the final price first.'); return; }
+    try {
+      await applyAndRefresh({
+        id: activeId, status: 'Won', jobStatus: 'Completed',
+        completedDate: new Date().toISOString(), finalPrice: v, percentComplete: 100,
+      }, '✓ Job complete');
+      const msg = `Hi ${firstName(est)}, your land clearing is all done! Final total: $${fmt$(v)}. I'll send the invoice shortly. Thanks for trusting us with your property! — Jason`;
+      openSMS(est.phone, msg);
+    } catch(e) { alert('Save failed: ' + e.message); }
+  }
+
+  async function actionSendBill() {
+    const est = allEstimates.find(x => x.id === activeId); if (!est) return;
+    const v = est.finalPrice != null ? est.finalPrice : parseFloat(document.getElementById('f-final').value || 0);
+    if (!v || v <= 0) { alert('Set the final price first.'); return; }
+    if (!est.email) {
+      if (!confirm('No email on file. Open SMS instead?')) return;
+      const msg = `Hi ${firstName(est)}, your invoice for $${fmt$(v)} for ${acresStr(est)}clearing at ${est.address.split(',')[0]} is due. Pay via check (mail to Jason Merz, New Braunfels TX) or Venmo @Jason-Merz. Thanks! — Jason`;
+      openSMS(est.phone, msg);
+      try { await applyAndRefresh({ id: activeId, invoiceSent: true }, '✓ Marked invoiced'); } catch {}
+      return;
+    }
+    const subject = `Invoice — Hunter Land Clearing — ${est.address.split(',')[0]}`;
+    const body = `Hi ${firstName(est)},\n\nThanks again for trusting Hunter Land Clearing with your project. Below is your final invoice.\n\nINVOICE\n=====================================\nProperty: ${est.address}\nWork: ${acresStr(est)}land clearing\nDate completed: ${est.completedDate ? fmtDate(est.completedDate) : 'recent'}\n\nTotal Due: $${fmt$(v)}\n=====================================\n\nPayment options:\n  • Check — mail to: Jason Merz, New Braunfels, TX\n  • Venmo — @Jason-Merz\n  • Zelle — (830) 832-7065\n\nReply to this email with any questions.\n\nThanks,\nJason\nHunter Land Clearing\n(830) 832-7065\nj_merz@yahoo.com`;
+    window.location.href = `mailto:${est.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    try { await applyAndRefresh({ id: activeId, invoiceSent: true }, '✓ Invoice sent'); } catch {}
+  }
+
+  async function actionTextBill() {
+    const est = allEstimates.find(x => x.id === activeId); if (!est) return;
+    const v = est.finalPrice != null ? est.finalPrice : parseFloat(document.getElementById('f-final').value || 0);
+    if (!v || v <= 0) { alert('Set the final price first.'); return; }
+    const msg = `Hi ${firstName(est)}, friendly reminder — your invoice for $${fmt$(v)} from Hunter Land Clearing is still open. Pay via Venmo @Jason-Merz, Zelle (830) 832-7065, or check. Thanks!`;
+    openSMS(est.phone, msg);
+    try { await applyAndRefresh({ id: activeId, invoiceSent: true }, '✓ Reminder sent'); } catch {}
+  }
+
+  async function saveInternal() {
+    const status = document.getElementById('modal-status-select').value;
+    const notes  = document.getElementById('modal-notes').value.trim();
+    try {
+      await applyAndRefresh({ id: activeId, status, notes: notes || null }, '✓ Saved');
+      document.getElementById('modal-status-display').innerHTML = `<span class="badge badge-${status}">${status}</span>`;
+    } catch(e) { alert('Save failed: ' + e.message); }
+  }
+
+  async function deleteEstimate() {
+    const est = allEstimates.find(x => x.id === activeId);
+    if (!est) return;
+    const name = est.name || 'this lead';
+    if (!confirm(`Delete "${name}"?\n\nThis cannot be undone.`)) return;
+    try {
+      await gql(`mutation Del($id: ID!) {
+        deleteHunterEstimate(input: { id: $id }) { id }
+      }`, { id: activeId });
+      allEstimates = allEstimates.filter(x => x.id !== activeId);
+      closeModal();
+      updateStats();
+      renderTable();
+    } catch(e) {
+      alert('Delete failed: ' + e.message);
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+    if (detailMap) { detailMap.remove(); detailMap = null; }
+  }
+
+  function initDetailMap(e) {
+    if (detailMap) { detailMap.remove(); detailMap = null; }
+    if (!e.lat || !e.lng) return;
+
+    mapboxgl.accessToken = MAPBOX_TOKEN;
+    detailMap = new mapboxgl.Map({
+      container: 'detail-map',
+      style: 'mapbox://styles/mapbox/satellite-streets-v12',
+      center: [e.lng, e.lat],
+      zoom: 16,
+    });
+
+    detailMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+    detailMap.on('load', () => {
+      const allCoords = [];
+
+      // 1. Parcel boundary (green, dashed) — drawn first so it sits underneath
+      if (e.parcelGeoJSON) {
+        try {
+          const parcel = typeof e.parcelGeoJSON === 'string' ? JSON.parse(e.parcelGeoJSON) : e.parcelGeoJSON;
+          detailMap.addSource('parcel', { type: 'geojson', data: parcel });
+          detailMap.addLayer({ id: 'parcel-fill', type: 'fill', source: 'parcel',
+            paint: { 'fill-color': '#2E5E12', 'fill-opacity': 0.12 } });
+          detailMap.addLayer({ id: 'parcel-outline', type: 'line', source: 'parcel',
+            paint: { 'line-color': '#2E5E12', 'line-width': 2.5, 'line-dasharray': [4,2] } });
+          collectCoords(parcel, allCoords);
+        } catch(err) { console.warn('Parcel parse failed', err); }
+      }
+
+      // 2. Drawn clearing area (amber, solid) — on top
+      if (e.drawnGeoJSON) {
+        try {
+          const drawn = typeof e.drawnGeoJSON === 'string' ? JSON.parse(e.drawnGeoJSON) : e.drawnGeoJSON;
+          detailMap.addSource('drawn', { type: 'geojson', data: drawn });
+          detailMap.addLayer({ id: 'drawn-fill', type: 'fill', source: 'drawn',
+            paint: { 'fill-color': '#D4821A', 'fill-opacity': 0.4 } });
+          detailMap.addLayer({ id: 'drawn-line', type: 'line', source: 'drawn',
+            paint: { 'line-color': '#D4821A', 'line-width': 2.5 } });
+          collectCoords(drawn, allCoords);
+        } catch(err) { console.warn('Drawn parse failed', err); }
+      }
+
+      // 3. Fit to whatever we have
+      if (allCoords.length > 0) {
+        const lngs = allCoords.map(c => c[0]), lats = allCoords.map(c => c[1]);
+        detailMap.fitBounds(
+          [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
+          { padding: 40 }
+        );
+      } else {
+        new mapboxgl.Marker({ color: '#D4821A' }).setLngLat([e.lng, e.lat]).addTo(detailMap);
+      }
+    });
+  }
+
+  function collectCoords(geojson, into) {
+    const walk = (g) => {
+      if (!g) return;
+      if (g.type === 'FeatureCollection') g.features.forEach(f => walk(f));
+      else if (g.type === 'Feature') walk(g.geometry);
+      else if (g.type === 'Polygon') g.coordinates.forEach(ring => ring.forEach(c => into.push(c)));
+      else if (g.type === 'MultiPolygon') g.coordinates.forEach(poly => poly.forEach(ring => ring.forEach(c => into.push(c))));
+    };
+    walk(geojson);
+  }
+
+  // ── UTIL ──────────────────────────────────────────────────────────────────
+  function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>

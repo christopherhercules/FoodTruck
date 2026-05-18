@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Online - Mas Chingon Restaurant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --red: #D62828;
+            --red-dark: #a81f1f;
+            --gold: #F7B731;
+            --green: #2D6A4F;
+            --green-light: #52B788;
+            --bg: #0f0f0f;
+            --bg2: #1a1a1a;
+            --bg3: #242424;
+            --border: #333;
+            --text: #f0f0f0;
+            --text-muted: #888;
+            --white: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--bg2);
+            border-bottom: 3px solid var(--red);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2rem;
+            color: var(--red);
+            letter-spacing: 2px;
+        }
+
+        .logo span { color: var(--gold); }
+
+        .cart-badge {
+            background: var(--red);
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+        .cart-badge:hover { background: var(--red-dark); }
+        .cart-count {
+            background: var(--gold);
+            color: #000;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        /* LAYOUT */
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .page { grid-template-columns: 1fr; }
+            .sidebar { position: relative; top: 0; }
+        }
+
+        /* CUSTOMER INFO */
+        .section-card {
+            background: var(--bg2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.4rem;
+            color: var(--gold);
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+
+        .form-group { margin-bottom: 1rem; }
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.4rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg3);
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--red);
+        }
+        select option { background: var(--bg3); }
+
+        /* CATEGORY TABS */
+        .cat-tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        .cat-tab {
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            border: 1.5px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .cat-tab:hover { border-color: var(--red); color: var(--text); }
+        .cat-tab.active { background: var(--red); border-color: var(--red); color: white; }
+
+        /* MENU ITEMS */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        @media (max-width: 600px) { .menu-grid { grid-template-columns: 1fr; } }
+
+        .menu-item {
+            background: var(--bg3);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: border-color 0.2s, transform 0.15s;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .menu-item:hover { border-color: var(--red); transform: translateY(-2px); }
+
+        .item-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text);
+            line-height: 1.2;
+        }
+        .item-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+            flex: 1;
+        }
+        .item-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+        }
+        .item-price {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--green-light);
+        }
+
+        .customize-select {
+            font-size: 0.78rem;
+            padding: 0.3rem 0.5rem;
+            margin: 0.3rem 0;
+            background: var(--bg2);
+            border-color: #444;
+            border-radius: 6px;
+        }
+
+        .add-btn {
+            background: var(--red);
+            color: white;
+            border: none;
+            padding: 0.4rem 0.9rem;
+            border-radius: 6px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .add-btn:hover { background: var(--red-dark); }
+
+        /* LOADING STATE */
+        .loading-menu {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+        .spinner {
+            border: 3px solid var(--border);
+            border-top-color: var(--red);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .error-msg {
+            background: #3a1a1a;
+            border: 1px solid var(--red);
+            border-radius: 8px;
+            padding: 1rem;
+            color: #ff8888;
+            font-size: 0.9rem;
+        }
+
+        /* SIDEBAR / CART */
+        .sidebar {
+            position: sticky;
+            top: 80px;
+        }
+
+        .cart-card {
+            background: var(--bg2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .cart-empty {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-muted);
+        }
+        .cart-empty .emoji { font-size: 2.5rem; display: block; margin-bottom: 0.5rem; }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border);
+            gap: 0.5rem;
+        }
+        .cart-item-info { flex: 1; }
+        .cart-item-name { font-weight: 600; font-size: 0.9rem; }
+        .cart-item-customization { font-size: 0.75rem; color: var(--text-muted); }
+        .cart-item-price { font-weight: 700; color: var(--green-light); white-space: nowrap; }
+        .remove-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0 0.2rem;
+            transition: color 0.2s;
+        }
+        .remove-btn:hover { color: var(--red); }
+
+        .cart-total-row {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 0.8rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .total-amount { color: var(--green-light); }
+
+        .place-order-btn {
+            width: 100%;
+            background: var(--red);
+            color: white;
+            border: none;
+            padding: 0.9rem;
+            border-radius: 10px;
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background 0.2s;
+        }
+        .place-order-btn:hover { background: var(--red-dark); }
+        .place-order-btn:disabled { background: #444; cursor: not-allowed; }
+
+        /* CONFIRMATION */
+        #confirmationScreen {
+            display: none;
+            text-align: center;
+            padding: 3rem 2rem;
+            max-width: 500px;
+            margin: 3rem auto;
+            background: var(--bg2);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+        .confirm-icon { font-size: 4rem; margin-bottom: 1rem; }
+        .confirm-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2.5rem;
+            color: var(--green-light);
+            letter-spacing: 2px;
+        }
+        .confirm-subtitle { color: var(--text-muted); margin: 0.5rem 0 1.5rem; }
+        .order-number-box {
+            background: var(--bg3);
+            border: 2px dashed var(--gold);
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            display: inline-block;
+            margin: 1rem 0;
+        }
+        .order-number-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .order-number-value {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2.5rem;
+            color: var(--gold);
+            letter-spacing: 3px;
+        }
+        .new-order-btn {
+            background: var(--green);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 10px;
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-top: 1.5rem;
+            letter-spacing: 1px;
+        }
+        .new-order-btn:hover { background: #1e4d38; }
+    .consent-label{display:flex;align-items:flex-start;gap:0.6rem;cursor:pointer;font-size:0.78rem;color:var(--text-muted,#888);line-height:1.4;padding:0.6rem 0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px}.consent-label input[type=checkbox]{margin-top:2px;accent-color:#D62828;width:15px;height:15px;flex-shrink:0;cursor:pointer}.consent-label span a{color:inherit;text-decoration:underline}.sms-consent-wrap{margin-bottom:0.75rem}</style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="logo" style="text-decoration:none;">Mas <span>Chingon</span> <span style="color:#888;font-size:1.2rem;letter-spacing:0">Restaurant</span></a>
+    <div class="cart-badge" onclick="scrollToCart()">
+        🛒 My Order
+        <div class="cart-count" id="cartCount">0</div>
+    </div>
+</header>
+
+<div id="mainContent">
+    <div class="page">
+        <!-- LEFT COLUMN -->
+        <div class="main-col">
+
+            <!-- Customer Info -->
+            <div class="section-card">
+                <div class="section-title">📋 Your Info</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Your Name *</label>
+                        <input type="text" id="customerName" placeholder="Enter your name">
+                    </div>
+                    <div class="form-group">
+                        <label>Order Type *</label>
+                        <select id="orderType" onchange="toggleTable()">
+                            <option value="">Select...</option>
+                            <option value="Dine-In">Dine-In</option>
+                            <option value="Pickup">Pickup</option>
+                            <option value="Delivery">Delivery</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" id="tableGroup" style="display:none;">
+                    <label>Table Number *</label>
+                    <select id="tableNumber">
+                        <option value="">Select table</option>
+                        <option value="1">Table 1</option>
+                        <option value="2">Table 2</option>
+                        <option value="3">Table 3</option>
+                        <option value="4">Table 4</option>
+                        <option value="5">Table 5</option>
+                        <option value="6">Table 6</option>
+                        <option value="7">Table 7</option>
+                        <option value="8">Table 8</option>
+                        <option value="P1">Patio 1</option>
+                        <option value="P2">Patio 2</option>
+                        <option value="P3">Patio 3</option>
+                        <option value="P4">Patio 4</option>
+                        <option value="BAR">Bar</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Phone (optional)</label>
+                    <input type="tel" id="customerPhone" placeholder="For order-ready text" oninput="document.getElementById('smsConsentGroup').style.display=this.value?'block':'none'">
+                </div>
+                <div class="form-group" id="smsConsentGroup" style="display:none">
+                    <label class="consent-label">
+                        <input type="checkbox" id="smsConsent">
+                        <span>Text me when my order is ready. Msg &amp; data rates may apply. Reply STOP to opt out.</span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>Special Instructions</label>
+                    <input type="text" id="specialInstructions" placeholder="Allergies, preferences...">
+                </div>
+            </div>
+
+            <!-- Menu -->
+            <div class="section-card">
+                <div class="section-title">🌮 Menu</div>
+                <div class="cat-tabs" id="catTabs"></div>
+                <div id="menuContainer">
+                    <div class="loading-menu">
+                        <div class="spinner"></div>
+                        <p>Loading menu...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SIDEBAR -->
+        <div class="sidebar" id="cartSection">
+            <div class="cart-card">
+                <div class="section-title">🛒 Your Order</div>
+                <div id="cartContent">
+                    <div class="cart-empty">
+                        <span class="emoji">🌮</span>
+                        <p>Add items to get started!</p>
+                    </div>
+                </div>
+                <button class="place-order-btn" id="placeOrderBtn" disabled onclick="placeOrder()">
+                    Place Order
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CONFIRMATION -->
+<div id="confirmationScreen">
+    <div class="confirm-icon">✅</div>
+    <div class="confirm-title">Order Placed!</div>
+    <div class="confirm-subtitle">Your order is being prepared. Show this number to your server.</div>
+    <div class="order-number-box">
+        <div class="order-number-label">Order Number</div>
+        <div class="order-number-value" id="confirmOrderNumber"></div>
+    </div>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">We'll have it ready soon! 🔥</p>
+    <a id="trackOrderLink" href="#" style="
+        display: inline-block;
+        margin-top: 1rem;
+        background: var(--green);
+        color: white;
+        text-decoration: none;
+        padding: 0.8rem 2rem;
+        border-radius: 10px;
+        font-family: 'Bebas Neue', cursive;
+        font-size: 1.2rem;
+        letter-spacing: 1px;
+    ">📍 Track Your Order</a>
+    <br>
+    <button class="new-order-btn" onclick="location.reload()">Place Another Order</button>
+</div>
+
+<script type="module">
+    // ─── CONFIG ─────────────────────────────────────────────────────────────────
+    // Paste your amplify_outputs.json values here:
+    const APPSYNC_URL = "https://d2zlzofjerf4hd6gltypy2rnlm.appsync-api.us-east-1.amazonaws.com/graphql";
+    const API_KEY = "da2-6l2dtmahczbbnlp3m2vmgihqby";
+
+    // ─── GRAPHQL HELPER ─────────────────────────────────────────────────────────
+    async function gql(query, variables = {}) {
+        const res = await fetch(APPSYNC_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": API_KEY
+            },
+            body: JSON.stringify({ query, variables })
+        });
+        const json = await res.json();
+        if (json.errors) throw new Error(json.errors[0].message);
+        return json.data;
+    }
+
+    // ─── STATE ──────────────────────────────────────────────────────────────────
+    let allMenuItems = [];
+    let cart = [];
+    let activeCategory = "All";
+
+    const CATEGORIES = ["All", "Breakfast", "Main", "Antojitos", "Specialty", "Drinks"];
+
+    const TABLE_ASSIGNMENTS = {
+        "1": "Maria", "2": "Maria", "3": "Carlos", "4": "Carlos",
+        "5": "Rosa", "6": "Rosa", "7": "Miguel", "8": "Miguel",
+        "P1": "Ana", "P2": "Ana", "P3": "Juan", "P4": "Juan", "BAR": "Diego"
+    };
+
+    // ─── FETCH MENU ─────────────────────────────────────────────────────────────
+    async function loadMenu() {
+        const query = `
+            query ListMenuItems {
+                listMenuItems(limit: 200, filter: { itemId: { beginsWith: "ITEM-" } }) {
+                    items {
+                        id itemId name description price category available customizationOptions
+                    }
+                }
+            }
+        `;
+        try {
+            const data = await gql(query);
+            allMenuItems = (data.listMenuItems.items || [])
+                .filter(i => i.available !== false)
+                .sort((a, b) => a.name.localeCompare(b.name));
+            renderCategoryTabs();
+            renderMenu();
+        } catch (err) {
+            document.getElementById("menuContainer").innerHTML = `
+                <div class="error-msg">
+                    ⚠️ Could not load menu. Please check your API key configuration.<br>
+                    <small>${err.message}</small>
+                </div>`;
+        }
+    }
+
+    // ─── RENDER TABS ────────────────────────────────────────────────────────────
+    function renderCategoryTabs() {
+        const counts = {};
+        allMenuItems.forEach(i => { counts[i.category] = (counts[i.category] || 0) + 1; });
+        const tabs = document.getElementById("catTabs");
+        tabs.innerHTML = CATEGORIES
+            .filter(c => c === "All" || counts[c])
+            .map(c => {
+                const count = c === "All" ? allMenuItems.length : (counts[c] || 0);
+                return `<button class="cat-tab ${c === activeCategory ? 'active' : ''}" 
+                    onclick="window.setCategory('${c}')">${c} (${count})</button>`;
+            }).join('');
+    }
+
+    // ─── RENDER MENU ────────────────────────────────────────────────────────────
+    function renderMenu() {
+        const items = activeCategory === "All"
+            ? allMenuItems
+            : allMenuItems.filter(i => i.category === activeCategory);
+
+        if (items.length === 0) {
+            document.getElementById("menuContainer").innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:2rem">No items found.</p>`;
+            return;
+        }
+
+        document.getElementById("menuContainer").innerHTML = `
+            <div class="menu-grid">
+                ${items.map(item => {
+                    let opts = [];
+                    try { opts = JSON.parse(item.customizationOptions || "[]"); } catch(e) {}
+                    const hasOpts = opts.length > 0;
+                    const selectId = `opt_${item.itemId}`;
+                    return `
+                        <div class="menu-item">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-desc">${item.description || ''}</div>
+                            ${hasOpts ? `
+                                <select class="customize-select" id="${selectId}">
+                                    <option value="">Choose option...</option>
+                                    ${opts.map(o => `<option value="${o}">${o}</option>`).join('')}
+                                </select>
+                            ` : ''}
+                            <div class="item-footer">
+                                <span class="item-price">$${parseFloat(item.price).toFixed(2)}</span>
+                                <button class="add-btn" onclick="window.addToCart('${item.itemId}', '${item.name.replace(/'/g,"\\'")}', ${item.price}, '${selectId}', ${hasOpts})">
+                                    + Add
+                                </button>
+                            </div>
+                        </div>`;
+                }).join('')}
+            </div>`;
+    }
+
+    // ─── CART ───────────────────────────────────────────────────────────────────
+    window.addToCart = function(itemId, name, price, selectId, hasOpts) {
+        let customization = '';
+        if (hasOpts) {
+            const sel = document.getElementById(selectId);
+            if (!sel || !sel.value) {
+                sel.style.borderColor = 'var(--red)';
+                sel.focus();
+                setTimeout(() => { sel.style.borderColor = ''; }, 2000);
+                return;
+            }
+            customization = sel.value;
+        }
+        cart.push({ itemId, name, price: parseFloat(price), customization });
+        renderCart();
+    };
+
+    window.removeFromCart = function(index) {
+        cart.splice(index, 1);
+        renderCart();
+    };
+
+    function renderCart() {
+        const total = cart.reduce((s, i) => s + i.price, 0);
+        document.getElementById("cartCount").textContent = cart.length;
+        document.getElementById("placeOrderBtn").disabled = cart.length === 0;
+
+        if (cart.length === 0) {
+            document.getElementById("cartContent").innerHTML = `
+                <div class="cart-empty">
+                    <span class="emoji">🌮</span>
+                    <p>Add items to get started!</p>
+                </div>`;
+            return;
+        }
+
+        document.getElementById("cartContent").innerHTML = `
+            ${cart.map((item, i) => `
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">${item.name}</div>
+                        ${item.customization ? `<div class="cart-item-customization">${item.customization}</div>` : ''}
+                    </div>
+                    <span class="cart-item-price">$${item.price.toFixed(2)}</span>
+                    <button class="remove-btn" onclick="window.removeFromCart(${i})">✕</button>
+                </div>
+            `).join('')}
+            <div class="cart-total-row">
+                <span>Total</span>
+                <span class="total-amount">$${total.toFixed(2)}</span>
+            </div>`;
+    }
+
+    // ─── PLACE ORDER ────────────────────────────────────────────────────────────
+    window.placeOrder = async function() {
+        const name = document.getElementById("customerName").value.trim();
+        const orderType = document.getElementById("orderType").value;
+        const tableNumber = document.getElementById("tableNumber").value;
+        const specialInstructions = document.getElementById("specialInstructions").value.trim();
+        const phone = document.getElementById("customerPhone").value.trim();
+        const smsConsent = document.getElementById("smsConsent")?.checked || false;
+
+        if (!name) { alert("Please enter your name."); return; }
+        if (!orderType) { alert("Please select an order type."); return; }
+        if (orderType === "Dine-In" && !tableNumber) { alert("Please select your table."); return; }
+        if (cart.length === 0) { alert("Your cart is empty!"); return; }
+
+        const btn = document.getElementById("placeOrderBtn");
+        btn.disabled = true;
+        btn.textContent = "Placing Order...";
+
+        const orderId = `ORD-${Date.now()}`;
+        const totalPrice = cart.reduce((s, i) => s + i.price, 0);
+        const assignedServer = orderType === "Dine-In" ? (TABLE_ASSIGNMENTS[tableNumber] || "N/A") : "N/A";
+
+        const mutation = `
+            mutation CreateOrder($input: CreateOrderInput!) {
+                createOrder(input: $input) {
+                    id orderId customerName status
+                }
+            }
+        `;
+
+        try {
+            await gql(mutation, {
+                input: {
+                    orderId,
+                    customerName: name,
+                    customerPhone: phone || null,
+                    smsConsent: phone ? smsConsent : false,
+                    orderType,
+                    tableNumber: orderType === "Dine-In" ? tableNumber : null,
+                    items: JSON.stringify(cart),
+                    totalPrice,
+                    specialInstructions,
+                    status: "Pending",
+                    assignedServer,
+                    source: "Restaurant",
+                    timestamp: new Date().toISOString()
+                }
+            });
+
+            document.getElementById("mainContent").style.display = "none";
+            document.getElementById("confirmationScreen").style.display = "block";
+            document.getElementById("confirmOrderNumber").textContent = orderId;
+            document.getElementById("trackOrderLink").href = `track-order.html?orderId=${orderId}`;
+
+        } catch (err) {
+            alert("Error placing order: " + err.message);
+            btn.disabled = false;
+            btn.textContent = "Place Order";
+        }
+    };
+
+    // ─── CATEGORY SWITCH ────────────────────────────────────────────────────────
+    window.setCategory = function(cat) {
+        activeCategory = cat;
+        renderCategoryTabs();
+        renderMenu();
+    };
+
+    // ─── INIT ───────────────────────────────────────────────────────────────────
+    loadMenu();
+
+    window.toggleTable = function() {
+        const t = document.getElementById("orderType").value;
+        document.getElementById("tableGroup").style.display = t === "Dine-In" ? "block" : "none";
+    };
+
+    window.scrollToCart = function() {
+        document.getElementById("cartSection").scrollIntoView({ behavior: "smooth" });
+    };
+</script>
+</body>
+</html>

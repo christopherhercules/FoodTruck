@@ -1,4 +1,4 @@
-# FoodTruck Project — Session Context
+# AiagentAssistance Platform — Session Context
 
 > Read this at the start of every session to get up to speed instantly.
 
@@ -71,7 +71,7 @@ ribtips, simplyporkfection, bobbyque, sodafusion
 ## Key File Locations
 
 ```
-FoodTruck/
+AiagentAssistance/                     ← local folder name (GitLab repo: FoodTruck)
 ├── CLAUDE.md                          ← this file
 ├── .gitignore                         ← excludes node_modules, .terraform/, .env
 ├── .gitlab-ci.yml                     ← CI/CD pipeline (validate/plan/apply)
@@ -92,9 +92,20 @@ FoodTruck/
 │   │   └── webhook.js                 ← inbound SMS handler, trust proxy=1
 │   └── toast/
 │       └── webhook.js                 ← Toast POS event handler
-└── MasChingon/
-    └── backend/
-        └── amplify/data/resource.ts   ← AppSync schema (includes smsConsent field)
+├── Food/
+│   ├── MasChingon/                    ← shared Amplify backend for all food sites
+│   │   └── backend/amplify/data/resource.ts  ← AppSync schema
+│   ├── 1859Bar/
+│   ├── BigTonys/ BobbyQue/ DonJuliosTacos/ HappyPizza/ HechoEnQueso/
+│   ├── MasChingonFoodTruck/ MasChingonRestaurant/
+│   └── PotatoWagon/ RibTips/ SacredSandwich/ SimplyPorkFection/
+│       SodaFusion/ SylviasTacos/ ThatGreenTrailer/
+└── Contractor/
+    └── LandClearing/
+        └── Hunter/                    ← hunter.aiagentassistance.com
+            ├── CLAUDE.md              ← Hunter-specific context
+            ├── index.html / estimate.html / dashboard.html / job.html
+            └── assets/
 ```
 
 ---
@@ -103,7 +114,7 @@ FoodTruck/
 
 | Thing | Detail |
 |---|---|
-| Account SID | `AC6f289213a19a78c53cbde8faab6b1124` |
+| Account SID | see Render env var `TWILIO_ACCOUNT_SID` |
 | Auth Token | stored as Render env var only — not in code |
 | From number | `+18443214664` (toll-free) |
 | Render URL | `https://foodtruck-cymz.onrender.com` |

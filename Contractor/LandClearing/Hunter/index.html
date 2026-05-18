@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hunter Land Clearing — South Texas Land Clearing & Cedar Mulching</title>
+  <meta name="description" content="South Texas' most affordable land clearing, cedar mulching, brush removal, and rock milling service. Licensed & insured. Serving New Braunfels, Canyon Lake, Boerne, and more." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green-dark:  #1C3A0A;
+      --green:       #2E5E12;
+      --green-mid:   #3D7A1B;
+      --green-light: #5A9E2F;
+      --brown:       #6B3A1A;
+      --amber:       #D4821A;
+      --amber-light: #F0A030;
+      --cream:       #F7F2E8;
+      --gray-light:  #F0EDE6;
+      --gray:        #888;
+      --text:        #1A1A1A;
+      --text-mid:    #3D3D3D;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Open Sans', sans-serif; color: var(--text); background: #fff; overflow-x: hidden; }
+    h1,h2,h3,h4 { font-family: 'Montserrat', sans-serif; }
+
+    /* NAV */
+    nav {
+      position: fixed; top:0; left:0; right:0; z-index:1000;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 72px;
+      background: rgba(18,36,6,0.94); backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      transition: background 0.3s;
+    }
+    .nav-logo { display:flex; align-items:center; gap:10px; text-decoration:none; }
+    .nav-logo img { height:46px; object-fit:contain; filter: brightness(1.1); }
+    .nav-links { display:flex; gap:30px; list-style:none; }
+    .nav-links a { color:rgba(255,255,255,0.85); text-decoration:none; font-size:0.85rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; transition:color 0.2s; }
+    .nav-links a:hover { color:var(--amber-light); }
+    .nav-cta { background:var(--amber) !important; color:#fff !important; padding:9px 20px; border-radius:4px; }
+    .nav-cta:hover { background:var(--amber-light) !important; color:var(--text) !important; }
+    .nav-hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; background:none; border:none; padding:4px; }
+    .nav-hamburger span { display:block; width:25px; height:2px; background:white; border-radius:2px; }
+
+    /* HERO */
+    .hero {
+      position:relative; height:100vh; min-height:640px;
+      display:flex; align-items:center; justify-content:center; text-align:center;
+      overflow:hidden;
+    }
+    .hero-slides { position:absolute; inset:0; }
+    .hero-slide {
+      position:absolute; inset:0;
+      background-size:cover; background-position:center;
+      opacity:0; transition:opacity 1.5s ease-in-out;
+      animation: heroZoom 14s ease-in-out infinite alternate;
+    }
+    .hero-slide.active { opacity:1; }
+    @keyframes heroZoom { from{transform:scale(1)} to{transform:scale(1.07)} }
+    .hero-overlay {
+      position:absolute; inset:0;
+      background: linear-gradient(160deg, rgba(10,24,4,0.85) 0%, rgba(18,44,6,0.72) 50%, rgba(55,28,4,0.68) 100%);
+    }
+    .hero-content { position:relative; z-index:2; max-width:820px; padding:0 24px; }
+    .hero-badge {
+      display:inline-flex; align-items:center; gap:8px;
+      background:rgba(212,130,26,0.22); border:1px solid rgba(212,130,26,0.5);
+      color:var(--amber-light); font-size:0.76rem; font-weight:700;
+      letter-spacing:.12em; text-transform:uppercase;
+      padding:6px 16px; border-radius:100px; margin-bottom:22px;
+    }
+    .hero-badge::before { content:''; width:6px; height:6px; background:var(--amber-light); border-radius:50%; animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
+    .hero h1 { font-size:clamp(2.2rem,5.5vw,4rem); font-weight:900; color:#fff; line-height:1.1; margin-bottom:18px; text-shadow:0 2px 20px rgba(0,0,0,.5); }
+    .hero h1 em { font-style:normal; color:var(--amber-light); }
+    .hero p { font-size:clamp(.95rem,2vw,1.2rem); color:rgba(255,255,255,.87); line-height:1.65; margin-bottom:34px; max-width:600px; margin-left:auto; margin-right:auto; }
+    .hero-buttons { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+    .hero-logo { margin-bottom:28px; }
+    .hero-logo img { height:70px; object-fit:contain; filter:brightness(1.15) drop-shadow(0 2px 12px rgba(0,0,0,.5)); }
+    .hero-stats { position:absolute; bottom:36px; left:50%; transform:translateX(-50%); display:flex; gap:44px; z-index:2; }
+    .hero-stat { text-align:center; color:white; }
+    .hero-stat-num { font-family:'Montserrat',sans-serif; font-weight:900; font-size:1.9rem; color:var(--amber-light); display:block; line-height:1; }
+    .hero-stat-label { font-size:.73rem; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.65); margin-top:4px; }
+    /* slide dots */
+    .hero-dots { position:absolute; bottom:12px; left:50%; transform:translateX(-50%); display:flex; gap:8px; z-index:3; }
+    .hero-dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.35); cursor:pointer; transition:background .3s; border:none; }
+    .hero-dot.active { background:var(--amber-light); }
+
+    /* TRUST BAR */
+    .trust-bar { background:var(--green-dark); padding:16px 40px; display:flex; align-items:center; justify-content:center; gap:44px; flex-wrap:wrap; }
+    .trust-item { display:flex; align-items:center; gap:9px; color:rgba(255,255,255,.85); font-size:.83rem; font-weight:600; letter-spacing:.04em; }
+
+    /* COMMON */
+    section { padding:88px 40px; }
+    .container { max-width:1180px; margin:0 auto; }
+    .section-label { display:inline-block; font-size:.72rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--green-mid); margin-bottom:10px; }
+    .section-title { font-size:clamp(1.7rem,4vw,2.7rem); font-weight:800; line-height:1.15; margin-bottom:14px; }
+    .section-sub { font-size:1.02rem; color:var(--text-mid); line-height:1.7; max-width:580px; }
+    .section-header { margin-bottom:52px; }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:14px 30px; border-radius:5px; font-family:'Montserrat',sans-serif; font-weight:700; font-size:.93rem; letter-spacing:.03em; text-decoration:none; transition:all .25s; cursor:pointer; border:none; }
+    .btn-primary { background:var(--amber); color:#fff; box-shadow:0 4px 20px rgba(212,130,26,.4); }
+    .btn-primary:hover { background:var(--amber-light); color:var(--text); transform:translateY(-2px); box-shadow:0 8px 28px rgba(240,160,48,.5); }
+    .btn-secondary { background:transparent; color:#fff; border:2px solid rgba(255,255,255,.6); }
+    .btn-secondary:hover { background:rgba(255,255,255,.12); border-color:#fff; transform:translateY(-2px); }
+
+    /* SERVICES */
+    #services { background:var(--cream); }
+    .services-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:26px; }
+    .service-card { background:#fff; border-radius:12px; padding:34px 30px; box-shadow:0 2px 16px rgba(0,0,0,.06); transition:all .3s; position:relative; overflow:hidden; }
+    .service-card::after { content:''; position:absolute; bottom:0;left:0; width:100%; height:3px; background:linear-gradient(90deg,var(--green-mid),var(--amber)); transform:scaleX(0); transform-origin:left; transition:transform .35s; }
+    .service-card:hover { transform:translateY(-5px); box-shadow:0 12px 36px rgba(0,0,0,.11); }
+    .service-card:hover::after { transform:scaleX(1); }
+    .service-icon { width:58px;height:58px; background:linear-gradient(135deg,var(--green-dark),var(--green-mid)); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:18px; }
+    .service-card h3 { font-size:1.1rem; font-weight:700; margin-bottom:8px; color:var(--green-dark); }
+    .service-card p { font-size:.9rem; color:var(--text-mid); line-height:1.65; }
+
+    /* PHOTO GALLERY */
+    #gallery { background:#fff; }
+    .gallery-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+    .gallery-item { position:relative; overflow:hidden; border-radius:8px; aspect-ratio:1/1; cursor:pointer; }
+    .gallery-item.wide { grid-column:span 2; aspect-ratio:2/1; }
+    .gallery-item.tall { grid-row:span 2; aspect-ratio:1/2; }
+    .gallery-item img { width:100%; height:100%; object-fit:cover; transition:transform .5s; display:block; }
+    .gallery-item:hover img { transform:scale(1.06); }
+    .gallery-item-overlay { position:absolute; inset:0; background:rgba(20,50,8,0); transition:background .3s; display:flex; align-items:center; justify-content:center; }
+    .gallery-item:hover .gallery-item-overlay { background:rgba(20,50,8,.35); }
+    .gallery-zoom { color:white; font-size:1.8rem; opacity:0; transition:opacity .3s; }
+    .gallery-item:hover .gallery-zoom { opacity:1; }
+
+    /* LIGHTBOX */
+    .lightbox { position:fixed; inset:0; background:rgba(0,0,0,.92); z-index:9999; display:none; align-items:center; justify-content:center; }
+    .lightbox.open { display:flex; }
+    .lightbox img { max-width:90vw; max-height:88vh; object-fit:contain; border-radius:6px; box-shadow:0 8px 60px rgba(0,0,0,.8); }
+    .lightbox-close { position:absolute; top:20px; right:28px; color:white; font-size:2.2rem; cursor:pointer; background:none; border:none; line-height:1; opacity:.75; transition:opacity .2s; }
+    .lightbox-close:hover { opacity:1; }
+    .lightbox-prev, .lightbox-next { position:absolute; top:50%; transform:translateY(-50%); color:white; font-size:2rem; cursor:pointer; background:rgba(255,255,255,.1); border:none; width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:background .2s; }
+    .lightbox-prev { left:16px; }
+    .lightbox-next { right:16px; }
+    .lightbox-prev:hover, .lightbox-next:hover { background:rgba(255,255,255,.25); }
+
+    /* WHY */
+    #why { background:#fff; }
+    .why-grid { display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center; }
+    .why-img-stack { position:relative; }
+    .why-img-main { width:100%; border-radius:14px; overflow:hidden; height:460px; box-shadow:0 8px 40px rgba(0,0,0,.15); }
+    .why-img-main img { width:100%; height:100%; object-fit:cover; }
+    .why-img-thumb { position:absolute; bottom:-20px; right:-20px; width:180px; height:140px; border-radius:10px; overflow:hidden; border:4px solid white; box-shadow:0 6px 24px rgba(0,0,0,.2); }
+    .why-img-thumb img { width:100%; height:100%; object-fit:cover; }
+    .why-badge { position:absolute; bottom:20px; left:20px; background:var(--amber); color:white; padding:10px 16px; border-radius:8px; font-family:'Montserrat',sans-serif; font-weight:800; font-size:.84rem; }
+    .why-points { display:flex; flex-direction:column; gap:26px; }
+    .why-point { display:flex; gap:16px; align-items:flex-start; }
+    .why-point-icon { width:46px; height:46px; min-width:46px; background:linear-gradient(135deg,var(--green-dark),var(--green-mid)); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.25rem; }
+    .why-point-text h4 { font-size:.98rem; font-weight:700; margin-bottom:4px; color:var(--green-dark); }
+    .why-point-text p { font-size:.88rem; color:var(--text-mid); line-height:1.6; }
+
+    /* AREAS */
+    #areas { background:var(--green-dark); color:white; }
+    #areas .section-label { color:var(--amber-light); }
+    #areas .section-title { color:white; }
+    #areas .section-sub { color:rgba(255,255,255,.72); }
+    .areas-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-top:44px; }
+    .area-card { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.11); border-radius:10px; padding:22px 18px; text-align:center; transition:all .3s; }
+    .area-card:hover { background:rgba(212,130,26,.18); border-color:rgba(212,130,26,.4); transform:translateY(-3px); }
+    .area-card-pin { font-size:1.5rem; margin-bottom:8px; }
+    .area-card h4 { font-size:.93rem; font-weight:700; color:white; margin-bottom:3px; }
+    .area-card p { font-size:.73rem; color:rgba(255,255,255,.5); }
+    .areas-note { text-align:center; margin-top:32px; color:rgba(255,255,255,.55); font-size:.88rem; }
+    .areas-note a { color:var(--amber-light); text-decoration:none; font-weight:600; }
+
+    /* REVIEWS */
+    #reviews { background:var(--cream); }
+    .reviews-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:22px; }
+    .review-card { background:white; border-radius:12px; padding:30px 26px; box-shadow:0 2px 14px rgba(0,0,0,.06); transition:transform .3s,box-shadow .3s; }
+    .review-card:hover { transform:translateY(-4px); box-shadow:0 10px 28px rgba(0,0,0,.1); }
+    .review-quote-mark { font-size:3.8rem; line-height:.8; color:var(--green-light); font-family:Georgia,serif; margin-bottom:10px; opacity:.3; }
+    .review-stars { color:var(--amber); font-size:.95rem; margin-bottom:12px; letter-spacing:2px; }
+    .review-text { font-size:.91rem; color:var(--text-mid); line-height:1.7; margin-bottom:18px; font-style:italic; }
+    .review-author { display:flex; align-items:center; gap:11px; }
+    .review-avatar { width:40px;height:40px; border-radius:50%; background:linear-gradient(135deg,var(--green-mid),var(--green-dark)); display:flex; align-items:center; justify-content:center; color:white; font-family:'Montserrat',sans-serif; font-weight:700; font-size:.95rem; }
+    .review-author-info strong { display:block; font-size:.88rem; font-weight:700; }
+    .review-author-info span { font-size:.76rem; color:var(--gray); }
+
+    /* PROCESS */
+    #process { background:white; }
+    .process-steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:0; position:relative; }
+    .process-steps::before { content:''; position:absolute; top:34px; left:10%; right:10%; height:2px; background:linear-gradient(90deg,var(--green-light),var(--amber)); z-index:0; }
+    .process-step { text-align:center; padding:0 22px; position:relative; z-index:1; }
+    .process-num { width:68px;height:68px; border-radius:50%; background:var(--green-dark); color:white; font-family:'Montserrat',sans-serif; font-weight:900; font-size:1.3rem; display:flex; align-items:center; justify-content:center; margin:0 auto 18px; border:4px solid white; box-shadow:0 0 0 3px var(--green-mid); }
+    .process-step h4 { font-size:.97rem; font-weight:700; margin-bottom:6px; color:var(--green-dark); }
+    .process-step p { font-size:.85rem; color:var(--text-mid); line-height:1.6; }
+
+    /* CTA BAND */
+    .cta-band { background:linear-gradient(135deg,var(--green-dark) 0%,var(--brown) 100%); padding:68px 40px; text-align:center; position:relative; overflow:hidden; }
+    .cta-band::before { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+    .cta-band h2 { font-size:clamp(1.7rem,4vw,2.7rem); font-weight:900; color:white; margin-bottom:14px; position:relative; }
+    .cta-band p { font-size:1.05rem; color:rgba(255,255,255,.8); margin-bottom:32px; position:relative; }
+    .cta-band .hero-buttons { position:relative; }
+    .cta-phone { display:flex; align-items:center; gap:10px; justify-content:center; margin-top:22px; color:rgba(255,255,255,.6); font-size:.88rem; position:relative; }
+    .cta-phone a { color:var(--amber-light); font-weight:700; text-decoration:none; font-size:1.25rem; }
+
+    /* CONTACT */
+    #contact { background:var(--gray-light); }
+    .contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:52px; align-items:start; }
+    .contact-info h3 { font-size:1.45rem; font-weight:800; color:var(--green-dark); margin-bottom:14px; }
+    .contact-info p { color:var(--text-mid); line-height:1.7; margin-bottom:28px; }
+    .contact-detail { display:flex; gap:14px; align-items:flex-start; margin-bottom:18px; }
+    .contact-detail-icon { width:42px;height:42px;min-width:42px; background:var(--green-dark); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.05rem; }
+    .contact-detail-text strong { display:block; font-size:.82rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--gray); margin-bottom:2px; }
+    .contact-detail-text a, .contact-detail-text span { font-size:.97rem; color:var(--text); text-decoration:none; font-weight:600; }
+    .contact-detail-text a:hover { color:var(--green-mid); }
+    .contact-form { background:white; border-radius:16px; padding:38px; box-shadow:0 4px 22px rgba(0,0,0,.08); }
+    .contact-form h3 { font-size:1.25rem; font-weight:700; color:var(--green-dark); margin-bottom:22px; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .form-group { margin-bottom:16px; }
+    .form-group label { display:block; font-size:.8rem; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--text-mid); margin-bottom:5px; }
+    .form-group input, .form-group select, .form-group textarea { width:100%; padding:11px 14px; border:1.5px solid #ddd; border-radius:8px; font-family:'Open Sans',sans-serif; font-size:.93rem; color:var(--text); transition:border-color .2s,box-shadow .2s; outline:none; background:var(--gray-light); }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:var(--green-mid); box-shadow:0 0 0 3px rgba(61,122,27,.12); background:white; }
+    .form-group textarea { resize:vertical; min-height:95px; }
+    .form-submit { width:100%; padding:14px; font-size:.97rem; }
+
+    /* FOOTER */
+    footer { background:var(--green-dark); color:rgba(255,255,255,.72); padding:56px 40px 28px; }
+    .footer-grid { max-width:1180px; margin:0 auto; display:grid; grid-template-columns:2fr 1fr 1fr; gap:44px; margin-bottom:44px; }
+    .footer-brand h3 { font-family:'Montserrat',sans-serif; font-weight:800; font-size:1.15rem; color:white; margin-bottom:10px; }
+    .footer-brand p { font-size:.86rem; line-height:1.7; margin-bottom:18px; }
+    .footer-brand img { height:44px; object-fit:contain; margin-bottom:14px; filter:brightness(1.2); }
+    .footer-social { display:flex; gap:10px; }
+    .social-btn { width:36px;height:36px; border-radius:8px; background:rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; text-decoration:none; font-size:.95rem; transition:background .2s; }
+    .social-btn:hover { background:var(--amber); }
+    .footer-col h4 { font-family:'Montserrat',sans-serif; font-weight:700; font-size:.83rem; letter-spacing:.1em; text-transform:uppercase; color:white; margin-bottom:14px; }
+    .footer-col ul { list-style:none; }
+    .footer-col ul li { margin-bottom:7px; }
+    .footer-col ul li a { color:rgba(255,255,255,.62); text-decoration:none; font-size:.86rem; transition:color .2s; }
+    .footer-col ul li a:hover { color:var(--amber-light); }
+    .footer-bottom { max-width:1180px; margin:0 auto; padding-top:22px; border-top:1px solid rgba(255,255,255,.1); display:flex; align-items:center; justify-content:space-between; font-size:.78rem; color:rgba(255,255,255,.38); flex-wrap:wrap; gap:10px; }
+
+    /* SCROLL UP */
+    .scroll-up { position:fixed; bottom:30px;right:30px; width:42px;height:42px; background:var(--amber); color:white; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.15rem; cursor:pointer; text-decoration:none; box-shadow:0 4px 14px rgba(212,130,26,.4); opacity:0; transition:opacity .3s,transform .3s; z-index:999; border:none; }
+    .scroll-up.visible { opacity:1; }
+    .scroll-up:hover { transform:translateY(-3px); }
+
+    /* ANIMATIONS */
+    .fade-up { opacity:0; transform:translateY(28px); transition:opacity .6s ease,transform .6s ease; }
+    .fade-up.visible { opacity:1; transform:translateY(0); }
+    .stagger-1{transition-delay:.1s} .stagger-2{transition-delay:.2s} .stagger-3{transition-delay:.3s}
+    .stagger-4{transition-delay:.4s} .stagger-5{transition-delay:.5s} .stagger-6{transition-delay:.6s}
+
+    /* MOBILE */
+    @media(max-width:900px) {
+      .gallery-grid { grid-template-columns:repeat(2,1fr); }
+      .gallery-item.wide { grid-column:span 2; }
+      .gallery-item.tall { grid-row:span 1; aspect-ratio:1/1; }
+      .why-grid { grid-template-columns:1fr; }
+      .why-img-stack { height:300px; }
+      .why-img-main { height:300px; }
+      .why-img-thumb { display:none; }
+    }
+    @media(max-width:768px) {
+      nav { padding:0 18px; }
+      .nav-links { display:none; }
+      .nav-hamburger { display:flex; }
+      section { padding:60px 18px; }
+      .hero-stats { gap:20px; bottom:22px; }
+      .hero-stat-num { font-size:1.45rem; }
+      .contact-grid { grid-template-columns:1fr; }
+      .form-row { grid-template-columns:1fr; }
+      .footer-grid { grid-template-columns:1fr; gap:28px; }
+      .footer-bottom { flex-direction:column; text-align:center; }
+      .process-steps::before { display:none; }
+      .process-steps { gap:28px; }
+      .trust-bar { gap:16px; padding:14px 18px; }
+      .gallery-grid { grid-template-columns:repeat(2,1fr); gap:6px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">
+    <img src="/assets/hunter-01-acfd7b28-1920w.png" alt="Hunter Land Clearing" />
+  </a>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#gallery">Our Work</a></li>
+    <li><a href="#why">Why Us</a></li>
+    <li><a href="#areas">Service Areas</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="/estimate.html" class="nav-cta">Free Estimate</a></li>
+  </ul>
+  <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div id="mobile-menu" style="display:none;position:fixed;top:72px;left:0;right:0;background:rgba(18,36,6,.97);z-index:999;padding:22px 22px 28px;">
+  <ul style="list-style:none;display:flex;flex-direction:column;gap:14px;">
+    <li><a href="#services" style="color:white;text-decoration:none;font-size:1.05rem;font-weight:600;" onclick="toggleMenu()">Services</a></li>
+    <li><a href="#gallery" style="color:white;text-decoration:none;font-size:1.05rem;font-weight:600;" onclick="toggleMenu()">Our Work</a></li>
+    <li><a href="#why" style="color:white;text-decoration:none;font-size:1.05rem;font-weight:600;" onclick="toggleMenu()">Why Us</a></li>
+    <li><a href="#areas" style="color:white;text-decoration:none;font-size:1.05rem;font-weight:600;" onclick="toggleMenu()">Service Areas</a></li>
+    <li><a href="#reviews" style="color:white;text-decoration:none;font-size:1.05rem;font-weight:600;" onclick="toggleMenu()">Reviews</a></li>
+    <li><a href="/estimate.html" style="color:var(--amber-light);text-decoration:none;font-size:1.05rem;font-weight:700;" onclick="toggleMenu()">Get Free Estimate →</a></li>
+  </ul>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-slides">
+    <div class="hero-slide active" style="background-image:url('/assets/Screen+Shot+2020-05-01+at+6.59.24+PM-1920w.png')"></div>
+    <div class="hero-slide" style="background-image:url('/assets/Screenshot+2025-07-29+at+11.16.01-AM-1920w.png')"></div>
+    <div class="hero-slide" style="background-image:url('/assets/Screen+Shot+2020-05-01+at+6.59.48+PM-1920w.png')"></div>
+    <div class="hero-slide" style="background-image:url('/assets/Screen+Shot+2020-05-01+at+7.00.01+PM-1920w.png')"></div>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-logo">
+      <img src="/assets/hunter-01-acfd7b28-1920w.png" alt="Hunter Land Clearing" />
+    </div>
+    <div class="hero-badge">Licensed &amp; Insured · South Texas</div>
+    <h1>South Texas' Most Affordable<br /><em>Land Clearing</em> Service</h1>
+    <p>Cedar mulching, brush removal, rock milling, and complete land clearing for ranches, lots, and properties across the Texas Hill Country.</p>
+    <div class="hero-buttons">
+      <a href="/estimate.html" class="btn btn-primary">🌿 Get a Free Estimate</a>
+      <a href="tel:8308327065" class="btn btn-secondary">📞 (830) 832-7065</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><span class="hero-stat-num">7+</span><span class="hero-stat-label">Cities Served</span></div>
+    <div class="hero-stat"><span class="hero-stat-num">100%</span><span class="hero-stat-label">Satisfaction</span></div>
+    <div class="hero-stat"><span class="hero-stat-num">Free</span><span class="hero-stat-label">Estimates</span></div>
+  </div>
+  <div class="hero-dots" id="heroDots">
+    <button class="hero-dot active" onclick="goSlide(0)"></button>
+    <button class="hero-dot" onclick="goSlide(1)"></button>
+    <button class="hero-dot" onclick="goSlide(2)"></button>
+    <button class="hero-dot" onclick="goSlide(3)"></button>
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-item">✅ Licensed &amp; Insured</div>
+  <div class="trust-item">💰 Free Estimates</div>
+  <div class="trust-item">🏆 Satisfaction Guaranteed</div>
+  <div class="trust-item">📞 Mon–Fri · 7am–9pm</div>
+  <div class="trust-item">📍 New Braunfels, TX</div>
+</div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">What We Do</span>
+      <h2 class="section-title">Professional Land Clearing Services</h2>
+      <p class="section-sub">From thick cedar brush to rocky terrain, we have the equipment and expertise to transform your property.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card fade-up stagger-1">
+        <div class="service-icon">🌲</div>
+        <h3>Cedar Tree &amp; Brush Removal</h3>
+        <p>Complete removal of cedar trees and dense brush that's taking over your property. We clear it efficiently, leaving your land clean and open.</p>
+      </div>
+      <div class="service-card fade-up stagger-2">
+        <div class="service-icon">♻️</div>
+        <h3>Cedar Tree &amp; Brush Mulching</h3>
+        <p>State-of-the-art mulching equipment grinds cedar and brush on-site, creating nutrient-rich ground cover that benefits your soil naturally.</p>
+      </div>
+      <div class="service-card fade-up stagger-3">
+        <div class="service-icon">🚜</div>
+        <h3>Driveway &amp; RV Pad Building</h3>
+        <p>We grade and build driveways and RV pads across challenging Texas terrain — even across multiple rocky, inclined levels.</p>
+      </div>
+      <div class="service-card fade-up stagger-4">
+        <div class="service-icon">🏡</div>
+        <h3>Landscaping</h3>
+        <p>Full landscaping services including design, irrigation, lighting, and materials. We'll reveal the natural beauty hidden in your property.</p>
+      </div>
+      <div class="service-card fade-up stagger-5">
+        <div class="service-icon">🏞️</div>
+        <h3>Ranch &amp; Land Clearing</h3>
+        <p>Large-scale clearing for ranches, hunting properties, and undeveloped land. We handle acreage of any size in the Texas Hill Country.</p>
+      </div>
+      <div class="service-card fade-up stagger-6">
+        <div class="service-icon">⛏️</div>
+        <h3>Rock Milling</h3>
+        <p>Specialized rock milling to break down and level rocky terrain, with strategic placement of extracted boulders for natural landscaping features.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PHOTO GALLERY -->
+<section id="gallery">
+  <div class="container">
+    <div class="section-header" style="text-align:center;">
+      <span class="section-label">Real Project Photos</span>
+      <h2 class="section-title">Our Work Speaks for Itself</h2>
+      <p class="section-sub" style="margin:0 auto;">Every photo is an actual Hunter Land Clearing job — real properties transformed right here in the Texas Hill Country.</p>
+    </div>
+    <div class="gallery-grid">
+      <div class="gallery-item wide fade-up stagger-1">
+        <img src="/assets/Screen+Shot+2020-05-01+at+11.43.15+AM-1920w.png" alt="Land clearing project" loading="lazy" />
+        <div class="gallery-item-overlay"><span class="gallery-zoom">🔍</span></div>
+      </div>
+      <div class="gallery-item fade-up stagger-2">
+        <img src="/assets/11667431_1604359013179854_2071504684093885559_n-1920w.jpg" alt="Cedar clearing job" loading="lazy" />
+        <div class="gallery-item-overlay"><span class="gallery-zoom">🔍</span></div>
+      </div>
+      <div class="gallery-item fade-up stagger-3">
+        <img src="/assets/20663831_1947529715529447_583010866773260101_n-1920w.jpg" alt="Brush removal" loading="lazy" />
+        <div class="gallery-item-overlay"><span class="gallery-zoom">🔍</span></div>
+      </div>
+      <div class="gallery-item fade-up stagger-1">
+        <img src="/assets/11742789_1610194479262974_364282618332366974_n-1920w.jpg" alt="Land clearing result" loading="lazy" />
+        <div class="gallery-item-overlay"><span class="gallery-zoom">🔍</span></div>
+      </div>
+      <div class="gallery-item fade-up stagger-2">
+        <img src="/assets/20663853_1947529725529446_7016809642804585181_n-1920w.jpg" alt="Property transformation" loading="lazy" />
+        <div class="gallery-item-overlay"><span class="gallery-zoom">🔍</span></div>
+      </div>
+      <div class="gallery-item wide fade-up stagger-3">
+        <img src="/assets/New+Braunfels+Tx+lanscape+company-2-1920w.jpg" alt="New Braunfels landscape" loading="lazy" />
+        <div class="gallery-item-overlay"><span class="gallery-zoom">🔍</span></div>
+      </div>
+      <div class="gallery-item fade-up stagger-1">
+        <img src="/assets/11403029_1601577100124712_7378884577912373524_n-1920w.jpg" alt="Cedar mulching" loading="lazy" />
+        <div class="gallery-item-overlay"><span class="gallery-zoom">🔍</span></div>
+      </div>
+      <div class="gallery-item fade-up stagger-2">
+        <img src="/assets/11136751_1593515757597513_1720483919549370435_n-1920w.jpg" alt="Rock milling" loading="lazy" />
+        <div class="gallery-item-overlay"><span class="gallery-zoom">🔍</span></div>
+      </div>
+      <div class="gallery-item fade-up stagger-3">
+        <img src="/assets/20622046_1947529618862790_4638723677376679440_n-1920w.jpg" alt="Brush clearing" loading="lazy" />
+        <div class="gallery-item-overlay"><span class="gallery-zoom">🔍</span></div>
+      </div>
+      <div class="gallery-item fade-up stagger-4">
+        <img src="/assets/11040504_1587689121513510_5244520416562773165_n-1920w.jpg" alt="Land transformation" loading="lazy" />
+        <div class="gallery-item-overlay"><span class="gallery-zoom">🔍</span></div>
+      </div>
+      <div class="gallery-item fade-up stagger-5">
+        <img src="/assets/11011657_1587689131513509_7176337831504288664_n-1920w.jpg" alt="Cedar removal" loading="lazy" />
+        <div class="gallery-item-overlay"><span class="gallery-zoom">🔍</span></div>
+      </div>
+      <div class="gallery-item fade-up stagger-6">
+        <img src="/assets/11742724_1610194452596310_7737758026487795222_n-1920w.jpg" alt="Property clearing" loading="lazy" />
+        <div class="gallery-item-overlay"><span class="gallery-zoom">🔍</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <button class="lightbox-prev" onclick="lightboxNav(-1)">‹</button>
+  <img id="lightboxImg" src="" alt="" />
+  <button class="lightbox-next" onclick="lightboxNav(1)">›</button>
+</div>
+
+<!-- WHY CHOOSE US -->
+<section id="why">
+  <div class="container">
+    <div class="why-grid">
+      <div class="why-img-stack fade-up">
+        <div class="why-img-main">
+          <img src="/assets/Screen+Shot+2020-05-01+at+6.59.48+PM-1920w.png" alt="Hunter Land Clearing job" />
+        </div>
+        <div class="why-img-thumb">
+          <img src="/assets/20663831_1947529715529447_583010866773260101_n-1920w.jpg" alt="Cleared property" />
+        </div>
+        <div class="why-badge">Jason &amp; His Crew · New Braunfels, TX</div>
+      </div>
+      <div>
+        <span class="section-label">Why Choose Hunter</span>
+        <h2 class="section-title">We Care About Quality As Much As You Do</h2>
+        <div class="why-points">
+          <div class="why-point fade-up stagger-1">
+            <div class="why-point-icon">💎</div>
+            <div class="why-point-text">
+              <h4>Recognized Quality</h4>
+              <p>Fellow tradespeople across Canyon Lake have called our jobs out by name — that's the kind of workmanship we deliver on every project.</p>
+            </div>
+          </div>
+          <div class="why-point fade-up stagger-2">
+            <div class="why-point-icon">💲</div>
+            <div class="why-point-text">
+              <h4>South Texas' Most Affordable</h4>
+              <p>Competitive pricing without cutting corners, backed by a full satisfaction guarantee on every job.</p>
+            </div>
+          </div>
+          <div class="why-point fade-up stagger-3">
+            <div class="why-point-icon">🛡️</div>
+            <div class="why-point-text">
+              <h4>Licensed &amp; Insured</h4>
+              <p>You and your property are fully protected from first visit to final cleanup — no exceptions.</p>
+            </div>
+          </div>
+          <div class="why-point fade-up stagger-4">
+            <div class="why-point-icon">⚡</div>
+            <div class="why-point-text">
+              <h4>Smart, Efficient Crew</h4>
+              <p>We think ahead — like extracting boulders during grading and repositioning them as landscaping features, saving you money later.</p>
+            </div>
+          </div>
+          <div class="why-point fade-up stagger-5">
+            <div class="why-point-icon">📱</div>
+            <div class="why-point-text">
+              <h4>Always Reachable</h4>
+              <p>Call or email any time. We respond fast and keep you in the loop throughout every step of your project.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="container">
+    <div class="section-header" style="text-align:center;">
+      <span class="section-label">How It Works</span>
+      <h2 class="section-title">Simple. Fast. Done Right.</h2>
+    </div>
+    <div class="process-steps">
+      <div class="process-step fade-up stagger-1">
+        <div class="process-num">1</div>
+        <h4>Contact Us</h4>
+        <p>Call or fill out the form. We'll respond quickly and schedule a time to visit your property.</p>
+      </div>
+      <div class="process-step fade-up stagger-2">
+        <div class="process-num">2</div>
+        <h4>Free Estimate</h4>
+        <p>Jason visits your property, assesses the scope, and gives you a detailed no-obligation quote.</p>
+      </div>
+      <div class="process-step fade-up stagger-3">
+        <div class="process-num">3</div>
+        <h4>We Get to Work</h4>
+        <p>Our crew arrives on schedule with the right equipment and completes the job thoroughly.</p>
+      </div>
+      <div class="process-step fade-up stagger-4">
+        <div class="process-num">4</div>
+        <h4>Enjoy Your Land</h4>
+        <p>See your property transformed — the beauty that was always there, finally revealed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICE AREAS -->
+<section id="areas">
+  <div class="container">
+    <span class="section-label">Where We Work</span>
+    <h2 class="section-title">Serving the Texas Hill Country</h2>
+    <p class="section-sub">Based in New Braunfels, we work across the greater Hill Country region. Don't see your city? Give us a call.</p>
+    <div class="areas-grid">
+      <div class="area-card fade-up stagger-1"><div class="area-card-pin">📍</div><h4>New Braunfels</h4><p>Home Base</p></div>
+      <div class="area-card fade-up stagger-2"><div class="area-card-pin">📍</div><h4>Canyon Lake</h4><p>Comal County</p></div>
+      <div class="area-card fade-up stagger-3"><div class="area-card-pin">📍</div><h4>Boerne</h4><p>Kendall County</p></div>
+      <div class="area-card fade-up stagger-4"><div class="area-card-pin">📍</div><h4>Bulverde</h4><p>Comal County</p></div>
+      <div class="area-card fade-up stagger-1"><div class="area-card-pin">📍</div><h4>Bergheim</h4><p>Kendall County</p></div>
+      <div class="area-card fade-up stagger-2"><div class="area-card-pin">📍</div><h4>Bandera</h4><p>Bandera County</p></div>
+      <div class="area-card fade-up stagger-3"><div class="area-card-pin">📍</div><h4>Kerrville</h4><p>Kerr County</p></div>
+    </div>
+    <p class="areas-note">Not on the list? <a href="#contact">Contact us</a> — we cover more of the Hill Country than you might expect.</p>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section id="reviews">
+  <div class="container">
+    <div class="section-header" style="text-align:center;">
+      <span class="section-label">What Our Customers Say</span>
+      <h2 class="section-title">Don't Just Take Our Word For It</h2>
+    </div>
+    <div class="reviews-grid">
+      <div class="review-card fade-up stagger-1">
+        <div class="review-quote-mark">"</div>
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">Had a clearing job in Canyon Lake and saw a lot of Hunter Land Clearing jobs! They all look great — it's nice to see another person of the trade that cares about quality workmanship!</p>
+        <div class="review-author"><div class="review-avatar">SL</div><div class="review-author-info"><strong>Sam L.</strong><span>Canyon Lake, TX</span></div></div>
+      </div>
+      <div class="review-card fade-up stagger-2">
+        <div class="review-quote-mark">"</div>
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">Our lot looked like a park when Hunter Land Clearing finished up. Thank you for making our oaks beautiful again!</p>
+        <div class="review-author"><div class="review-avatar">MH</div><div class="review-author-info"><strong>Michele H.</strong><span>New Braunfels, TX</span></div></div>
+      </div>
+      <div class="review-card fade-up stagger-3">
+        <div class="review-quote-mark">"</div>
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">Amazing, amazing, amazing! Excellent job clearing and trimming around the oaks. Thanks to Jason and his crew the beauty of our property has been revealed!</p>
+        <div class="review-author"><div class="review-avatar">DS</div><div class="review-author-info"><strong>Douglas S.</strong><span>New Braunfels, TX</span></div></div>
+      </div>
+      <div class="review-card fade-up stagger-4">
+        <div class="review-quote-mark">"</div>
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">So efficient! The team graded our driveway across three rocky inclined levels and strategically placed the extracted boulders as beautiful landscaping features. Highly recommend!</p>
+        <div class="review-author"><div class="review-avatar">DD</div><div class="review-author-info"><strong>Dennis D.</strong><span>New Braunfels, TX</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-band">
+  <h2>Ready to Transform Your Property?</h2>
+  <p>Get your free, no-obligation estimate today. We'll come to you.</p>
+  <div class="hero-buttons">
+    <a href="/estimate.html" class="btn btn-primary">Request a Free Estimate</a>
+    <a href="tel:8308327065" class="btn btn-secondary">📞 Call Jason Now</a>
+  </div>
+  <div class="cta-phone">Or email us at <a href="mailto:j_merz@yahoo.com" style="margin-left:5px;">j_merz@yahoo.com</a></div>
+</div>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="container">
+    <div class="contact-grid">
+      <div class="contact-info">
+        <span class="section-label">Get In Touch</span>
+        <h3>Let's Talk About Your Property</h3>
+        <p>Whether you have a small lot or a large ranch, we'd love to walk the property with you and give you a free, honest estimate. No pressure — just straight answers.</p>
+        <div class="contact-detail">
+          <div class="contact-detail-icon">📞</div>
+          <div class="contact-detail-text"><strong>Phone</strong><a href="tel:8308327065">(830) 832-7065</a></div>
+        </div>
+        <div class="contact-detail">
+          <div class="contact-detail-icon">✉️</div>
+          <div class="contact-detail-text"><strong>Email</strong><a href="mailto:j_merz@yahoo.com">j_merz@yahoo.com</a></div>
+        </div>
+        <div class="contact-detail">
+          <div class="contact-detail-icon">📍</div>
+          <div class="contact-detail-text"><strong>Based In</strong><span>New Braunfels, Texas</span></div>
+        </div>
+        <div class="contact-detail">
+          <div class="contact-detail-icon">🕐</div>
+          <div class="contact-detail-text"><strong>Hours</strong><span>Mon–Fri · 7am–9pm</span></div>
+        </div>
+      </div>
+      <div class="contact-form">
+        <h3>Request Your Free Estimate</h3>
+        <form onsubmit="handleSubmit(event)">
+          <div class="form-row">
+            <div class="form-group"><label>First Name</label><input type="text" placeholder="First name" required /></div>
+            <div class="form-group"><label>Last Name</label><input type="text" placeholder="Last name" required /></div>
+          </div>
+          <div class="form-group"><label>Phone Number</label><input type="tel" placeholder="(830) 555-0000" required /></div>
+          <div class="form-group"><label>Email Address</label><input type="email" placeholder="you@email.com" /></div>
+          <div class="form-group">
+            <label>City / Property Location</label>
+            <select>
+              <option value="">Select your area...</option>
+              <option>New Braunfels</option><option>Canyon Lake</option><option>Boerne</option>
+              <option>Bulverde</option><option>Bergheim</option><option>Bandera</option>
+              <option>Kerrville</option><option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Service Needed</label>
+            <select>
+              <option value="">Select a service...</option>
+              <option>Cedar Tree &amp; Brush Removal</option><option>Cedar Mulching</option>
+              <option>Driveway / RV Pad Building</option><option>Landscaping</option>
+              <option>Ranch &amp; Land Clearing</option><option>Rock Milling</option>
+              <option>Multiple Services</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Tell us about your project</label><textarea placeholder="Approximate acreage, what needs clearing, any special conditions..."></textarea></div>
+          <button type="submit" class="btn btn-primary form-submit">Send My Free Estimate Request →</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <img src="/assets/hunter-01-acfd7b28-1920w.png" alt="Hunter Land Clearing" />
+      <p>South Texas' most affordable land clearing and cedar mulching service. Serving the Texas Hill Country from New Braunfels.</p>
+      <div class="footer-social">
+        <a href="https://facebook.com/Hunter-Land-Clearing-1525625671053189" class="social-btn" target="_blank" aria-label="Facebook">f</a>
+        <a href="https://instagram.com/hunterlandclearing" class="social-btn" target="_blank" aria-label="Instagram">in</a>
+        <a href="https://yelp.com/biz/hunter-land-clearing-canyon-lake" class="social-btn" target="_blank" aria-label="Yelp">Y</a>
+        <a href="#" class="social-btn" aria-label="Google">G</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="#services">Cedar Removal</a></li>
+        <li><a href="#services">Brush Mulching</a></li>
+        <li><a href="#services">Driveway Building</a></li>
+        <li><a href="#services">Landscaping</a></li>
+        <li><a href="#services">Land Clearing</a></li>
+        <li><a href="#services">Rock Milling</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Service Areas</h4>
+      <ul>
+        <li><a href="#areas">New Braunfels</a></li>
+        <li><a href="#areas">Canyon Lake</a></li>
+        <li><a href="#areas">Boerne</a></li>
+        <li><a href="#areas">Bulverde</a></li>
+        <li><a href="#areas">Bergheim</a></li>
+        <li><a href="#areas">Bandera &amp; Kerrville</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Hunter Land Clearing · New Braunfels, TX · Licensed &amp; Insured</span>
+    <span>📞 <a href="tel:8308327065" style="color:rgba(255,255,255,.45);text-decoration:none;">(830) 832-7065</a></span>
+  </div>
+</footer>
+
+<button class="scroll-up" id="scrollUp" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Top">↑</button>
+
+<script>
+  // NAV
+  function toggleMenu() {
+    const m = document.getElementById('mobile-menu');
+    m.style.display = m.style.display === 'none' ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').style.background = window.scrollY > 60 ? 'rgba(10,24,4,.98)' : 'rgba(18,36,6,.94)';
+    document.getElementById('scrollUp').classList.toggle('visible', window.scrollY > 400);
+  });
+
+  // HERO SLIDESHOW
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.hero-slide');
+  const dots = document.querySelectorAll('.hero-dot');
+  function goSlide(n) {
+    slides[currentSlide].classList.remove('active');
+    dots[currentSlide].classList.remove('active');
+    currentSlide = n;
+    slides[currentSlide].classList.add('active');
+    dots[currentSlide].classList.add('active');
+  }
+  setInterval(() => goSlide((currentSlide + 1) % slides.length), 5000);
+
+  // GALLERY LIGHTBOX
+  const galleryImgs = [...document.querySelectorAll('.gallery-item img')];
+  let lbIndex = 0;
+  document.querySelectorAll('.gallery-item').forEach((item, i) => {
+    item.addEventListener('click', () => { lbIndex = i; openLightbox(galleryImgs[i].src); });
+  });
+  function openLightbox(src) {
+    document.getElementById('lightboxImg').src = src;
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function lightboxNav(dir) {
+    lbIndex = (lbIndex + dir + galleryImgs.length) % galleryImgs.length;
+    document.getElementById('lightboxImg').src = galleryImgs[lbIndex].src;
+  }
+  document.getElementById('lightbox').addEventListener('click', e => { if (e.target === e.currentTarget) closeLightbox(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); if (e.key === 'ArrowLeft') lightboxNav(-1); if (e.key === 'ArrowRight') lightboxNav(1); });
+
+  // FADE-UP
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // FORM
+  function handleSubmit(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('.form-submit');
+    btn.textContent = "✅ Request Sent! We'll be in touch soon.";
+    btn.style.background = 'var(--green-mid)';
+    btn.disabled = true;
+  }
+</script>
+</body>
+</html>

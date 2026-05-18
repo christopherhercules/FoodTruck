@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Job — Hunter Land Clearing</title>
+
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-dark:  #1E3D0F;
+      --green-mid:   #2E5E12;
+      --green-light: #4A8A20;
+      --amber:       #D4821A;
+      --amber-light: #F0A030;
+      --bg:          #F4F6F0;
+      --card:        #FFFFFF;
+      --text:        #1A2410;
+      --text-mid:    #4A5C3A;
+      --border:      #D8E0D0;
+    }
+
+    body { font-family: 'Open Sans', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.5; }
+
+    /* HEADER */
+    header {
+      background: var(--green-dark); color: white;
+      padding: 18px 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+    .header-inner { max-width: 800px; margin: 0 auto; display: flex; align-items: center; gap: 14px; }
+    .header-logo { font-size: 1.7rem; }
+    .header-text h1 { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 1.2rem; letter-spacing: .3px; }
+    .header-text p { font-size: .8rem; opacity: .75; margin-top: 1px; }
+
+    /* CONTAINER */
+    .container { max-width: 800px; margin: 0 auto; padding: 24px 18px 40px; }
+
+    .card {
+      background: var(--card); border-radius: 14px;
+      border: 1px solid var(--border); padding: 24px;
+      margin-bottom: 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .hello { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.55rem; color: var(--green-dark); margin-bottom: 4px; }
+    .hello-sub { font-size: .95rem; color: var(--text-mid); }
+
+    /* STATUS TIMELINE */
+    .status-card { padding: 28px 24px; }
+    .status-current {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 8px 18px; border-radius: 30px;
+      background: var(--amber); color: white;
+      font-weight: 700; font-size: 1rem;
+      margin-bottom: 22px;
+    }
+
+    .timeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; position: relative; margin-top: 8px; }
+    .timeline-step { display: flex; flex-direction: column; align-items: center; position: relative; z-index: 1; }
+    .timeline-circle {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: white; border: 3px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 700;
+      transition: all .3s;
+    }
+    .timeline-step.done .timeline-circle { background: var(--green-mid); border-color: var(--green-mid); color: white; }
+    .timeline-step.active .timeline-circle { background: var(--amber); border-color: var(--amber); color: white; box-shadow: 0 0 0 4px rgba(212,130,26,.25); animation: pulse 1.6s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { box-shadow: 0 0 0 4px rgba(212,130,26,.25); } 50% { box-shadow: 0 0 0 8px rgba(212,130,26,.12); } }
+    .timeline-label { font-size: .72rem; font-weight: 600; color: var(--text-mid); margin-top: 8px; text-align: center; line-height: 1.25; }
+    .timeline-step.done .timeline-label, .timeline-step.active .timeline-label { color: var(--green-dark); font-weight: 700; }
+
+    .timeline-connector { position: absolute; top: 22px; left: 10%; right: 10%; height: 3px; background: var(--border); z-index: 0; }
+    .timeline-connector-fill { height: 100%; background: var(--green-mid); transition: width .5s; }
+
+    /* KEY-VALUE GRID */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .info-row { display: flex; flex-direction: column; gap: 4px; }
+    .info-label { font-size: .72rem; font-weight: 700; color: var(--text-mid); text-transform: uppercase; letter-spacing: .5px; }
+    .info-value { font-size: 1rem; color: var(--text); font-weight: 500; }
+    .info-value.big { font-size: 1.4rem; font-weight: 800; color: var(--green-dark); }
+
+    .section-title { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.05rem; color: var(--green-dark); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+    #job-map { width: 100%; height: 280px; border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
+    .map-legend { display: flex; gap: 16px; justify-content: center; margin-top: 12px; font-size: .82rem; color: var(--text-mid); flex-wrap: wrap; }
+    .map-legend-item { display: flex; align-items: center; gap: 6px; }
+    .map-legend-swatch { width: 14px; height: 14px; border-radius: 3px; }
+
+    /* PHOTOS */
+    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+    .photo-grid img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 8px; cursor: pointer; transition: transform .2s; }
+    .photo-grid img:hover { transform: scale(1.03); }
+
+    /* MESSAGE FROM JASON */
+    .message-box {
+      background: #FFF8E6; border: 1.5px solid var(--amber-light);
+      border-radius: 10px; padding: 14px 18px;
+      font-size: .95rem; color: #7A5000;
+      white-space: pre-wrap;
+    }
+
+    /* CONTACT FOOTER */
+    .contact-card {
+      background: var(--green-dark); color: white;
+      border-radius: 14px; padding: 22px 24px; text-align: center;
+    }
+    .contact-card h3 { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.1rem; margin-bottom: 6px; }
+    .contact-card p { font-size: .9rem; opacity: .85; margin-bottom: 14px; }
+    .contact-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .contact-btn {
+      padding: 10px 20px; background: var(--amber); color: white;
+      border-radius: 8px; text-decoration: none; font-weight: 700;
+      display: inline-flex; align-items: center; gap: 8px; font-size: .92rem;
+    }
+    .contact-btn:hover { background: var(--amber-light); }
+    .contact-btn.outline { background: transparent; border: 2px solid rgba(255,255,255,0.4); }
+    .contact-btn.outline:hover { background: rgba(255,255,255,0.08); border-color: white; }
+
+    /* LOADING / ERROR */
+    .loading, .error-state {
+      max-width: 480px; margin: 80px auto; text-align: center;
+      background: white; border-radius: 14px; padding: 40px 30px;
+      border: 1px solid var(--border);
+    }
+    .loading-icon { font-size: 2.5rem; margin-bottom: 14px; animation: spin 1.5s linear infinite; display: inline-block; }
+    @keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+    .error-state h2 { color: var(--green-dark); font-family: 'Montserrat', sans-serif; margin-bottom: 8px; }
+    .error-state p { color: var(--text-mid); font-size: .92rem; }
+
+    @media (max-width: 560px) {
+      .info-grid { grid-template-columns: 1fr; }
+      .timeline-label { font-size: .65rem; }
+      .timeline-circle { width: 36px; height: 36px; font-size: 1rem; }
+      .timeline-connector { top: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <span class="header-logo">🌿</span>
+    <div class="header-text">
+      <h1>Hunter Land Clearing</h1>
+      <p>Your job status</p>
+    </div>
+  </div>
+</header>
+
+<div id="loading" class="loading">
+  <div class="loading-icon">⏳</div>
+  <div>Loading your job…</div>
+</div>
+
+<div id="error" class="error-state" style="display:none">
+  <h2>Job Not Found</h2>
+  <p>We couldn't find a job matching this link. Please double-check the URL, or call Jason at <a href="tel:8308327065" style="color:var(--green-mid);font-weight:700;">(830) 832-7065</a>.</p>
+</div>
+
+<div id="content" class="container" style="display:none">
+
+  <!-- HELLO -->
+  <div class="card">
+    <div class="hello" id="hello">Hi —</div>
+    <div class="hello-sub" id="hello-sub">Here's the latest on your job.</div>
+  </div>
+
+  <!-- STATUS TIMELINE -->
+  <div class="card status-card">
+    <div class="status-current" id="status-current">⏳ Pending Review</div>
+
+    <div class="timeline">
+      <div class="timeline-connector"><div class="timeline-connector-fill" id="timeline-fill" style="width:0%"></div></div>
+      <div class="timeline-step" data-step="1"><div class="timeline-circle">📋</div><div class="timeline-label">Submitted</div></div>
+      <div class="timeline-step" data-step="2"><div class="timeline-circle">👀</div><div class="timeline-label">Reviewing</div></div>
+      <div class="timeline-step" data-step="3"><div class="timeline-circle">📄</div><div class="timeline-label">Quoted</div></div>
+      <div class="timeline-step" data-step="4"><div class="timeline-circle">🚜</div><div class="timeline-label">In Progress</div></div>
+      <div class="timeline-step" data-step="5"><div class="timeline-circle">✅</div><div class="timeline-label">Complete</div></div>
+    </div>
+  </div>
+
+  <!-- JOB DETAILS -->
+  <div class="card">
+    <div class="section-title">📍 Property & Job</div>
+    <div class="info-grid">
+      <div class="info-row" style="grid-column:1/-1">
+        <span class="info-label">Property Address</span>
+        <span class="info-value" id="v-address">—</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Clearing Area</span>
+        <span class="info-value big" id="v-acres">—</span>
+      </div>
+      <div class="info-row" id="quote-row" style="display:none">
+        <span class="info-label">Quoted Price</span>
+        <span class="info-value big" id="v-quote">—</span>
+      </div>
+      <div class="info-row" id="scheduled-row" style="display:none">
+        <span class="info-label">Scheduled Date</span>
+        <span class="info-value" id="v-scheduled">—</span>
+      </div>
+      <div class="info-row" id="completed-row" style="display:none">
+        <span class="info-label">Completed</span>
+        <span class="info-value" id="v-completed">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div class="card">
+    <div class="section-title">🗺️ Your Property</div>
+    <div id="job-map"></div>
+    <div class="map-legend">
+      <div class="map-legend-item"><div class="map-legend-swatch" style="background:#2E5E12;opacity:.4;border:1.5px dashed #2E5E12;"></div>Property boundary</div>
+      <div class="map-legend-item"><div class="map-legend-swatch" style="background:#D4821A;"></div>Area to be cleared</div>
+    </div>
+  </div>
+
+  <!-- MESSAGE FROM JASON -->
+  <div class="card" id="message-card" style="display:none">
+    <div class="section-title">💬 Message from Jason</div>
+    <div class="message-box" id="v-customer-notes">—</div>
+  </div>
+
+  <!-- PHOTOS -->
+  <div class="card" id="photos-card" style="display:none">
+    <div class="section-title">📸 Job Photos</div>
+    <div class="photo-grid" id="photo-grid"></div>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="contact-card">
+    <h3>Questions about your job?</h3>
+    <p>Jason is happy to help. Don't hesitate to reach out.</p>
+    <div class="contact-buttons">
+      <a href="tel:8308327065" class="contact-btn">📞 Call (830) 832-7065</a>
+      <a href="mailto:j_merz@yahoo.com" class="contact-btn outline">✉️ Email</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const APPSYNC_URL = 'https://d2zlzofjerf4hd6gltypy2rnlm.appsync-api.us-east-1.amazonaws.com/graphql';
+  const APPSYNC_KEY = 'da2-6l2dtmahczbbnlp3m2vmgihqby';
+  const MAPBOX_TOKEN = 'pk.eyJ1IjoiY2hyaXN0b3BoZXJoZXJjdWxlcyIsImEiOiJjbXA4aHRrMHcwN3RiMnJzNjBzeWZ3ZHIxIn0.Kgx5YEB2aA4TchyXR989Zw';
+
+  // Maps jobStatus → timeline progress (step number active, 0-indexed)
+  const STATUS_TO_STEP = {
+    'Pending Review': 2,  // submitted (1) done, reviewing (2) active
+    'Quoted':         3,
+    'Scheduled':      3,  // quoted (3) done, then we visually advance to in-progress
+    'In Progress':    4,
+    'Completed':      5,
+  };
+
+  const STATUS_DISPLAY = {
+    'Pending Review': '⏳ Pending Review',
+    'Quoted':         '📄 Quote Sent',
+    'Scheduled':      '📅 Scheduled',
+    'In Progress':    '🚜 Work In Progress',
+    'Completed':      '✅ Job Complete!',
+  };
+
+  async function gql(query, variables = {}) {
+    const res = await fetch(APPSYNC_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': APPSYNC_KEY },
+      body: JSON.stringify({ query, variables }),
+    });
+    const json = await res.json();
+    if (json.errors) throw new Error(json.errors[0].message);
+    return json.data;
+  }
+
+  function getJobId() {
+    const params = new URLSearchParams(location.search);
+    return params.get('id');
+  }
+
+  async function loadJob() {
+    const id = getJobId();
+    if (!id) return showError();
+
+    try {
+      const data = await gql(`
+        query Get($id: ID!) {
+          getHunterEstimate(id: $id) {
+            id name phone email address lat lng
+            parcelOwner parcelCounty parcelGeoJSON
+            acres drawnGeoJSON
+            jobStatus quotedPrice scheduledDate completedDate
+            customerNotes photoUrls
+            submittedAt createdAt
+          }
+        }`, { id });
+
+      const job = data.getHunterEstimate;
+      if (!job) return showError();
+      render(job);
+    } catch(e) {
+      console.error(e);
+      showError();
+    }
+  }
+
+  function showError() {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').style.display = 'block';
+  }
+
+  function render(job) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+
+    // Greeting
+    const first = (job.name || 'there').split(' ')[0];
+    document.getElementById('hello').textContent = `Hi ${first} 👋`;
+
+    // Status
+    const js = job.jobStatus || 'Pending Review';
+    document.getElementById('status-current').textContent = STATUS_DISPLAY[js] || js;
+    renderTimeline(js);
+
+    // Details
+    document.getElementById('v-address').textContent = job.address || '—';
+    document.getElementById('v-acres').textContent = job.acres
+      ? `${parseFloat(job.acres).toFixed(2)} acres`
+      : 'To be measured on site';
+
+    if (job.quotedPrice != null) {
+      document.getElementById('quote-row').style.display = 'flex';
+      document.getElementById('v-quote').textContent = `$${parseFloat(job.quotedPrice).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+    }
+    if (job.scheduledDate) {
+      document.getElementById('scheduled-row').style.display = 'flex';
+      document.getElementById('v-scheduled').textContent = new Date(job.scheduledDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    }
+    if (job.completedDate) {
+      document.getElementById('completed-row').style.display = 'flex';
+      document.getElementById('v-completed').textContent = new Date(job.completedDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+
+    // Customer message
+    if (job.customerNotes) {
+      document.getElementById('message-card').style.display = 'block';
+      document.getElementById('v-customer-notes').textContent = job.customerNotes;
+    }
+
+    // Photos
+    const photos = parsePhotos(job.photoUrls);
+    if (photos.length > 0) {
+      document.getElementById('photos-card').style.display = 'block';
+      document.getElementById('photo-grid').innerHTML = photos.map(url =>
+        `<img src="${escAttr(url)}" alt="Job photo" onclick="window.open('${escAttr(url)}', '_blank')" loading="lazy" />`
+      ).join('');
+    }
+
+    // Map
+    initMap(job);
+  }
+
+  function renderTimeline(jobStatus) {
+    const activeStep = STATUS_TO_STEP[jobStatus] || 1;
+    document.querySelectorAll('.timeline-step').forEach(el => {
+      const step = parseInt(el.dataset.step);
+      el.classList.remove('done', 'active');
+      if (step < activeStep) el.classList.add('done');
+      else if (step === activeStep) el.classList.add('active');
+    });
+    // Fill connector: percentage based on highest done step
+    const pct = Math.max(0, (activeStep - 1) / 4) * 100;
+    document.getElementById('timeline-fill').style.width = pct + '%';
+  }
+
+  function initMap(job) {
+    if (!job.lat || !job.lng) return;
+    mapboxgl.accessToken = MAPBOX_TOKEN;
+    const map = new mapboxgl.Map({
+      container: 'job-map',
+      style: 'mapbox://styles/mapbox/satellite-streets-v12',
+      center: [job.lng, job.lat],
+      zoom: 16,
+    });
+    map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+    map.on('load', () => {
+      const allCoords = [];
+
+      if (job.parcelGeoJSON) {
+        try {
+          const parcel = JSON.parse(job.parcelGeoJSON);
+          map.addSource('parcel', { type: 'geojson', data: parcel });
+          map.addLayer({ id: 'p-fill', type: 'fill', source: 'parcel',
+            paint: { 'fill-color': '#2E5E12', 'fill-opacity': 0.12 } });
+          map.addLayer({ id: 'p-line', type: 'line', source: 'parcel',
+            paint: { 'line-color': '#2E5E12', 'line-width': 2.5, 'line-dasharray': [4,2] } });
+          collectCoords(parcel, allCoords);
+        } catch(e) { console.warn('parcel parse', e); }
+      }
+
+      if (job.drawnGeoJSON) {
+        try {
+          const drawn = JSON.parse(job.drawnGeoJSON);
+          map.addSource('drawn', { type: 'geojson', data: drawn });
+          map.addLayer({ id: 'd-fill', type: 'fill', source: 'drawn',
+            paint: { 'fill-color': '#D4821A', 'fill-opacity': 0.45 } });
+          map.addLayer({ id: 'd-line', type: 'line', source: 'drawn',
+            paint: { 'line-color': '#D4821A', 'line-width': 2.5 } });
+          collectCoords(drawn, allCoords);
+        } catch(e) { console.warn('drawn parse', e); }
+      }
+
+      if (allCoords.length > 0) {
+        const lngs = allCoords.map(c => c[0]), lats = allCoords.map(c => c[1]);
+        map.fitBounds(
+          [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
+          { padding: 40 }
+        );
+      } else {
+        new mapboxgl.Marker({ color: '#D4821A' }).setLngLat([job.lng, job.lat]).addTo(map);
+      }
+    });
+  }
+
+  function collectCoords(geojson, into) {
+    const walk = (g) => {
+      if (!g) return;
+      if (g.type === 'FeatureCollection') g.features.forEach(f => walk(f));
+      else if (g.type === 'Feature') walk(g.geometry);
+      else if (g.type === 'Polygon') g.coordinates.forEach(r => r.forEach(c => into.push(c)));
+      else if (g.type === 'MultiPolygon') g.coordinates.forEach(p => p.forEach(r => r.forEach(c => into.push(c))));
+    };
+    walk(geojson);
+  }
+
+  function parsePhotos(s) {
+    if (!s) return [];
+    try { const arr = JSON.parse(s); return Array.isArray(arr) ? arr : []; }
+    catch { return s.split(/\r?\n/).map(x => x.trim()).filter(Boolean); }
+  }
+
+  function escAttr(s) { return String(s).replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+
+  loadJob();
+</script>
+</body>
+</html>

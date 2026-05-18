@@ -2,7 +2,7 @@ const fs   = require('fs');
 const path = require('path');
 const { trucks, APPSYNC_URL, API_KEY } = require('./trucks-data');
 
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.join(__dirname, '..', 'Food');
 
 // ─────────────────────────────────────────────────────────────────────────────
 // INDEX.HTML

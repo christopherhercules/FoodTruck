@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Get a Free Estimate — Hunter Land Clearing</title>
+  <meta name="description" content="Get a free land clearing estimate. Find your property, draw the area you want cleared, and submit your request to Hunter Land Clearing." />
+
+  <!-- Mapbox GL JS v2 -->
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+
+  <!-- Turf.js for area calculation -->
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green-dark: #1C3A0A;
+      --green:      #2E5E12;
+      --green-mid:  #3D7A1B;
+      --amber:      #D4821A;
+      --amber-light:#F0A030;
+      --cream:      #F7F2E8;
+      --gray-light: #F0EDE6;
+      --text:       #1A1A1A;
+      --text-mid:   #444;
+      --red:        #C0392B;
+    }
+    html, body { height: 100%; font-family: 'Open Sans', sans-serif; background: var(--cream); color: var(--text); }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      background: var(--green-dark);
+      padding: 0 32px;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,.25);
+    }
+    .topbar-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .topbar-logo img { height: 38px; object-fit: contain; filter: brightness(1.1); }
+    .topbar-back {
+      color: rgba(255,255,255,.75); text-decoration: none; font-size: .84rem;
+      font-weight: 600; display: flex; align-items: center; gap: 6px;
+      transition: color .2s;
+    }
+    .topbar-back:hover { color: var(--amber-light); }
+
+    /* ── WIZARD CONTAINER ── */
+    .wizard { max-width: 960px; margin: 0 auto; padding: 32px 20px 60px; }
+
+    /* ── PROGRESS STEPS ── */
+    .progress {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0; margin-bottom: 36px;
+    }
+    .progress-step {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      flex: 1; max-width: 180px;
+    }
+    .progress-circle {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: #ddd; color: #999;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: .95rem;
+      border: 3px solid #ddd;
+      transition: all .35s;
+      position: relative; z-index: 1;
+    }
+    .progress-step.active .progress-circle { background: var(--green-dark); color: white; border-color: var(--green-dark); }
+    .progress-step.done .progress-circle { background: var(--green-mid); color: white; border-color: var(--green-mid); }
+    .progress-step.done .progress-circle::after { content: '✓'; font-size: .9rem; }
+    .progress-step.done .progress-circle span { display: none; }
+    .progress-label { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #aaa; text-align: center; transition: color .3s; }
+    .progress-step.active .progress-label, .progress-step.done .progress-label { color: var(--green-dark); }
+    .progress-line { flex: 1; height: 3px; background: #ddd; margin: 0 4px; margin-bottom: 24px; transition: background .35s; max-width: 80px; }
+    .progress-line.done { background: var(--green-mid); }
+
+    /* ── PANELS ── */
+    .panel { display: none; animation: fadeIn .35s ease; }
+    .panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    .panel-card {
+      background: white; border-radius: 16px;
+      padding: 36px 40px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+    }
+    .panel-title { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.5rem; color: var(--green-dark); margin-bottom: 6px; }
+    .panel-sub { font-size: .95rem; color: var(--text-mid); margin-bottom: 28px; line-height: 1.6; }
+
+    /* ── STEP 1 — ADDRESS ── */
+    .address-search { position: relative; }
+    .address-input {
+      width: 100%; padding: 16px 20px; font-size: 1rem;
+      border: 2px solid #ddd; border-radius: 10px;
+      font-family: 'Open Sans', sans-serif; outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .address-input:focus { border-color: var(--green-mid); box-shadow: 0 0 0 3px rgba(61,122,27,.12); }
+    .address-suggestions {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: white; border: 1.5px solid #ddd; border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.12); z-index: 50; overflow: hidden;
+      display: none;
+    }
+    .address-suggestions.open { display: block; }
+    .suggestion-item {
+      padding: 13px 18px; cursor: pointer; font-size: .92rem;
+      border-bottom: 1px solid #f0f0f0; transition: background .15s;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .suggestion-item:last-child { border-bottom: none; }
+    .suggestion-item:hover { background: var(--gray-light); }
+    .suggestion-item .sug-icon { color: var(--green-mid); font-size: 1rem; }
+    .suggestion-main { font-weight: 600; }
+    .suggestion-sub { font-size: .8rem; color: var(--text-mid); }
+
+    /* Mini preview map in step 1 */
+    #preview-map {
+      width: 100%; height: 220px; border-radius: 10px; margin-top: 20px;
+      border: 2px solid #eee; display: none;
+    }
+    .property-found {
+      background: #EFF8E6; border: 1.5px solid var(--green-mid);
+      border-radius: 10px; padding: 14px 18px; margin-top: 16px;
+      display: none; align-items: center; gap: 12px;
+    }
+    .property-found.show { display: flex; }
+    .property-found-icon { font-size: 1.5rem; }
+    .property-found-text strong { display: block; font-weight: 700; color: var(--green-dark); margin-bottom: 2px; }
+    .property-found-text span { font-size: .85rem; color: var(--text-mid); }
+
+    .no-parcel-note {
+      background: #FFF8E6; border: 1.5px solid var(--amber);
+      border-radius: 10px; padding: 12px 16px; margin-top: 12px;
+      font-size: .88rem; color: #7A5000; display: none;
+    }
+    .no-parcel-note.show { display: block; }
+
+    /* ── STEP 2 — MAP DRAW ── */
+    #draw-map { width: 100%; height: 520px; border-radius: 12px; }
+    .map-toolbar {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;
+    }
+    .tool-btn {
+      display: flex; align-items: center; gap: 7px;
+      padding: 9px 16px; border-radius: 8px; border: none; cursor: pointer;
+      font-family: 'Open Sans', sans-serif; font-weight: 600; font-size: .84rem;
+      transition: all .2s;
+    }
+    .tool-btn-draw { background: var(--green-dark); color: white; }
+    .tool-btn-draw:hover { background: var(--green-mid); }
+    .tool-btn-draw.active { background: var(--amber); }
+    .tool-btn-clear { background: #f5f5f5; color: var(--text-mid); }
+    .tool-btn-clear:hover { background: #ffe0e0; color: var(--red); }
+    .tool-btn-satellite { background: #f5f5f5; color: var(--text-mid); }
+    .tool-btn-satellite:hover { background: #e8f4ff; color: #0055aa; }
+    .tool-btn-satellite.active { background: #e8f4ff; color: #0055aa; }
+
+    .acreage-panel {
+      background: var(--green-dark); color: white;
+      border-radius: 10px; padding: 14px 20px; margin-top: 14px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    }
+    .acreage-num { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 2.2rem; color: var(--amber-light); }
+    .acreage-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; opacity: .75; }
+    .acreage-note { font-size: .82rem; opacity: .7; max-width: 320px; line-height: 1.5; }
+    .draw-hint {
+      background: var(--gray-light); border-radius: 10px; padding: 12px 16px; margin-top: 12px;
+      font-size: .87rem; color: var(--text-mid); display: flex; align-items: flex-start; gap: 10px; line-height: 1.5;
+    }
+    .draw-hint-icon { font-size: 1.1rem; margin-top: 1px; }
+
+    /* ── STEP 3 — CONTACT ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-grid.full { grid-template-columns: 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group label { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-mid); }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 12px 14px; border: 1.5px solid #ddd; border-radius: 8px;
+      font-family: 'Open Sans', sans-serif; font-size: .95rem; color: var(--text);
+      background: var(--gray-light); outline: none; transition: border-color .2s, box-shadow .2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--green-mid); background: white;
+      box-shadow: 0 0 0 3px rgba(61,122,27,.12);
+    }
+    .form-group textarea { resize: vertical; min-height: 90px; }
+    .form-spacer { margin-top: 8px; }
+
+    /* ── STEP 4 — REVIEW ── */
+    .review-section { margin-bottom: 22px; }
+    .review-section h4 { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .08em; color: var(--green-mid); margin-bottom: 10px; border-bottom: 1.5px solid #eee; padding-bottom: 6px; }
+    .review-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: .9rem; }
+    .review-row span:first-child { color: var(--text-mid); }
+    .review-row span:last-child { font-weight: 600; text-align: right; }
+    #review-map-thumb { width: 100%; height: 180px; border-radius: 10px; border: 1.5px solid #eee; margin-top: 10px; }
+
+    /* ── SUCCESS ── */
+    .success-panel {
+      text-align: center; padding: 60px 32px;
+      background: white; border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+      display: none;
+    }
+    .success-panel.show { display: block; }
+    .success-icon { font-size: 4rem; margin-bottom: 16px; }
+    .success-panel h2 { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 1.8rem; color: var(--green-dark); margin-bottom: 10px; }
+    .success-panel p { font-size: 1rem; color: var(--text-mid); line-height: 1.7; max-width: 480px; margin: 0 auto 24px; }
+    .success-detail { background: var(--gray-light); border-radius: 10px; padding: 16px 20px; margin: 0 auto 24px; max-width: 420px; text-align: left; font-size: .9rem; }
+    .success-detail strong { color: var(--green-dark); }
+
+    /* ── NAV BUTTONS ── */
+    .btn-row { display: flex; align-items: center; justify-content: space-between; margin-top: 28px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 28px; border-radius: 8px;
+      font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: .93rem;
+      cursor: pointer; border: none; transition: all .25s; text-decoration: none;
+    }
+    .btn-next { background: var(--green-dark); color: white; }
+    .btn-next:hover { background: var(--green-mid); transform: translateY(-1px); }
+    .btn-next:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+    .btn-back { background: transparent; color: var(--text-mid); border: 1.5px solid #ddd; }
+    .btn-back:hover { background: var(--gray-light); }
+    .btn-submit { background: var(--amber); color: white; font-size: 1rem; padding: 15px 36px; }
+    .btn-submit:hover { background: var(--amber-light); color: var(--text); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212,130,26,.4); }
+
+    /* ── MAPBOX DRAW CUSTOMIZATION ── */
+    .mapboxgl-ctrl-group { border-radius: 8px !important; }
+
+    /* ── MOBILE ── */
+    @media (max-width: 640px) {
+      .wizard { padding: 20px 12px 40px; }
+      .panel-card { padding: 22px 18px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .progress-label { display: none; }
+      #draw-map { height: 380px; }
+      .btn-row { flex-direction: column-reverse; gap: 10px; }
+      .btn { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <a href="/" class="topbar-logo">
+    <img src="/assets/hunter-01-acfd7b28-1920w.png" alt="Hunter Land Clearing" />
+  </a>
+  <a href="/" class="topbar-back">← Back to Site</a>
+</div>
+
+<!-- WIZARD -->
+<div class="wizard">
+
+  <!-- PROGRESS -->
+  <div class="progress">
+    <div class="progress-step active" id="prog-1">
+      <div class="progress-circle"><span>1</span></div>
+      <div class="progress-label">Property</div>
+    </div>
+    <div class="progress-line" id="line-1"></div>
+    <div class="progress-step" id="prog-2">
+      <div class="progress-circle"><span>2</span></div>
+      <div class="progress-label">Draw Area</div>
+    </div>
+    <div class="progress-line" id="line-2"></div>
+    <div class="progress-step" id="prog-3">
+      <div class="progress-circle"><span>3</span></div>
+      <div class="progress-label">Your Info</div>
+    </div>
+    <div class="progress-line" id="line-3"></div>
+    <div class="progress-step" id="prog-4">
+      <div class="progress-circle"><span>4</span></div>
+      <div class="progress-label">Review</div>
+    </div>
+  </div>
+
+  <!-- STEP 1: FIND PROPERTY -->
+  <div class="panel active" id="panel-1">
+    <div class="panel-card">
+      <div class="panel-title">📍 Find Your Property</div>
+      <div class="panel-sub">Enter your property address and we'll locate it on the map. We serve New Braunfels, Canyon Lake, Boerne, Bulverde, Bergheim, Bandera, and Kerrville.</div>
+
+      <div class="address-search">
+        <input type="text" class="address-input" id="address-input"
+          placeholder="123 Ranch Road, New Braunfels, TX 78132"
+          autocomplete="off" />
+        <div class="address-suggestions" id="suggestions"></div>
+      </div>
+
+      <div class="property-found" id="property-found">
+        <div class="property-found-icon">✅</div>
+        <div class="property-found-text">
+          <strong id="found-address">Property found</strong>
+          <span id="found-detail">Parcel boundary loaded</span>
+        </div>
+      </div>
+
+      <div class="no-parcel-note" id="no-parcel-note">
+        ℹ️ Parcel boundary not available for this county — you'll draw directly on the satellite map in the next step.
+      </div>
+
+      <div id="preview-map"></div>
+
+      <div class="btn-row">
+        <span></span>
+        <button class="btn btn-next" id="btn-to-2" disabled onclick="goStep(2)">
+          Next: Draw Clearing Area →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: DRAW ON MAP -->
+  <div class="panel" id="panel-2">
+    <div class="panel-card">
+      <div class="panel-title">✏️ Draw the Area to Clear</div>
+      <div class="panel-sub">Click "Draw Area" then click on the map to add points around the area you want cleared. When you're done, click "Finish Drawing" (or click the first point again to close the shape).</div>
+
+      <div class="map-toolbar">
+        <button class="tool-btn tool-btn-draw" id="btn-draw-poly" onclick="toggleDraw()">
+          ✏️ Draw Area
+        </button>
+        <button class="tool-btn tool-btn-clear" id="btn-undo" onclick="undoVertex()" style="display:none;background:#f5f5f5;color:var(--text-mid);">
+          ↶ Undo Point
+        </button>
+        <button class="tool-btn tool-btn-clear" id="btn-clear-draw" onclick="clearDraw()">
+          🗑️ Clear All
+        </button>
+        <button class="tool-btn tool-btn-satellite" id="btn-toggle-sat" onclick="toggleSatellite()">
+          🛰️ Satellite View
+        </button>
+      </div>
+
+      <div id="draw-map"></div>
+
+      <div class="acreage-panel" id="acreage-panel">
+        <div>
+          <div class="acreage-label">Estimated Area</div>
+          <div><span class="acreage-num" id="acreage-num">0.00</span> <span style="font-size:1rem;opacity:.75;">acres</span></div>
+        </div>
+        <div class="acreage-note" id="acreage-note">Draw an area on the map to calculate acreage. This helps Jason prepare an accurate estimate.</div>
+      </div>
+
+      <div class="draw-hint">
+        <span class="draw-hint-icon">💡</span>
+        <span><strong>Tips:</strong> Click the Draw Area button, then click on the map to place points around the area you want cleared. Double-click your last point to close the shape. Switch to Satellite view to see the actual terrain.</span>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="goStep(1)">← Back</button>
+        <button class="btn btn-next" id="btn-to-3" onclick="goStep(3)">
+          Next: Your Info →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: CONTACT INFO -->
+  <div class="panel" id="panel-3">
+    <div class="panel-card">
+      <div class="panel-title">👤 Your Information</div>
+      <div class="panel-sub">Just a few details so Jason can reach you with your free estimate.</div>
+
+      <form id="contact-form" onsubmit="return false;">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>First Name *</label>
+            <input type="text" id="f-first" placeholder="First name" required />
+          </div>
+          <div class="form-group">
+            <label>Last Name *</label>
+            <input type="text" id="f-last" placeholder="Last name" required />
+          </div>
+          <div class="form-group">
+            <label>Phone Number *</label>
+            <input type="tel" id="f-phone" placeholder="(830) 555-0000" required />
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="f-email" placeholder="you@email.com" />
+          </div>
+        </div>
+
+        <div class="form-spacer"></div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Service Needed *</label>
+            <select id="f-service" required>
+              <option value="">Select a service...</option>
+              <option>Cedar Tree &amp; Brush Removal</option>
+              <option>Cedar Mulching</option>
+              <option>Driveway / RV Pad Building</option>
+              <option>Landscaping</option>
+              <option>Ranch &amp; Land Clearing</option>
+              <option>Rock Milling</option>
+              <option>Multiple / Not Sure</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>How did you hear about us?</label>
+            <select id="f-source">
+              <option value="">Select...</option>
+              <option>Google Search</option>
+              <option>Facebook</option>
+              <option>Instagram</option>
+              <option>Friend / Neighbor</option>
+              <option>Yelp</option>
+              <option>Driving By</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-spacer"></div>
+        <div class="form-group form-grid full">
+          <label>Additional Details</label>
+          <textarea id="f-notes" placeholder="Any extra info — timeline, access issues, special requests..."></textarea>
+        </div>
+      </form>
+
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="goStep(2)">← Back</button>
+        <button class="btn btn-next" id="btn-to-4" onclick="goToReview()">
+          Review My Request →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4: REVIEW & SUBMIT -->
+  <div class="panel" id="panel-4">
+    <div class="panel-card">
+      <div class="panel-title">📋 Review Your Request</div>
+      <div class="panel-sub">Everything look right? Jason will receive this immediately and reach out to schedule your free on-site estimate.</div>
+
+      <div class="review-section">
+        <h4>Property</h4>
+        <div class="review-row"><span>Address</span><span id="rv-address">—</span></div>
+        <div class="review-row"><span>Clearing Area</span><span id="rv-acres">—</span></div>
+        <div id="review-map-thumb"></div>
+      </div>
+
+      <div class="review-section">
+        <h4>Contact</h4>
+        <div class="review-row"><span>Name</span><span id="rv-name">—</span></div>
+        <div class="review-row"><span>Phone</span><span id="rv-phone">—</span></div>
+        <div class="review-row"><span>Email</span><span id="rv-email">—</span></div>
+      </div>
+
+      <div class="review-section">
+        <h4>Project</h4>
+        <div class="review-row"><span>Service</span><span id="rv-service">—</span></div>
+        <div class="review-row"><span>Notes</span><span id="rv-notes" style="max-width:280px;">—</span></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="goStep(3)">← Back</button>
+        <button class="btn btn-submit" onclick="submitRequest()">
+          🌿 Send Estimate Request
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-panel" id="success-panel">
+    <div class="success-icon">🎉</div>
+    <h2>Request Sent!</h2>
+    <p>Jason will review your request and reach out shortly to schedule your free on-site estimate.</p>
+
+    <div class="success-detail" id="track-link-wrap" style="display:none;background:#EDF5E7;border:1.5px solid var(--green-mid);">
+      <div style="margin-bottom:8px;"><strong>📋 Track your job:</strong></div>
+      <div style="font-size:.85rem;color:var(--text-mid);margin-bottom:8px;">Save this link to check the status of your estimate and clearing work:</div>
+      <a id="track-link" href="#" target="_blank" style="color:var(--green-mid);font-weight:700;word-break:break-all;font-size:.88rem;">—</a>
+      <button onclick="navigator.clipboard.writeText(document.getElementById('track-link').href);this.textContent='✓ Copied';" style="margin-top:10px;padding:6px 14px;background:var(--green-mid);color:white;border:none;border-radius:6px;font-size:.82rem;font-weight:600;cursor:pointer;">📋 Copy Link</button>
+    </div>
+
+    <div class="success-detail">
+      <div style="margin-bottom:8px;"><strong>📞 Need it faster?</strong></div>
+      <div>Call Jason directly: <a href="tel:8308327065" style="color:var(--green-mid);font-weight:700;">(830) 832-7065</a></div>
+      <div style="margin-top:6px;">Or email: <a href="mailto:j_merz@yahoo.com" style="color:var(--green-mid);font-weight:700;">j_merz@yahoo.com</a></div>
+      <div style="margin-top:6px;font-size:.82rem;color:var(--text-mid);">Mon–Fri · 7am–9pm · New Braunfels, TX</div>
+    </div>
+    <a href="/" class="btn btn-next" style="margin:0 auto;display:inline-flex;">← Return to Site</a>
+  </div>
+
+</div><!-- /wizard -->
+
+<script>
+  // ── CONFIG ────────────────────────────────────────────────────────────────
+  const MAPBOX_TOKEN = 'pk.eyJ1IjoiY2hyaXN0b3BoZXJoZXJjdWxlcyIsImEiOiJjbXA4aHRrMHcwN3RiMnJzNjBzeWZ3ZHIxIn0.Kgx5YEB2aA4TchyXR989Zw';
+  mapboxgl.accessToken = MAPBOX_TOKEN;
+
+  const APPSYNC_URL = 'https://d2zlzofjerf4hd6gltypy2rnlm.appsync-api.us-east-1.amazonaws.com/graphql';
+  const APPSYNC_KEY = 'da2-6l2dtmahczbbnlp3m2vmgihqby';
+
+  async function gql(query, variables = {}) {
+    const res = await fetch(APPSYNC_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': APPSYNC_KEY },
+      body: JSON.stringify({ query, variables }),
+    });
+    const json = await res.json();
+    if (json.errors) throw new Error(json.errors[0].message);
+    return json.data;
+  }
+
+  // Texas StratMap statewide parcel service — covers every TX county, no auth needed
+  // Maintained by Texas Geographic Information Office (TNRIS)
+  const TEXAS_PARCELS_URL = 'https://feature.geographic.texas.gov/arcgis/rest/services/Parcels/stratmap_land_parcels_48_most_recent/MapServer/0';
+
+  // ── STATE ─────────────────────────────────────────────────────────────────
+  let currentStep = 1;
+  let selectedCoords = null;   // [lng, lat]
+  let selectedAddress = '';
+  let parcelGeoJSON = null;    // GeoJSON Feature for the parcel
+  let drawnAcres = 0;
+  let drawnGeoJSON = null;
+  let previewMap = null;
+  let drawMap = null;
+  let drawMapInitialized = false;
+  let satelliteMode = false;
+  let reviewMap = null;
+
+  // Custom polygon drawing state
+  let drawingMode = false;           // are we actively placing vertices?
+  let currentVertices = [];          // [lng, lat][] for the polygon being drawn
+  let completedPolygons = [];        // array of finished polygon coord arrays
+  let vertexMarkers = [];            // mapboxgl.Marker[] for the current in-progress polygon
+
+  // ── STEP NAVIGATION ───────────────────────────────────────────────────────
+  function goStep(n) {
+    document.getElementById(`panel-${currentStep}`).classList.remove('active');
+    document.getElementById(`prog-${currentStep}`).classList.remove('active');
+    document.getElementById(`prog-${currentStep}`).classList.add('done');
+
+    if (n < currentStep) {
+      // going back — un-done current
+      document.getElementById(`prog-${currentStep}`).classList.remove('done');
+    }
+
+    currentStep = n;
+    document.getElementById(`panel-${n}`).classList.add('active');
+    document.getElementById(`prog-${n}`).classList.remove('done');
+    document.getElementById(`prog-${n}`).classList.add('active');
+
+    // Update progress lines
+    [1,2,3].forEach(i => {
+      document.getElementById(`line-${i}`).classList.toggle('done', i < n);
+    });
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (n === 2 && !drawMapInitialized) initDrawMap();
+  }
+
+  // ── STEP 1: ADDRESS SEARCH ────────────────────────────────────────────────
+  let suggestTimeout = null;
+  document.getElementById('address-input').addEventListener('input', function() {
+    clearTimeout(suggestTimeout);
+    const q = this.value.trim();
+    if (q.length < 4) { closeSuggestions(); return; }
+    suggestTimeout = setTimeout(() => fetchSuggestions(q), 300);
+  });
+
+  document.getElementById('address-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeSuggestions();
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.address-search')) closeSuggestions();
+  });
+
+  async function fetchSuggestions(q) {
+    try {
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json?` +
+        `access_token=${MAPBOX_TOKEN}&country=us&bbox=-100.5,29.0,-97.0,31.5&types=address,place&limit=5`;
+      const r = await fetch(url);
+      const data = await r.json();
+      showSuggestions(data.features || []);
+    } catch(e) { closeSuggestions(); }
+  }
+
+  function showSuggestions(features) {
+    const box = document.getElementById('suggestions');
+    if (!features.length) { box.classList.remove('open'); return; }
+    box.innerHTML = features.map(f => `
+      <div class="suggestion-item" onclick="selectAddress('${escStr(f.place_name)}', ${f.center[0]}, ${f.center[1]})">
+        <span class="sug-icon">📍</span>
+        <div>
+          <div class="suggestion-main">${escHtml(f.text)}</div>
+          <div class="suggestion-sub">${escHtml(f.place_name.replace(f.text + ', ', ''))}</div>
+        </div>
+      </div>`).join('');
+    box.classList.add('open');
+  }
+
+  function closeSuggestions() {
+    document.getElementById('suggestions').classList.remove('open');
+  }
+
+  async function selectAddress(address, lng, lat) {
+    closeSuggestions();
+    document.getElementById('address-input').value = address;
+    selectedAddress = address;
+    selectedCoords = [lng, lat];
+
+    document.getElementById('found-address').textContent = address.split(',')[0];
+    document.getElementById('found-detail').textContent = 'Searching for parcel boundary...';
+    document.getElementById('property-found').classList.add('show');
+    document.getElementById('no-parcel-note').classList.remove('show');
+
+    // Show preview map
+    const previewEl = document.getElementById('preview-map');
+    previewEl.style.display = 'block';
+    if (previewMap) { previewMap.remove(); previewMap = null; }
+    previewMap = new mapboxgl.Map({
+      container: 'preview-map',
+      style: 'mapbox://styles/mapbox/satellite-streets-v12',
+      center: [lng, lat],
+      zoom: 17,
+      interactive: false
+    });
+    new mapboxgl.Marker({ color: '#D4821A' }).setLngLat([lng, lat]).addTo(previewMap);
+
+    // Try to get parcel boundary
+    parcelGeoJSON = null;
+    const parcel = await fetchParcel(lng, lat);
+
+    if (parcel) {
+      parcelGeoJSON = parcel;
+      const area = turf.area(parcel) * 0.000247105; // m² → acres
+      const props = parcel.properties || {};
+      const owner = props.owner_name ? props.owner_name.trim() : '';
+      const county = props.county ? props.county.trim() : '';
+      const detail = [
+        `Parcel found · ~${area.toFixed(2)} acres`,
+        owner ? `Owner: ${owner}` : '',
+        county ? `${county} County` : '',
+      ].filter(Boolean).join(' · ');
+      document.getElementById('found-detail').textContent = detail;
+
+      // Draw parcel on preview map
+      previewMap.on('load', () => {
+        previewMap.addSource('parcel', { type: 'geojson', data: parcel });
+        previewMap.addLayer({ id: 'parcel-fill', type: 'fill', source: 'parcel',
+          paint: { 'fill-color': '#3D7A1B', 'fill-opacity': 0.25 } });
+        previewMap.addLayer({ id: 'parcel-line', type: 'line', source: 'parcel',
+          paint: { 'line-color': '#2E5E12', 'line-width': 2.5 } });
+        // Fit to parcel
+        const bbox = turf.bbox(parcel);
+        previewMap.fitBounds(bbox, { padding: 40 });
+      });
+    } else {
+      document.getElementById('found-detail').textContent = 'Location found — you\'ll draw on satellite map';
+      document.getElementById('no-parcel-note').classList.add('show');
+    }
+
+    document.getElementById('btn-to-2').disabled = false;
+  }
+
+  async function fetchParcel(lng, lat) {
+    // Try point-intersect first, then expand to a small envelope if no hit.
+    // Retry once with a longer timeout. Texas StratMap can be slow on cold queries.
+
+    const attempts = [
+      // Attempt 1: exact point, 25s
+      { geom: `${lng},${lat}`, type: 'esriGeometryPoint', timeout: 25000 },
+      // Attempt 2: exact point, 25s (retry — server warms up after first hit)
+      { geom: `${lng},${lat}`, type: 'esriGeometryPoint', timeout: 25000 },
+      // Attempt 3: tiny envelope (~30m square) in case geocoder snapped to road instead of parcel interior
+      (() => {
+        const d = 0.0003; // ~30m at this latitude
+        return {
+          geom: JSON.stringify({ xmin: lng - d, ymin: lat - d, xmax: lng + d, ymax: lat + d, spatialReference: { wkid: 4326 } }),
+          type: 'esriGeometryEnvelope',
+          timeout: 25000,
+        };
+      })(),
+    ];
+
+    for (let i = 0; i < attempts.length; i++) {
+      const a = attempts[i];
+      try {
+        const params = new URLSearchParams({
+          geometry: a.geom,
+          geometryType: a.type,
+          spatialRel: 'esriSpatialRelIntersects',
+          outFields: 'owner_name,situs_addr,situs_city,legal_desc,gis_area,county',
+          returnGeometry: 'true',
+          f: 'geojson',
+          inSR: '4326',
+          outSR: '4326',
+        });
+        const r = await fetch(`${TEXAS_PARCELS_URL}/query?${params}`, { signal: AbortSignal.timeout(a.timeout) });
+        if (!r.ok) { console.warn(`parcel attempt ${i+1}: HTTP ${r.status}`); continue; }
+        const data = await r.json();
+        if (data.features && data.features.length > 0) {
+          // For envelope query, pick the feature closest to the original point
+          if (a.type === 'esriGeometryEnvelope' && data.features.length > 1) {
+            const target = turf.point([lng, lat]);
+            data.features.sort((f1, f2) => {
+              try {
+                return turf.distance(turf.centerOfMass(f1), target) - turf.distance(turf.centerOfMass(f2), target);
+              } catch { return 0; }
+            });
+          }
+          return data.features[0];
+        }
+      } catch(e) {
+        console.warn(`parcel attempt ${i+1} failed:`, e.message);
+      }
+    }
+    return null;
+  }
+
+  // ── STEP 2: DRAW MAP ──────────────────────────────────────────────────────
+  function initDrawMap() {
+    drawMapInitialized = true;
+
+    drawMap = new mapboxgl.Map({
+      container: 'draw-map',
+      style: 'mapbox://styles/mapbox/satellite-streets-v12',
+      center: selectedCoords || [-98.1, 29.7],
+      zoom: selectedCoords ? 17 : 10,
+    });
+    satelliteMode = true;
+    document.getElementById('btn-toggle-sat').classList.add('active');
+    document.getElementById('btn-toggle-sat').textContent = '🗺️ Street View';
+
+    drawMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    drawMap.addControl(new mapboxgl.ScaleControl(), 'bottom-left');
+
+    // ── CLICK HANDLER FOR CUSTOM POLYGON DRAWING ────────────────────────────
+    drawMap.on('click', (e) => {
+      if (!drawingMode) return;
+      // If the user clicks near the first vertex (with 3+ points already), close the polygon
+      if (currentVertices.length >= 3) {
+        const first = currentVertices[0];
+        const pxFirst = drawMap.project(first);
+        const pxClick = drawMap.project([e.lngLat.lng, e.lngLat.lat]);
+        const distPx = Math.hypot(pxFirst.x - pxClick.x, pxFirst.y - pxClick.y);
+        if (distPx < 16) {
+          finishCurrentPolygon();
+          return;
+        }
+      }
+      currentVertices.push([e.lngLat.lng, e.lngLat.lat]);
+      renderInProgressPolygon();
+      updateDrawButtonState();
+    });
+
+    drawMap.on('load', () => {
+      // Initialize empty sources/layers for in-progress and completed polygons
+      drawMap.addSource('drawing-line', { type: 'geojson', data: emptyFeatureCollection() });
+      drawMap.addLayer({
+        id: 'drawing-line', type: 'line', source: 'drawing-line',
+        paint: { 'line-color': '#F0A030', 'line-width': 3, 'line-dasharray': [2, 1.5] }
+      });
+
+      drawMap.addSource('drawn-polygons', { type: 'geojson', data: emptyFeatureCollection() });
+      drawMap.addLayer({
+        id: 'drawn-polygons-fill', type: 'fill', source: 'drawn-polygons',
+        paint: { 'fill-color': '#D4821A', 'fill-opacity': 0.35 }
+      });
+      drawMap.addLayer({
+        id: 'drawn-polygons-outline', type: 'line', source: 'drawn-polygons',
+        paint: { 'line-color': '#D4821A', 'line-width': 3 }
+      });
+
+      // Parcel boundary if we have it
+      if (parcelGeoJSON) renderParcelLayer();
+      else if (selectedCoords) {
+        drawMap.flyTo({ center: selectedCoords, zoom: 17 });
+        new mapboxgl.Marker({ color: '#D4821A', scale: 0.7 }).setLngLat(selectedCoords).addTo(drawMap);
+      }
+    });
+  }
+
+  function emptyFeatureCollection() { return { type: 'FeatureCollection', features: [] }; }
+
+  function renderParcelLayer() {
+    if (!drawMap.getSource('parcel')) {
+      drawMap.addSource('parcel', { type: 'geojson', data: parcelGeoJSON });
+      drawMap.addLayer({ id: 'parcel-fill', type: 'fill', source: 'parcel',
+        paint: { 'fill-color': '#2E5E12', 'fill-opacity': 0.12 } });
+      drawMap.addLayer({ id: 'parcel-outline', type: 'line', source: 'parcel',
+        paint: { 'line-color': '#2E5E12', 'line-width': 2.5, 'line-dasharray': [4,2] } });
+    }
+    const bbox = turf.bbox(parcelGeoJSON);
+    drawMap.fitBounds(bbox, { padding: 60 });
+  }
+
+  function renderInProgressPolygon() {
+    // Update markers
+    vertexMarkers.forEach(m => m.remove());
+    vertexMarkers = currentVertices.map((coord, i) => {
+      const el = document.createElement('div');
+      const isFirst = (i === 0);
+      // Make first vertex bigger + green-ringed once we have 3+ points (closeable)
+      const closeable = isFirst && currentVertices.length >= 3;
+      const size = closeable ? 22 : 14;
+      const bg = closeable ? '#2E5E12' : (isFirst ? '#D4821A' : '#F0A030');
+      const ring = closeable ? '#fff' : '#fff';
+      el.style.cssText = `width:${size}px;height:${size}px;border-radius:50%;background:${bg};border:3px solid ${ring};box-shadow:0 0 6px rgba(0,0,0,.4);cursor:pointer;`;
+      if (closeable) el.title = 'Click here to close the shape';
+      return new mapboxgl.Marker({ element: el }).setLngLat(coord).addTo(drawMap);
+    });
+
+    // Update line preview
+    if (currentVertices.length >= 2) {
+      drawMap.getSource('drawing-line').setData({
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: currentVertices }
+      });
+    } else {
+      drawMap.getSource('drawing-line').setData(emptyFeatureCollection());
+    }
+  }
+
+  function finishCurrentPolygon() {
+    if (currentVertices.length < 3) {
+      alert('Click at least 3 points on the map first to outline an area.');
+      return;
+    }
+    const closed = [...currentVertices, currentVertices[0]];
+    completedPolygons.push(closed);
+    renderCompletedPolygons();
+
+    // Reset in-progress state
+    currentVertices = [];
+    vertexMarkers.forEach(m => m.remove());
+    vertexMarkers = [];
+    drawMap.getSource('drawing-line').setData(emptyFeatureCollection());
+
+    drawingMode = false;
+    drawMap.dragPan.enable();
+    drawMap.dragRotate.enable();
+    drawMap.getCanvas().style.cursor = '';
+
+    updateDrawButtonState();
+    updateAcreage();
+  }
+
+  function renderCompletedPolygons() {
+    const features = completedPolygons.map(coords => ({
+      type: 'Feature',
+      geometry: { type: 'Polygon', coordinates: [coords] },
+      properties: {}
+    }));
+    drawMap.getSource('drawn-polygons').setData({ type: 'FeatureCollection', features });
+  }
+
+  function updateAcreage() {
+    const acreageNum  = document.getElementById('acreage-num');
+    const acreageNote = document.getElementById('acreage-note');
+
+    if (completedPolygons.length === 0) {
+      acreageNum.textContent = '0.00';
+      acreageNote.textContent = 'Draw an area on the map to calculate acreage.';
+      drawnAcres = 0;
+      drawnGeoJSON = null;
+      return;
+    }
+
+    const features = completedPolygons.map(coords => ({
+      type: 'Feature',
+      geometry: { type: 'Polygon', coordinates: [coords] },
+      properties: {}
+    }));
+    const fc = { type: 'FeatureCollection', features };
+    const totalM2 = features.reduce((sum, f) => sum + turf.area(f), 0);
+    drawnAcres = totalM2 * 0.000247105;
+    drawnGeoJSON = fc;
+
+    acreageNum.textContent = drawnAcres.toFixed(2);
+    acreageNote.textContent =
+      `That's approximately ${drawnAcres.toFixed(2)} acres marked for clearing.` +
+      (drawnAcres < 0.5 ? ' (small lot)' : drawnAcres > 10 ? ' (large ranch job)' : '');
+  }
+
+  // Button does double duty: start drawing → finish drawing
+  function toggleDraw() {
+    if (drawingMode) {
+      // Currently drawing — finish the polygon
+      finishCurrentPolygon();
+      return;
+    }
+    // Not drawing — start
+    if (!drawMap || !drawMap.isStyleLoaded()) {
+      const btn = document.getElementById('btn-draw-poly');
+      btn.textContent = '⏳ Loading map...';
+      const retry = () => { if (drawMap && drawMap.isStyleLoaded()) toggleDraw(); else setTimeout(retry, 300); };
+      setTimeout(retry, 300);
+      return;
+    }
+    drawingMode = true;
+    currentVertices = [];
+    drawMap.dragPan.disable();
+    drawMap.dragRotate.disable();
+    drawMap.getCanvas().style.cursor = 'crosshair';
+    updateDrawButtonState();
+  }
+
+  function updateDrawButtonState() {
+    const btn  = document.getElementById('btn-draw-poly');
+    const undo = document.getElementById('btn-undo');
+    if (!drawingMode) {
+      btn.classList.remove('active');
+      btn.textContent = completedPolygons.length > 0 ? '✏️ Draw Another Area' : '✏️ Draw Area';
+      undo.style.display = 'none';
+      return;
+    }
+    btn.classList.add('active');
+    if (currentVertices.length === 0) {
+      btn.textContent = '✏️ Click the map to add points';
+    } else if (currentVertices.length < 3) {
+      btn.textContent = `✏️ ${currentVertices.length} point${currentVertices.length === 1 ? '' : 's'} — need at least 3`;
+    } else {
+      btn.textContent = `✓ Finish Drawing (${currentVertices.length} points)`;
+    }
+    undo.style.display = currentVertices.length > 0 ? 'inline-flex' : 'none';
+  }
+
+  function undoVertex() {
+    if (!drawingMode || currentVertices.length === 0) return;
+    currentVertices.pop();
+    renderInProgressPolygon();
+    updateDrawButtonState();
+  }
+
+  function clearDraw() {
+    completedPolygons = [];
+    currentVertices = [];
+    vertexMarkers.forEach(m => m.remove());
+    vertexMarkers = [];
+    drawingMode = false;
+
+    if (drawMap) {
+      if (drawMap.getSource('drawing-line')) drawMap.getSource('drawing-line').setData(emptyFeatureCollection());
+      if (drawMap.getSource('drawn-polygons')) drawMap.getSource('drawn-polygons').setData(emptyFeatureCollection());
+      drawMap.dragPan.enable();
+      drawMap.dragRotate.enable();
+      drawMap.getCanvas().style.cursor = '';
+    }
+    updateAcreage();
+    updateDrawButtonState();
+  }
+
+  function toggleSatellite() {
+    satelliteMode = !satelliteMode;
+    const btn = document.getElementById('btn-toggle-sat');
+    if (satelliteMode) {
+      drawMap.setStyle('mapbox://styles/mapbox/satellite-streets-v12');
+      btn.classList.add('active');
+      btn.textContent = '🗺️ Street View';
+    } else {
+      drawMap.setStyle('mapbox://styles/mapbox/streets-v12');
+      btn.classList.remove('active');
+      btn.textContent = '🛰️ Satellite View';
+    }
+    // setStyle wipes all sources/layers — re-add everything after style loads
+    drawMap.once('style.load', () => {
+      drawMap.addSource('drawing-line', { type: 'geojson', data: emptyFeatureCollection() });
+      drawMap.addLayer({
+        id: 'drawing-line', type: 'line', source: 'drawing-line',
+        paint: { 'line-color': '#F0A030', 'line-width': 3, 'line-dasharray': [2, 1.5] }
+      });
+      drawMap.addSource('drawn-polygons', {
+        type: 'geojson',
+        data: drawnGeoJSON || emptyFeatureCollection(),
+      });
+      drawMap.addLayer({
+        id: 'drawn-polygons-fill', type: 'fill', source: 'drawn-polygons',
+        paint: { 'fill-color': '#D4821A', 'fill-opacity': 0.35 }
+      });
+      drawMap.addLayer({
+        id: 'drawn-polygons-outline', type: 'line', source: 'drawn-polygons',
+        paint: { 'line-color': '#D4821A', 'line-width': 3 }
+      });
+      if (parcelGeoJSON) renderParcelLayer();
+      if (currentVertices.length >= 2) renderInProgressPolygon();
+    });
+  }
+
+  // ── STEP 3 → 4 TRANSITION ─────────────────────────────────────────────────
+  function goToReview() {
+    const first = document.getElementById('f-first').value.trim();
+    const last  = document.getElementById('f-last').value.trim();
+    const phone = document.getElementById('f-phone').value.trim();
+    const svc   = document.getElementById('f-service').value;
+
+    if (!first || !last || !phone || !svc) {
+      alert('Please fill in First Name, Last Name, Phone, and Service Needed.');
+      return;
+    }
+    buildReview();
+    goStep(4);
+  }
+
+  function buildReview() {
+    document.getElementById('rv-address').textContent = selectedAddress || '—';
+    document.getElementById('rv-acres').textContent = drawnAcres > 0
+      ? `${drawnAcres.toFixed(2)} acres drawn`
+      : 'Not drawn — Jason will measure on site';
+    document.getElementById('rv-name').textContent =
+      `${document.getElementById('f-first').value} ${document.getElementById('f-last').value}`;
+    document.getElementById('rv-phone').textContent = document.getElementById('f-phone').value;
+    document.getElementById('rv-email').textContent = document.getElementById('f-email').value || '—';
+    document.getElementById('rv-service').textContent = document.getElementById('f-service').value;
+    const notes = document.getElementById('f-notes').value;
+    document.getElementById('rv-notes').textContent = notes || '—';
+
+    // Tiny review map
+    const reviewEl = document.getElementById('review-map-thumb');
+    reviewEl.innerHTML = '';
+    const rMap = new mapboxgl.Map({
+      container: 'review-map-thumb',
+      style: 'mapbox://styles/mapbox/satellite-streets-v12',
+      center: selectedCoords || [-98.1, 29.7],
+      zoom: 15,
+      interactive: false,
+    });
+    rMap.on('load', () => {
+      if (parcelGeoJSON) {
+        rMap.addSource('p', { type: 'geojson', data: parcelGeoJSON });
+        rMap.addLayer({ id: 'p-fill', type: 'fill', source: 'p', paint: { 'fill-color': '#2E5E12', 'fill-opacity': 0.2 } });
+        rMap.addLayer({ id: 'p-line', type: 'line', source: 'p', paint: { 'line-color': '#2E5E12', 'line-width': 2 } });
+      }
+      if (drawnGeoJSON && drawnGeoJSON.features.length) {
+        rMap.addSource('d', { type: 'geojson', data: drawnGeoJSON });
+        rMap.addLayer({ id: 'd-fill', type: 'fill', source: 'd', paint: { 'fill-color': '#D4821A', 'fill-opacity': 0.4 } });
+        rMap.addLayer({ id: 'd-line', type: 'line', source: 'd', paint: { 'line-color': '#D4821A', 'line-width': 2 } });
+        const bbox = turf.bbox(drawnGeoJSON);
+        rMap.fitBounds(bbox, { padding: 30 });
+      } else if (parcelGeoJSON) {
+        rMap.fitBounds(turf.bbox(parcelGeoJSON), { padding: 40 });
+      }
+    });
+  }
+
+  // ── SUBMIT ────────────────────────────────────────────────────────────────
+  async function submitRequest() {
+    const submitBtn = document.querySelector('.btn-submit');
+    submitBtn.textContent = '⏳ Sending...';
+    submitBtn.disabled = true;
+
+    const name  = `${document.getElementById('f-first').value.trim()} ${document.getElementById('f-last').value.trim()}`;
+    const phone = document.getElementById('f-phone').value.trim();
+    const email = document.getElementById('f-email').value.trim();
+    const notes = [
+      document.getElementById('f-service').value,
+      document.getElementById('f-source').value ? `Source: ${document.getElementById('f-source').value}` : '',
+      document.getElementById('f-notes').value.trim(),
+    ].filter(Boolean).join('\n');
+
+    const props = parcelGeoJSON ? (parcelGeoJSON.properties || {}) : {};
+
+    try {
+      const result = await gql(`
+        mutation CreateHunterEstimate($input: CreateHunterEstimateInput!) {
+          createHunterEstimate(input: $input) { id }
+        }`, {
+        input: {
+          name,
+          phone,
+          email:        email || null,
+          address:      selectedAddress || '',
+          lat:          selectedCoords ? selectedCoords[1] : null,
+          lng:          selectedCoords ? selectedCoords[0] : null,
+          parcelOwner:  props.owner_name ? props.owner_name.trim() : null,
+          parcelCounty: props.county     ? props.county.trim()     : null,
+          parcelGeoJSON: parcelGeoJSON  ? JSON.stringify(parcelGeoJSON) : null,
+          acres:        drawnAcres > 0   ? drawnAcres               : null,
+          drawnGeoJSON: drawnGeoJSON     ? JSON.stringify(drawnGeoJSON) : null,
+          status:       'New',
+          jobStatus:    'Pending Review',
+          notes:        notes || null,
+          submittedAt:  new Date().toISOString(),
+        }
+      });
+      // Show the customer their job tracking link on the success page
+      const newId = result.createHunterEstimate.id;
+      const trackUrl = `${location.origin}/job.html?id=${newId}`;
+      const linkEl = document.getElementById('track-link');
+      if (linkEl) {
+        linkEl.href = trackUrl;
+        linkEl.textContent = trackUrl;
+        document.getElementById('track-link-wrap').style.display = 'block';
+      }
+    } catch(err) {
+      // AppSync failed — fall back to mailto so the lead isn't lost
+      const body = encodeURIComponent(
+        `New Estimate Request — Hunter Land Clearing\n\n` +
+        `Name: ${name}\nPhone: ${phone}\nEmail: ${email || 'Not provided'}\n\n` +
+        `Property: ${selectedAddress || 'Not provided'}\n` +
+        `Clearing Area: ${drawnAcres > 0 ? drawnAcres.toFixed(2) + ' acres' : 'Not drawn'}\n` +
+        `Notes: ${notes || 'None'}\n\nSubmitted via hunter.aiagentassistance.com`
+      );
+      window.open(`mailto:j_merz@yahoo.com?subject=${encodeURIComponent('New Estimate — ' + name)}&body=${body}`);
+    }
+
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('success-panel').classList.add('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── UTILS ─────────────────────────────────────────────────────────────────
+  function escStr(s) { return s.replace(/'/g, "\\'"); }
+  function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>
