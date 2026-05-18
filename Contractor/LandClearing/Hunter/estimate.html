@@ -1098,6 +1098,20 @@
         linkEl.textContent = trackUrl;
         document.getElementById('track-link-wrap').style.display = 'block';
       }
+
+      // Notify Jason by email + SMS (fire-and-forget)
+      fetch('https://foodtruck-cymz.onrender.com/hunter/estimate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name, phone, email,
+          address: selectedAddress,
+          acres: drawnAcres > 0 ? drawnAcres : null,
+          service: document.getElementById('f-service').value,
+          source:  document.getElementById('f-source').value,
+          notes:   document.getElementById('f-notes').value.trim(),
+        }),
+      }).catch(() => {});
     } catch(err) {
       // AppSync failed — fall back to mailto so the lead isn't lost
       const body = encodeURIComponent(
