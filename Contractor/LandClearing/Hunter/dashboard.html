@@ -213,7 +213,9 @@
     .stage-input input[type="number"], .stage-input input[type="date"] {
       padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 7px;
       font-size: .9rem; outline: none; font-family: inherit;
+      background: white; color: var(--text);
     }
+    .stage-input input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; }
     .stage-input input:focus { border-color: var(--green-mid); }
     .stage-input input[type="range"] {
       -webkit-appearance: none; appearance: none; background: var(--border);
@@ -394,7 +396,7 @@
             <label>Quote Amount ($)</label>
             <input type="number" id="f-quote" placeholder="2500" step="50" />
           </div>
-          <button class="stage-btn stage-btn-amber" onclick="actionSendQuote()">📄 Save Quote & Text Customer</button>
+          <button class="stage-btn stage-btn-amber" onclick="actionSendQuote()">📄 Save Quote & Email Customer</button>
         </div>
       </div>
 
@@ -414,7 +416,7 @@
             <label>Scheduled End Date <span style="font-weight:400;color:#aaa;">(optional — for multi-day jobs)</span></label>
             <input type="date" id="f-scheduled-end" />
           </div>
-          <button class="stage-btn stage-btn-amber" onclick="actionSchedule()">📅 Confirm Schedule & Text Customer</button>
+          <button class="stage-btn stage-btn-amber" onclick="actionSchedule()">📅 Confirm Schedule & Email Customer</button>
         </div>
       </div>
 
@@ -426,7 +428,7 @@
           <div class="stage-status" id="start-status"></div>
         </div>
         <div class="stage-body">
-          <button class="stage-btn stage-btn-amber" onclick="actionStartJob()" style="width:100%;">🚜 Start Job Today & Text Customer</button>
+          <button class="stage-btn stage-btn-amber" onclick="actionStartJob()" style="width:100%;">🚜 Start Job Today & Email Customer</button>
         </div>
       </div>
 
@@ -442,7 +444,7 @@
             <label>Percent Complete: <span id="f-pct-label" style="font-weight:800;color:var(--green-dark);">0%</span></label>
             <input type="range" id="f-pct" min="0" max="100" step="5" value="0" oninput="document.getElementById('f-pct-label').textContent=this.value+'%'" />
           </div>
-          <button class="stage-btn stage-btn-amber" onclick="actionUpdateProgress()">📊 Update Progress & Text Customer</button>
+          <button class="stage-btn stage-btn-amber" onclick="actionUpdateProgress()">📊 Update Progress & Email Customer</button>
         </div>
       </div>
 
@@ -458,7 +460,7 @@
             <label>Final Price ($)</label>
             <input type="number" id="f-final" placeholder="2500" step="50" />
           </div>
-          <button class="stage-btn stage-btn-green" onclick="actionComplete()">✅ Mark Complete & Text Customer</button>
+          <button class="stage-btn stage-btn-green" onclick="actionComplete()">✅ Mark Complete & Email Customer</button>
         </div>
       </div>
 
@@ -471,7 +473,7 @@
         </div>
         <div class="stage-body">
           <button class="stage-btn stage-btn-green" onclick="actionSendBill()" style="flex:1;">💰 Email Invoice to Customer</button>
-          <button class="stage-btn" onclick="actionTextBill()" style="background:#f5f5f5;color:var(--text-mid);">💬 Text Bill Reminder</button>
+          <button class="stage-btn" onclick="actionTextBill()" style="background:#f5f5f5;color:var(--text-mid);">💬 Email Bill Reminder</button>
         </div>
       </div>
 
@@ -713,11 +715,12 @@
   function fmtDate(s) { return new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
   function fmtDay(s)  { return new Date(s).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }); }
 
-  // ── SMS helper — opens user's SMS app with prefilled message ──────────────
-  function openSMS(phone, msg) {
-    if (!phone) { alert('No phone number on file for this customer.'); return; }
-    const clean = String(phone).replace(/[^0-9+]/g, '');
-    window.location.href = `sms:${clean}?&body=${encodeURIComponent(msg)}`;
+  function openEmail(email, subject, body) {
+    if (!email) {
+      prompt('No email on file — copy this message to send manually:', body);
+      return;
+    }
+    window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }
 
   function flashSaved(text) {
@@ -757,8 +760,9 @@
       await applyAndRefresh({
         id: activeId, status: 'Quoted', jobStatus: 'Quoted', quotedPrice: v,
       }, '✓ Quote saved');
-      const msg = `Hi ${firstName(est)}, this is Jason with Hunter Land Clearing. Your quote for clearing ${acresStr(est)}your property is $${fmt$(v)}. Reply YES to schedule, or call me at (830) 832-7065 with any questions.`;
-      openSMS(est.phone, msg);
+      const subject = `Your Hunter Land Clearing Quote — ${est.address.split(',')[0]}`;
+      const body = `Hi ${firstName(est)},\n\nThank you for reaching out to Hunter Land Clearing!\n\nYour quote for clearing ${acresStr(est)}your property at ${est.address} is $${fmt$(v)}.\n\nReply to this email to confirm and schedule, or call me at (830) 832-7065 with any questions.\n\nThanks,\nJason Merz\nHunter Land Clearing\n(830) 832-7065`;
+      openEmail(est.email, subject, body);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -774,8 +778,9 @@
     try {
       await applyAndRefresh(update, '✓ Scheduled');
       const dateRange = isoEnd ? `${fmtDay(iso)} through ${fmtDay(isoEnd)}` : fmtDay(iso);
-      const msg = `Hi ${firstName(est)}, we're scheduled to start clearing your property on ${dateRange}. We'll arrive between 7-9am. — Jason, Hunter Land Clearing`;
-      openSMS(est.phone, msg);
+      const subject = `Your Clearing Job is Scheduled — ${est.address.split(',')[0]}`;
+      const body = `Hi ${firstName(est)},\n\nGreat news — your land clearing job is confirmed!\n\nProperty: ${est.address}\nScheduled: ${dateRange}\n\nWe'll arrive between 7–9am. Reply to this email if you have any questions before we get started.\n\nThanks,\nJason Merz\nHunter Land Clearing\n(830) 832-7065`;
+      openEmail(est.email, subject, body);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -786,8 +791,9 @@
         id: activeId, status: 'Won', jobStatus: 'In Progress',
         startedDate: new Date().toISOString(), percentComplete: 0,
       }, '✓ Job started');
-      const msg = `Hi ${firstName(est)}, we're at your property now and starting the clearing work today. I'll send updates as we go. — Jason`;
-      openSMS(est.phone, msg);
+      const subject = `Work Has Started — ${est.address.split(',')[0]}`;
+      const body = `Hi ${firstName(est)},\n\nJust a heads up — we're at your property now and clearing work has begun today!\n\nI'll send you updates as we make progress. Reply to this email with any questions.\n\nThanks,\nJason Merz\nHunter Land Clearing\n(830) 832-7065`;
+      openEmail(est.email, subject, body);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -798,8 +804,9 @@
       await applyAndRefresh({
         id: activeId, jobStatus: 'In Progress', percentComplete: p,
       }, `✓ ${p}% saved`);
-      const msg = `Hi ${firstName(est)}, quick update — we're ${p}% complete on your clearing job. Things are looking good! — Jason`;
-      openSMS(est.phone, msg);
+      const subject = `Job Progress Update — ${est.address.split(',')[0]}`;
+      const body = `Hi ${firstName(est)},\n\nQuick progress update — we're ${p}% complete on your land clearing job. Things are looking great!\n\nReply to this email with any questions.\n\nThanks,\nJason Merz\nHunter Land Clearing\n(830) 832-7065`;
+      openEmail(est.email, subject, body);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -812,8 +819,9 @@
         id: activeId, status: 'Won', jobStatus: 'Completed',
         completedDate: new Date().toISOString(), finalPrice: v, percentComplete: 100,
       }, '✓ Job complete');
-      const msg = `Hi ${firstName(est)}, your land clearing is all done! Final total: $${fmt$(v)}. I'll send the invoice shortly. Thanks for trusting us with your property! — Jason`;
-      openSMS(est.phone, msg);
+      const subject = `Your Land Clearing is Complete — ${est.address.split(',')[0]}`;
+      const body = `Hi ${firstName(est)},\n\nGreat news — your land clearing is all done! The property is looking great.\n\nFinal total: $${fmt$(v)}\n\nI'll send the invoice shortly. Thanks for trusting Hunter Land Clearing with your property!\n\nThanks,\nJason Merz\nHunter Land Clearing\n(830) 832-7065`;
+      openEmail(est.email, subject, body);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -822,9 +830,7 @@
     const v = est.finalPrice != null ? est.finalPrice : parseFloat(document.getElementById('f-final').value || 0);
     if (!v || v <= 0) { alert('Set the final price first.'); return; }
     if (!est.email) {
-      if (!confirm('No email on file. Open SMS instead?')) return;
-      const msg = `Hi ${firstName(est)}, your invoice for $${fmt$(v)} for ${acresStr(est)}clearing at ${est.address.split(',')[0]} is due. Pay via check (mail to Jason Merz, New Braunfels TX) or Venmo @Jason-Merz. Thanks! — Jason`;
-      openSMS(est.phone, msg);
+      prompt('No email on file — copy this invoice message to send manually:', `Hi ${firstName(est)}, your invoice for $${fmt$(v)} for ${acresStr(est)}clearing at ${est.address.split(',')[0]} is due. Pay via check (Jason Merz, New Braunfels TX) or Venmo @Jason-Merz. Thanks!`);
       try { await applyAndRefresh({ id: activeId, invoiceSent: true }, '✓ Marked invoiced'); } catch {}
       return;
     }
@@ -838,8 +844,9 @@
     const est = allEstimates.find(x => x.id === activeId); if (!est) return;
     const v = est.finalPrice != null ? est.finalPrice : parseFloat(document.getElementById('f-final').value || 0);
     if (!v || v <= 0) { alert('Set the final price first.'); return; }
-    const msg = `Hi ${firstName(est)}, friendly reminder — your invoice for $${fmt$(v)} from Hunter Land Clearing is still open. Pay via Venmo @Jason-Merz, Zelle (830) 832-7065, or check. Thanks!`;
-    openSMS(est.phone, msg);
+    const subject = `Payment Reminder — Hunter Land Clearing`;
+    const body = `Hi ${firstName(est)},\n\nFriendly reminder — your invoice for $${fmt$(v)} from Hunter Land Clearing is still open.\n\nPayment options:\n  • Venmo — @Jason-Merz\n  • Zelle — (830) 832-7065\n  • Check — Jason Merz, New Braunfels, TX\n\nReply to this email with any questions. Thanks!\n\nJason Merz\nHunter Land Clearing\n(830) 832-7065`;
+    openEmail(est.email, subject, body);
     try { await applyAndRefresh({ id: activeId, invoiceSent: true }, '✓ Reminder sent'); } catch {}
   }
 
