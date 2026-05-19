@@ -407,8 +407,12 @@
         </div>
         <div class="stage-body">
           <div class="stage-input">
-            <label>Scheduled Date</label>
+            <label>Scheduled Start Date</label>
             <input type="date" id="f-scheduled" />
+          </div>
+          <div class="stage-input">
+            <label>Scheduled End Date <span style="font-weight:400;color:#aaa;">(optional — for multi-day jobs)</span></label>
+            <input type="date" id="f-scheduled-end" />
           </div>
           <button class="stage-btn stage-btn-amber" onclick="actionSchedule()">📅 Confirm Schedule & Text Customer</button>
         </div>
@@ -540,7 +544,7 @@
                 id name phone email address lat lng
                 parcelOwner parcelCounty parcelGeoJSON acres drawnGeoJSON
                 status notes
-                jobStatus quotedPrice finalPrice scheduledDate startedDate completedDate
+                jobStatus quotedPrice finalPrice scheduledDate scheduledEndDate startedDate completedDate
                 percentComplete customerNotes photoUrls invoiceSent
                 submittedAt createdAt
               }
@@ -646,7 +650,8 @@
 
     // Stage form values (pre-fill from existing data)
     document.getElementById('f-quote').value     = e.quotedPrice != null ? e.quotedPrice : '';
-    document.getElementById('f-scheduled').value = e.scheduledDate ? e.scheduledDate.slice(0,10) : '';
+    document.getElementById('f-scheduled').value     = e.scheduledDate    ? e.scheduledDate.slice(0,10)    : '';
+    document.getElementById('f-scheduled-end').value = e.scheduledEndDate ? e.scheduledEndDate.slice(0,10) : '';
     const pct = e.percentComplete != null ? e.percentComplete : 0;
     document.getElementById('f-pct').value = pct;
     document.getElementById('f-pct-label').textContent = pct + '%';
@@ -679,7 +684,10 @@
     // Quote
     if (e.quotedPrice != null) set('quote', `Quoted $${fmt$(e.quotedPrice)}`, true);
     // Schedule
-    if (e.scheduledDate) set('schedule', `Scheduled ${fmtDate(e.scheduledDate)}`, true);
+    if (e.scheduledDate) {
+      const endLabel = e.scheduledEndDate ? ` – ${fmtDate(e.scheduledEndDate)}` : '';
+      set('schedule', `Scheduled ${fmtDate(e.scheduledDate)}${endLabel}`, true);
+    }
     // Start
     if (e.startedDate) set('start', `Started ${fmtDate(e.startedDate)}`, true);
     // Progress
@@ -724,7 +732,7 @@
       mutation Update($input: UpdateHunterEstimateInput!) {
         updateHunterEstimate(input: $input) {
           id status notes jobStatus quotedPrice finalPrice
-          scheduledDate startedDate completedDate percentComplete
+          scheduledDate scheduledEndDate startedDate completedDate percentComplete
           customerNotes invoiceSent
         }
       }`, { input });
@@ -757,13 +765,16 @@
   async function actionSchedule() {
     const est = allEstimates.find(x => x.id === activeId); if (!est) return;
     const d = document.getElementById('f-scheduled').value;
-    if (!d) { alert('Pick a scheduled date first.'); return; }
-    const iso = new Date(d + 'T12:00:00').toISOString();
+    if (!d) { alert('Pick a scheduled start date first.'); return; }
+    const iso    = new Date(d + 'T12:00:00').toISOString();
+    const dEnd   = document.getElementById('f-scheduled-end').value;
+    const isoEnd = dEnd ? new Date(dEnd + 'T12:00:00').toISOString() : null;
+    const update = { id: activeId, jobStatus: 'Scheduled', scheduledDate: iso };
+    if (isoEnd) update.scheduledEndDate = isoEnd;
     try {
-      await applyAndRefresh({
-        id: activeId, jobStatus: 'Scheduled', scheduledDate: iso,
-      }, '✓ Scheduled');
-      const msg = `Hi ${firstName(est)}, we're scheduled to start clearing your property on ${fmtDay(iso)}. We'll arrive between 7-9am. — Jason, Hunter Land Clearing`;
+      await applyAndRefresh(update, '✓ Scheduled');
+      const dateRange = isoEnd ? `${fmtDay(iso)} through ${fmtDay(isoEnd)}` : fmtDay(iso);
+      const msg = `Hi ${firstName(est)}, we're scheduled to start clearing your property on ${dateRange}. We'll arrive between 7-9am. — Jason, Hunter Land Clearing`;
       openSMS(est.phone, msg);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
