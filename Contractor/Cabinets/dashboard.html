@@ -417,7 +417,7 @@
               <label>Quote Amount ($)</label>
               <input type="number" id="f-quote" placeholder="0.00" />
             </div>
-            <button class="stage-btn stage-btn-amber" onclick="actionSendQuote()">📋 Save Quote & Text Customer</button>
+            <button class="stage-btn stage-btn-amber" onclick="actionSendQuote()">📋 Save Quote & Email Customer</button>
           </div>
         </div>
 
@@ -437,7 +437,7 @@
               <label>End Date <span style="font-weight:400;color:#aaa;">(optional)</span></label>
               <input type="date" id="f-scheduled-end" />
             </div>
-            <button class="stage-btn stage-btn-amber" onclick="actionSchedule()">📅 Confirm Schedule & Text Customer</button>
+            <button class="stage-btn stage-btn-amber" onclick="actionSchedule()">📅 Confirm Schedule & Email Customer</button>
           </div>
         </div>
 
@@ -449,7 +449,7 @@
             <div class="stage-status" id="start-status"></div>
           </div>
           <div class="stage-body">
-            <button class="stage-btn stage-btn-amber" onclick="actionStartJob()" style="width:100%;">🚪 Start Job Today & Text Customer</button>
+            <button class="stage-btn stage-btn-amber" onclick="actionStartJob()" style="width:100%;">🚪 Start Job Today & Email Customer</button>
           </div>
         </div>
 
@@ -468,7 +468,7 @@
                 <span id="f-pct-label">0%</span>
               </div>
             </div>
-            <button class="stage-btn stage-btn-amber" onclick="actionUpdateProgress()">📊 Update & Text Customer</button>
+            <button class="stage-btn stage-btn-amber" onclick="actionUpdateProgress()">📊 Update & Email Customer</button>
           </div>
         </div>
 
@@ -484,7 +484,7 @@
               <label>Final Price ($)</label>
               <input type="number" id="f-final" placeholder="0.00" />
             </div>
-            <button class="stage-btn stage-btn-green" onclick="actionComplete()">✅ Mark Complete & Text Customer</button>
+            <button class="stage-btn stage-btn-green" onclick="actionComplete()">✅ Mark Complete & Email Customer</button>
           </div>
         </div>
 
@@ -742,7 +742,13 @@
   }
   function fmt$(n) { return Number(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); }
   function firstName(e) { return (e.name || 'there').split(' ')[0]; }
-  function openSMS(phone, msg) { window.open('sms:' + phone + '?body=' + encodeURIComponent(msg)); }
+  function openEmail(email, subject, body) {
+    if (!email) {
+      prompt('No email on file — copy this message to send manually:', body);
+      return;
+    }
+    window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  }
   function flashSaved(text) {
     const el = document.getElementById('save-confirm');
     el.textContent = text || '✓ Saved';
@@ -775,8 +781,9 @@
     if (!v || v <= 0) { alert('Enter a quote amount first.'); return; }
     try {
       await applyAndRefresh({ id: activeId, status: 'Quoted', jobStatus: 'Quoted', quotedPrice: v }, '✓ Quote saved');
-      const msg = `Hi ${firstName(est)}, this is Shawn with Shawn Cabinets. Your quote for the ${est.projectType || 'cabinet'} project at ${est.address.split(',')[0]} is $${fmt$(v)}. Reply YES to schedule, or call me at ${SHAWN_PHONE} with any questions.`;
-      openSMS(est.phone, msg);
+      const subject = `Your Shawn Cabinets Quote — ${est.address.split(',')[0]}`;
+      const body = `Hi ${firstName(est)},\n\nThank you for reaching out to Shawn Cabinets!\n\nYour quote for the ${est.projectType || 'cabinet'} project at ${est.address} is $${fmt$(v)}.\n\nReply to this email to confirm and get scheduled, or call me at ${SHAWN_PHONE} with any questions.\n\nThanks,\nShawn\nShawn Cabinets\n${SHAWN_PHONE}`;
+      openEmail(est.email, subject, body);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -792,8 +799,9 @@
     try {
       await applyAndRefresh(update, '✓ Scheduled');
       const dateRange = isoEnd ? `${fmtDay(iso)} through ${fmtDay(isoEnd)}` : fmtDay(iso);
-      const msg = `Hi ${firstName(est)}, we're scheduled to install your cabinets ${dateRange}. We'll be there by 8am. — Shawn, Shawn Cabinets`;
-      openSMS(est.phone, msg);
+      const subject = `Your Cabinet Install is Scheduled — ${est.address.split(',')[0]}`;
+      const body = `Hi ${firstName(est)},\n\nGreat news — your cabinet installation is confirmed!\n\nProperty: ${est.address}\nScheduled: ${dateRange}\n\nWe'll arrive by 8am. Reply to this email if you have any questions before we get started.\n\nThanks,\nShawn\nShawn Cabinets\n${SHAWN_PHONE}`;
+      openEmail(est.email, subject, body);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -804,8 +812,9 @@
         id: activeId, status: 'Won', jobStatus: 'In Progress',
         startedDate: new Date().toISOString(), percentComplete: 0,
       }, '✓ Job started');
-      const msg = `Hi ${firstName(est)}, we're at your place and starting the cabinet install today. I'll send updates as we go. — Shawn`;
-      openSMS(est.phone, msg);
+      const subject = `Cabinet Install Has Started — ${est.address.split(',')[0]}`;
+      const body = `Hi ${firstName(est)},\n\nJust a heads up — we're at your property now and the cabinet installation has begun!\n\nI'll send you updates as we make progress. Reply to this email with any questions.\n\nThanks,\nShawn\nShawn Cabinets\n${SHAWN_PHONE}`;
+      openEmail(est.email, subject, body);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -814,8 +823,9 @@
     const p = parseInt(document.getElementById('f-pct').value);
     try {
       await applyAndRefresh({ id: activeId, jobStatus: 'In Progress', percentComplete: p }, `✓ ${p}% saved`);
-      const msg = `Hi ${firstName(est)}, quick update — the cabinet install is ${p}% complete. Looking great! — Shawn`;
-      openSMS(est.phone, msg);
+      const subject = `Cabinet Install Progress Update — ${est.address.split(',')[0]}`;
+      const body = `Hi ${firstName(est)},\n\nQuick update — the cabinet installation is ${p}% complete. Things are looking great!\n\nReply to this email with any questions.\n\nThanks,\nShawn\nShawn Cabinets\n${SHAWN_PHONE}`;
+      openEmail(est.email, subject, body);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -828,8 +838,9 @@
         id: activeId, status: 'Won', jobStatus: 'Completed',
         completedDate: new Date().toISOString(), finalPrice: v, percentComplete: 100,
       }, '✓ Job complete');
-      const msg = `Hi ${firstName(est)}, your cabinets are all done! They look amazing. Final total: $${fmt$(v)}. I'll send the invoice shortly. Thanks so much! — Shawn`;
-      openSMS(est.phone, msg);
+      const subject = `Your Cabinets Are Complete! — ${est.address.split(',')[0]}`;
+      const body = `Hi ${firstName(est)},\n\nGreat news — your cabinet installation is all done and they look amazing!\n\nFinal total: $${fmt$(v)}\n\nI'll send the invoice shortly. Thanks so much for choosing Shawn Cabinets!\n\nThanks,\nShawn\nShawn Cabinets\n${SHAWN_PHONE}`;
+      openEmail(est.email, subject, body);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -838,9 +849,7 @@
     const v = est.finalPrice != null ? est.finalPrice : parseFloat(document.getElementById('f-final').value || 0);
     if (!v || v <= 0) { alert('Set the final price first.'); return; }
     if (!est.email) {
-      if (!confirm('No email on file. Open SMS instead?')) return;
-      const msg = `Hi ${firstName(est)}, your invoice for $${fmt$(v)} from Shawn Cabinets is ready. Pay via check or Venmo @Shawn-Cabinets. Thanks!`;
-      openSMS(est.phone, msg);
+      prompt('No email on file — copy this invoice message to send manually:', `Hi ${firstName(est)}, your invoice for $${fmt$(v)} from Shawn Cabinets is ready. Pay via check or Venmo @Shawn-Cabinets. Thanks! — ${SHAWN_PHONE}`);
       try { await applyAndRefresh({ id: activeId, invoiceSent: true }, '✓ Marked invoiced'); } catch {}
       return;
     }
@@ -854,8 +863,9 @@
     const est = allEstimates.find(x => x.id === activeId); if (!est) return;
     const v = est.finalPrice != null ? est.finalPrice : parseFloat(document.getElementById('f-final').value || 0);
     if (!v || v <= 0) { alert('Set the final price first.'); return; }
-    const msg = `Hi ${firstName(est)}, friendly reminder — your invoice for $${fmt$(v)} from Shawn Cabinets is still open. Pay via Venmo @Shawn-Cabinets or Zelle ${SHAWN_PHONE}. Thanks!`;
-    openSMS(est.phone, msg);
+    const subject = `Payment Reminder — Shawn Cabinets`;
+    const body = `Hi ${firstName(est)},\n\nFriendly reminder — your invoice for $${fmt$(v)} from Shawn Cabinets is still open.\n\nPayment options:\n  • Venmo — @Shawn-Cabinets\n  • Zelle — ${SHAWN_PHONE}\n  • Check — payable to Shawn Cabinets\n\nReply to this email with any questions. Thanks!\n\nShawn\nShawn Cabinets\n${SHAWN_PHONE}`;
+    openEmail(est.email, subject, body);
     try { await applyAndRefresh({ id: activeId, invoiceSent: true }, '✓ Reminder sent'); } catch {}
   }
 
