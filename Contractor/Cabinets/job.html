@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Cabinet Job — Shawn Cabinets</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:     #0f0d0b;
+      --card:   #1e1a16;
+      --border: #3a3228;
+      --accent: #c4a35a;
+      --text:   #f0e8d5;
+      --muted:  #9a8a74;
+      --green:  #4caf7d;
+      --amber:  #e6a817;
+    }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+    header { background: var(--card); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; gap: 12px; }
+    .logo { font-size: 1.3rem; font-weight: 800; letter-spacing: -.02em; }
+    .logo span { color: var(--accent); }
+    .tagline { color: var(--muted); font-size: .85rem; }
+
+    .container { max-width: 680px; margin: 0 auto; padding: 32px 20px; }
+
+    /* LOADING / ERROR */
+    .state-msg { text-align: center; padding: 80px 20px; color: var(--muted); }
+    .state-msg h2 { font-size: 1.2rem; margin-bottom: 8px; color: var(--text); }
+
+    /* JOB HEADER */
+    .job-header { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 24px; }
+    .job-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 4px; }
+    .job-subtitle { color: var(--muted); font-size: .9rem; }
+    .job-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
+    .meta-item label { font-size: .73rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; display: block; margin-bottom: 3px; }
+    .meta-item span { font-size: .95rem; }
+    .price { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+
+    /* TIMELINE */
+    .timeline { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 24px; }
+    .timeline h2 { font-size: .85rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 20px; }
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step { display: flex; gap: 16px; }
+    .step-line { display: flex; flex-direction: column; align-items: center; }
+    .step-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border); background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: .85rem; flex-shrink: 0; }
+    .step-dot.done   { background: var(--green);  border-color: var(--green);  }
+    .step-dot.active { background: var(--amber);  border-color: var(--amber);  animation: pulse 1.8s ease-in-out infinite; }
+    .step-connector { width: 2px; flex: 1; min-height: 32px; background: var(--border); margin: 4px 0; }
+    .step-connector.done { background: var(--green); }
+    .step-body { padding-bottom: 28px; flex: 1; }
+    .step:last-child .step-body { padding-bottom: 0; }
+    .step-name { font-weight: 600; font-size: .95rem; margin-bottom: 3px; }
+    .step-desc { font-size: .83rem; color: var(--muted); }
+    .step-date { font-size: .8rem; color: var(--accent); margin-top: 3px; }
+    @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(230,168,23,.4)} 50%{box-shadow:0 0 0 8px rgba(230,168,23,0)} }
+
+    /* PROGRESS BAR */
+    .progress-section { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 24px; }
+    .progress-section h2 { font-size: .85rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 14px; }
+    .progress-bar { height: 12px; background: var(--border); border-radius: 6px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--accent); border-radius: 6px; transition: width .4s ease; }
+    .progress-pct { text-align: right; font-size: .85rem; color: var(--accent); font-weight: 600; margin-top: 6px; }
+
+    /* NOTES + PHOTOS */
+    .notes-section { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 24px; }
+    .notes-section h2 { font-size: .85rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 12px; }
+    .notes-text { font-size: .92rem; line-height: 1.6; white-space: pre-wrap; }
+    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-top: 12px; }
+    .photo-grid img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 8px; cursor: pointer; }
+
+    /* CONTACT */
+    .contact-section { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
+    .contact-section h2 { font-size: .85rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 14px; }
+    .contact-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+    .contact-btn { flex: 1; min-width: 120px; padding: 12px 20px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: .9rem; font-weight: 600; text-align: center; text-decoration: none; cursor: pointer; }
+    .contact-btn:hover { border-color: var(--accent); color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo"><span>Shawn</span> Cabinets</div>
+    <div class="tagline">Your Job Tracker</div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="state-msg" id="loading-msg"><p>Loading your job details…</p></div>
+  <div class="state-msg" id="error-msg" style="display:none;"><h2>Job Not Found</h2><p>Check the link in your text message and try again.</p></div>
+
+  <div id="job-content" style="display:none;">
+    <div class="job-header">
+      <div class="job-title" id="j-title"></div>
+      <div class="job-subtitle" id="j-subtitle"></div>
+      <div class="job-meta">
+        <div class="meta-item"><label>Project Type</label><span id="j-type">—</span></div>
+        <div class="meta-item"><label>Style</label><span id="j-style">—</span></div>
+        <div class="meta-item"><label>Quote</label><span class="price" id="j-quote">—</span></div>
+        <div class="meta-item"><label>Scheduled</label><span id="j-scheduled">—</span></div>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <h2>Project Status</h2>
+      <div class="steps" id="steps-list"></div>
+    </div>
+
+    <div class="progress-section" id="progress-section" style="display:none;">
+      <h2>Install Progress</h2>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-pct" id="progress-pct"></div>
+    </div>
+
+    <div class="notes-section" id="notes-section" style="display:none;">
+      <h2>Notes from Shawn</h2>
+      <div class="notes-text" id="j-notes"></div>
+      <div class="photo-grid" id="j-photos"></div>
+    </div>
+
+    <div class="contact-section">
+      <h2>Questions? Contact Shawn</h2>
+      <div class="contact-btns">
+        <a id="btn-call" href="#" class="contact-btn">📞 Call Shawn</a>
+        <a id="btn-sms"  href="#" class="contact-btn">💬 Text Shawn</a>
+        <a id="btn-email" href="#" class="contact-btn" style="display:none;">✉️ Email Shawn</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const APPSYNC_URL  = 'https://d2zlzofjerf4hd6gltypy2rnlm.appsync-api.us-east-1.amazonaws.com/graphql';
+  const API_KEY      = 'da2-6l2dtmahczbbnlp3m2vmgihqby';
+  const SHAWN_PHONE  = '(000) 000-0000'; // TODO: update
+  const SHAWN_EMAIL  = 'shawn@example.com'; // TODO: update
+  const SHAWN_PHONE_RAW = '0000000000'; // TODO: update (digits only for tel: link)
+
+  const params = new URLSearchParams(location.search);
+  const jobId  = params.get('id');
+
+  if (!jobId) { showError(); } else { load(); }
+
+  async function gql(query, variables = {}) {
+    const res = await fetch(APPSYNC_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY },
+      body: JSON.stringify({ query, variables }),
+    });
+    const json = await res.json();
+    if (json.errors) throw new Error(json.errors[0].message);
+    return json.data;
+  }
+
+  async function load() {
+    try {
+      const data = await gql(`
+        query Get($id: ID!) {
+          getCabinetsEstimate(id: $id) {
+            id name phone email address
+            projectType style finish budget
+            jobStatus quotedPrice finalPrice
+            scheduledDate scheduledEndDate startedDate completedDate
+            percentComplete customerNotes photoUrls invoiceSent
+            submittedAt
+          }
+        }`, { id: jobId });
+
+      const e = data.getCabinetsEstimate;
+      if (!e) { showError(); return; }
+      render(e);
+    } catch(err) {
+      console.error(err);
+      showError();
+    }
+  }
+
+  function showError() {
+    document.getElementById('loading-msg').style.display = 'none';
+    document.getElementById('error-msg').style.display   = 'block';
+  }
+
+  function fmtDate(iso) {
+    return new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  }
+  function fmt$(n) { return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 0 }); }
+
+  function render(e) {
+    document.getElementById('loading-msg').style.display  = 'none';
+    document.getElementById('job-content').style.display = 'block';
+
+    const addrShort = (e.address || '').split(',')[0];
+    document.getElementById('j-title').textContent    = `${e.name}'s Cabinet Project`;
+    document.getElementById('j-subtitle').textContent = addrShort;
+    document.getElementById('j-type').textContent     = e.projectType || '—';
+    document.getElementById('j-style').textContent    = e.style || '—';
+    document.getElementById('j-quote').textContent    = e.finalPrice != null ? fmt$(e.finalPrice) : e.quotedPrice != null ? fmt$(e.quotedPrice) : 'Pending';
+
+    if (e.scheduledDate) {
+      const end = e.scheduledEndDate ? ` – ${fmtDate(e.scheduledEndDate)}` : '';
+      document.getElementById('j-scheduled').textContent = fmtDate(e.scheduledDate) + end;
+    }
+
+    // Timeline
+    const js = e.jobStatus || 'Pending Review';
+    const statusOrder = ['Pending Review', 'Quoted', 'Scheduled', 'In Progress', 'Completed'];
+    const currentIdx  = statusOrder.indexOf(js);
+
+    const steps = [
+      { key: 'Pending Review', icon: '📋', name: 'Estimate Received',  desc: 'We got your request and are reviewing it.' },
+      { key: 'Quoted',         icon: '💬', name: 'Quote Sent',         desc: e.quotedPrice != null ? `Your quote: ${fmt$(e.quotedPrice)}` : 'Quote is being prepared.' },
+      { key: 'Scheduled',      icon: '📅', name: 'Install Scheduled',  desc: e.scheduledDate ? `Starting ${fmtDate(e.scheduledDate)}${e.scheduledEndDate ? ' – ' + fmtDate(e.scheduledEndDate) : ''}` : 'Scheduling in progress.' },
+      { key: 'In Progress',    icon: '🚪', name: 'Install In Progress', desc: e.startedDate ? `Started ${fmtDate(e.startedDate)}` : 'Installation underway.' },
+      { key: 'Completed',      icon: '✅', name: 'All Done!',           desc: e.completedDate ? `Completed ${fmtDate(e.completedDate)}` : 'Job is complete.' },
+    ];
+
+    const stepsEl = document.getElementById('steps-list');
+    stepsEl.innerHTML = steps.map((s, i) => {
+      const done   = i < currentIdx || js === 'Completed';
+      const active = statusOrder[currentIdx] === s.key;
+      const dotClass = done ? 'done' : active ? 'active' : '';
+      const connClass = done ? 'done' : '';
+      const isLast = i === steps.length - 1;
+      return `
+        <div class="step">
+          <div class="step-line">
+            <div class="step-dot ${dotClass}">${done ? '✓' : s.icon}</div>
+            ${!isLast ? `<div class="step-connector ${connClass}"></div>` : ''}
+          </div>
+          <div class="step-body">
+            <div class="step-name" style="color:${done ? 'var(--green)' : active ? 'var(--amber)' : 'var(--muted)'}">${s.name}</div>
+            <div class="step-desc">${s.desc}</div>
+          </div>
+        </div>`;
+    }).join('');
+
+    // Progress bar
+    if (e.percentComplete != null && e.percentComplete > 0) {
+      document.getElementById('progress-section').style.display = 'block';
+      document.getElementById('progress-fill').style.width = e.percentComplete + '%';
+      document.getElementById('progress-pct').textContent = e.percentComplete + '% complete';
+    }
+
+    // Notes + photos
+    if (e.customerNotes) {
+      document.getElementById('notes-section').style.display = 'block';
+      document.getElementById('j-notes').textContent = e.customerNotes;
+    }
+    if (e.photoUrls) {
+      try {
+        const urls = JSON.parse(e.photoUrls);
+        if (urls.length) {
+          document.getElementById('notes-section').style.display = 'block';
+          document.getElementById('j-photos').innerHTML = urls.map(u =>
+            `<img src="${u}" alt="Job photo" onclick="window.open('${u}')" />`
+          ).join('');
+        }
+      } catch {}
+    }
+
+    // Contact buttons
+    document.getElementById('btn-call').href  = `tel:${SHAWN_PHONE_RAW}`;
+    document.getElementById('btn-sms').href   = `sms:${SHAWN_PHONE_RAW}`;
+    if (e.email) {
+      const emailBtn = document.getElementById('btn-email');
+      emailBtn.style.display = 'block';
+      emailBtn.href = `mailto:${SHAWN_EMAIL}?subject=Re: My Cabinet Project at ${encodeURIComponent(addrShort)}`;
+    }
+  }
+</script>
+</body>
+</html>

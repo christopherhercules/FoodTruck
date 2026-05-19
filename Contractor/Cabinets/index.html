@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shawn Cabinets — Custom Cabinet Design & Installation</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:     #0f0d0b;
+      --card:   #1e1a16;
+      --border: #3a3228;
+      --accent: #c4a35a;
+      --text:   #f0e8d5;
+      --muted:  #9a8a74;
+    }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+
+    /* NAV */
+    nav { position: sticky; top: 0; z-index: 50; background: rgba(15,13,11,.95); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-size: 1.25rem; font-weight: 800; letter-spacing: -.02em; }
+    .nav-logo span { color: var(--accent); }
+    .nav-cta { padding: 10px 22px; background: var(--accent); color: #000; border: none; border-radius: 8px; font-weight: 700; font-size: .9rem; cursor: pointer; text-decoration: none; }
+    .nav-cta:hover { opacity: .9; }
+    .nav-phone { color: var(--muted); font-size: .9rem; }
+
+    /* HERO */
+    .hero { min-height: 88vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 80px 24px; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 60%, rgba(196,163,90,.12) 0%, transparent 65%); pointer-events: none; }
+    .hero-badge { display: inline-block; border: 1px solid var(--accent); color: var(--accent); font-size: .78rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; padding: 6px 16px; border-radius: 20px; margin-bottom: 24px; }
+    .hero h1 { font-size: clamp(2.2rem, 6vw, 4rem); font-weight: 800; line-height: 1.1; max-width: 700px; margin: 0 auto 20px; }
+    .hero h1 em { color: var(--accent); font-style: normal; }
+    .hero p { font-size: 1.15rem; color: var(--muted); max-width: 520px; margin: 0 auto 36px; line-height: 1.6; }
+    .hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary { padding: 14px 32px; background: var(--accent); color: #000; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; text-decoration: none; }
+    .btn-primary:hover { opacity: .9; }
+    .btn-outline { padding: 14px 32px; background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* SERVICES */
+    .section { padding: 80px 24px; max-width: 1100px; margin: 0 auto; }
+    .section-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); font-weight: 600; margin-bottom: 12px; }
+    .section-title { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800; margin-bottom: 14px; }
+    .section-sub { color: var(--muted); font-size: 1rem; max-width: 560px; line-height: 1.6; margin-bottom: 48px; }
+
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+    .service-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; transition: border-color .2s; }
+    .service-card:hover { border-color: var(--accent); }
+    .service-icon { font-size: 2rem; margin-bottom: 14px; }
+    .service-name { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
+    .service-desc { font-size: .88rem; color: var(--muted); line-height: 1.55; }
+
+    /* PROCESS */
+    .process-section { background: var(--card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 80px 24px; }
+    .process-inner { max-width: 1100px; margin: 0 auto; }
+    .steps-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-top: 48px; }
+    .process-step { text-align: center; }
+    .step-num { width: 48px; height: 48px; border: 2px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 800; color: var(--accent); margin: 0 auto 16px; }
+    .step-name { font-weight: 700; margin-bottom: 8px; }
+    .step-desc { font-size: .85rem; color: var(--muted); line-height: 1.55; }
+
+    /* WHY US */
+    .why-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+    .why-item { display: flex; gap: 14px; align-items: flex-start; }
+    .why-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 2px; }
+    .why-text strong { display: block; margin-bottom: 4px; font-size: .95rem; }
+    .why-text span { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+
+    /* CTA BAND */
+    .cta-band { background: var(--card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 72px 24px; text-align: center; }
+    .cta-band h2 { font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 800; margin-bottom: 12px; }
+    .cta-band p { color: var(--muted); font-size: 1rem; margin-bottom: 32px; }
+
+    /* FOOTER */
+    footer { padding: 32px 24px; text-align: center; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); }
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo"><span>Shawn</span> Cabinets</div>
+  <div style="display:flex;align-items:center;gap:20px;">
+    <span class="nav-phone" id="nav-phone"></span>
+    <a href="estimate.html" class="nav-cta">Get a Free Estimate</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div>
+    <div class="hero-badge">Custom Cabinet Specialists</div>
+    <h1>Cabinets That <em>Transform</em> Your Home</h1>
+    <p>From kitchen remodels to full-home builds — we design, build, and install custom cabinets that last a lifetime.</p>
+    <div class="hero-btns">
+      <a href="estimate.html" class="btn-primary">Get a Free Estimate</a>
+      <a href="#services" class="btn-outline">See Our Work</a>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="section" id="services">
+  <div class="section-label">What We Do</div>
+  <h2 class="section-title">Expert Cabinet Work for Every Room</h2>
+  <p class="section-sub">Whether you're building new or upgrading your existing space, we bring craftsmanship and precision to every project.</p>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-icon">🍳</div>
+      <div class="service-name">Kitchen Cabinets</div>
+      <div class="service-desc">Full kitchen cabinet design and installation — base, wall, and tall cabinets in your choice of style and finish.</div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🚿</div>
+      <div class="service-name">Bathroom Vanities</div>
+      <div class="service-desc">Custom vanities and storage solutions for every bathroom in your home, from primary suites to powder rooms.</div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🏗️</div>
+      <div class="service-name">New Construction</div>
+      <div class="service-desc">Full-home cabinet packages for builders and homeowners — we work with your floor plan from day one.</div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🔄</div>
+      <div class="service-name">Remodels & Upgrades</div>
+      <div class="service-desc">Tear-out and replacement, or refacing existing cabinets to give your home a fresh look without full replacement.</div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🍾</div>
+      <div class="service-name">Bar & Entertainment</div>
+      <div class="service-desc">Wet bars, built-in entertainment centers, and custom storage for your gathering spaces.</div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">📦</div>
+      <div class="service-name">Laundry & Pantry</div>
+      <div class="service-desc">Smart storage solutions for laundry rooms, pantries, and mudrooms that keep your home organized.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<div class="process-section">
+  <div class="process-inner">
+    <div class="section-label">How It Works</div>
+    <h2 class="section-title">Simple from Start to Finish</h2>
+    <div class="steps-row">
+      <div class="process-step">
+        <div class="step-num">1</div>
+        <div class="step-name">Submit Your Request</div>
+        <div class="step-desc">Fill out our quick estimate form. Upload your floor plan if you have it — or describe what you need.</div>
+      </div>
+      <div class="process-step">
+        <div class="step-num">2</div>
+        <div class="step-name">We Review & Quote</div>
+        <div class="step-desc">Shawn reviews your project and sends a detailed quote, typically within 24 hours.</div>
+      </div>
+      <div class="process-step">
+        <div class="step-num">3</div>
+        <div class="step-name">Schedule the Install</div>
+        <div class="step-desc">Once you approve the quote, we schedule your installation at a time that works for you.</div>
+      </div>
+      <div class="process-step">
+        <div class="step-num">4</div>
+        <div class="step-name">Track Your Job</div>
+        <div class="step-desc">Follow your project in real time with your personal job tracker link. See progress updates and photos.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WHY US -->
+<section class="section">
+  <div class="section-label">Why Shawn Cabinets</div>
+  <h2 class="section-title">Quality You Can See & Touch</h2>
+  <p class="section-sub">We're craftsmen, not just installers. Every project gets the attention it deserves.</p>
+  <div class="why-grid">
+    <div class="why-item">
+      <div class="why-icon">🪵</div>
+      <div class="why-text"><strong>Quality Materials</strong><span>Premium hardwoods, plywoods, and finishes that hold up for decades.</span></div>
+    </div>
+    <div class="why-item">
+      <div class="why-icon">📐</div>
+      <div class="why-text"><strong>Precision Fit</strong><span>Every cabinet is measured and fitted to your exact space — no gaps, no filler strips.</span></div>
+    </div>
+    <div class="why-item">
+      <div class="why-icon">💬</div>
+      <div class="why-text"><strong>Clear Communication</strong><span>You'll always know where your project stands. Text updates at every milestone.</span></div>
+    </div>
+    <div class="why-item">
+      <div class="why-icon">🤝</div>
+      <div class="why-text"><strong>Local & Reliable</strong><span>Locally owned, hands-on workmanship. Shawn is on every job personally.</span></div>
+    </div>
+    <div class="why-item">
+      <div class="why-icon">📱</div>
+      <div class="why-text"><strong>Job Tracking</strong><span>Your own progress page so you know exactly what's happening and when.</span></div>
+    </div>
+    <div class="why-item">
+      <div class="why-icon">✅</div>
+      <div class="why-text"><strong>Satisfaction Guaranteed</strong><span>We don't close out a job until you're happy with the result.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<div class="cta-band">
+  <h2>Ready to Transform Your Space?</h2>
+  <p>Get a free estimate — takes less than 3 minutes.</p>
+  <a href="estimate.html" class="btn-primary">Start Your Free Estimate</a>
+</div>
+
+<footer>
+  <p>© 2025 Shawn Cabinets &nbsp;·&nbsp; <a id="footer-phone" href="#">Call Us</a> &nbsp;·&nbsp; <a id="footer-email" href="#">Email Us</a></p>
+</footer>
+
+<script>
+  // TODO: update with Shawn's real contact info
+  const PHONE     = '(000) 000-0000';
+  const PHONE_RAW = '0000000000';
+  const EMAIL     = 'shawn@example.com';
+
+  document.getElementById('nav-phone').textContent = PHONE;
+  document.getElementById('footer-phone').href      = 'tel:' + PHONE_RAW;
+  document.getElementById('footer-phone').textContent = PHONE;
+  document.getElementById('footer-email').href      = 'mailto:' + EMAIL;
+  document.getElementById('footer-email').textContent = EMAIL;
+</script>
+</body>
+</html>
