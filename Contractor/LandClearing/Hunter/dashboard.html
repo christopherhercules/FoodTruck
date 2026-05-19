@@ -253,18 +253,41 @@
     .cal-dow { display: grid; grid-template-columns: repeat(7, 1fr); background: var(--green-dark); }
     .cal-dow span { color: white; font-size: .75rem; font-weight: 700; text-align: center; padding: 8px 4px; }
     .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); }
-    .cal-day { min-height: 90px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 6px; }
+    .cal-day { min-height: 90px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 6px; cursor: pointer; transition: background .12s; }
     .cal-day:nth-child(7n) { border-right: none; }
-    .cal-day.other-month { background: #f9faf8; }
+    .cal-day.other-month { background: #f9faf8; cursor: default; }
     .cal-day.today { background: #EDF5E7; }
+    .cal-day:not(.other-month):hover { background: #F5FBF0; }
     .cal-day-num { font-size: .78rem; font-weight: 700; color: var(--text-mid); margin-bottom: 4px; }
     .cal-day.today .cal-day-num { color: var(--green-dark); }
+    .cal-add { font-size: .7rem; color: var(--green-mid); font-weight: 700; opacity: 0; transition: opacity .15s; margin-left: 3px; }
+    .cal-day:not(.other-month):hover .cal-add { opacity: 1; }
     .cal-job { font-size: .72rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 3px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
     .cal-job.js-Scheduled  { background: #FFF3E0; color: #E65100; }
     .cal-job.js-In-Progress { background: #E8F5E9; color: #2E7D32; }
     .cal-job.js-Completed  { background: #F5F5F5; color: #757575; }
     .cal-job.js-Quoted     { background: #E3F0FF; color: #1565C0; }
     .cal-empty { text-align: center; padding: 60px; color: var(--text-mid); font-size: .9rem; }
+
+    /* ── NEW LEAD MODAL ── */
+    .nl-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 300; align-items: center; justify-content: center; padding: 24px; }
+    .nl-overlay.open { display: flex; }
+    .nl-modal { background: white; border-radius: 16px; width: 100%; max-width: 540px; box-shadow: 0 16px 60px rgba(0,0,0,0.3); overflow: hidden; max-height: 92vh; overflow-y: auto; }
+    .nl-header { background: var(--green-dark); color: white; padding: 16px 22px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; }
+    .nl-header h2 { font-size: 1rem; font-weight: 700; }
+    .nl-body { padding: 20px; }
+    .nl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .nl-field { display: flex; flex-direction: column; gap: 5px; }
+    .nl-field label { font-size: .72rem; font-weight: 700; color: var(--text-mid); text-transform: uppercase; letter-spacing: .4px; }
+    .nl-field input, .nl-field select, .nl-field textarea { padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: .9rem; outline: none; font-family: inherit; background: white; color: var(--text); }
+    .nl-field input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 1; width: 18px; height: 18px; }
+    .nl-field input:focus, .nl-field select:focus, .nl-field textarea:focus { border-color: var(--green-mid); }
+    .nl-field.full { grid-column: 1 / -1; }
+    .nl-footer { display: flex; gap: 10px; justify-content: flex-end; padding-top: 4px; }
+    .btn-nl-cancel { padding: 10px 20px; background: #f0f0f0; color: var(--text-mid); border: none; border-radius: 8px; font-size: .9rem; font-weight: 600; cursor: pointer; }
+    .btn-nl-cancel:hover { background: #e0e0e0; }
+    .btn-nl-submit { padding: 10px 24px; background: var(--green-mid); color: white; border: none; border-radius: 8px; font-size: .9rem; font-weight: 700; cursor: pointer; }
+    .btn-nl-submit:hover { background: var(--green-dark); }
 
     @media (max-width: 640px) {
       .stats-bar, .filters, .table-wrap { padding-left: 14px; padding-right: 14px; }
@@ -298,6 +321,7 @@
       </div>
     </div>
     <div class="header-actions">
+      <button class="btn-refresh" onclick="openNewLead('')" style="background:rgba(255,255,255,0.18);border-color:rgba(255,255,255,0.4);">➕ New Lead</button>
       <button class="btn-refresh" onclick="loadEstimates()">↻ Refresh</button>
       <button class="btn-logout" onclick="logout()">Sign Out</button>
     </div>
@@ -536,6 +560,70 @@
   </div>
 </div>
 
+<!-- ── NEW LEAD MODAL ──────────────────────────────────────────────────────── -->
+<div class="nl-overlay" id="nl-overlay" onclick="if(event.target===this)closeNewLead()">
+  <div class="nl-modal">
+    <div class="nl-header">
+      <h2 id="nl-title">➕ Add New Lead</h2>
+      <button class="modal-close" onclick="closeNewLead()">✕</button>
+    </div>
+    <div class="nl-body">
+      <div class="nl-grid">
+        <div class="nl-field">
+          <label>Name *</label>
+          <input type="text" id="nl-name" placeholder="Full name" />
+        </div>
+        <div class="nl-field">
+          <label>Phone *</label>
+          <input type="tel" id="nl-phone" placeholder="(830) 555-0000" />
+        </div>
+        <div class="nl-field">
+          <label>Email</label>
+          <input type="email" id="nl-email" placeholder="optional" />
+        </div>
+        <div class="nl-field">
+          <label>Acres (approx.)</label>
+          <input type="number" id="nl-acres" placeholder="5.0" step="0.1" min="0" />
+        </div>
+        <div class="nl-field full">
+          <label>Property Address *</label>
+          <input type="text" id="nl-address" placeholder="123 Ranch Rd, New Braunfels, TX" />
+        </div>
+        <div class="nl-field">
+          <label>County</label>
+          <input type="text" id="nl-county" placeholder="Comal" />
+        </div>
+        <div class="nl-field">
+          <label>Lead Status</label>
+          <select id="nl-status">
+            <option value="New">🆕 New</option>
+            <option value="Called">📞 Called</option>
+            <option value="Quoted">📄 Quoted</option>
+            <option value="Won">✅ Won</option>
+            <option value="Lost">❌ Lost</option>
+          </select>
+        </div>
+        <div class="nl-field">
+          <label>Scheduled Start</label>
+          <input type="date" id="nl-sched" />
+        </div>
+        <div class="nl-field">
+          <label>Scheduled End <span style="font-weight:400;color:#aaa;">(optional)</span></label>
+          <input type="date" id="nl-sched-end" />
+        </div>
+        <div class="nl-field full">
+          <label>Internal Notes</label>
+          <textarea id="nl-notes" rows="3" placeholder="Private notes — not shown to customer..."></textarea>
+        </div>
+      </div>
+      <div class="nl-footer">
+        <button class="btn-nl-cancel" onclick="closeNewLead()">Cancel</button>
+        <button class="btn-nl-submit" onclick="submitNewLead()">➕ Add Lead</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
   const APPSYNC_URL = 'https://d2zlzofjerf4hd6gltypy2rnlm.appsync-api.us-east-1.amazonaws.com/graphql';
   const APPSYNC_KEY = 'da2-6l2dtmahczbbnlp3m2vmgihqby';
@@ -704,7 +792,8 @@
         const nm  = e.name.split(' ')[0] + (e.acres ? ` (${parseFloat(e.acres).toFixed(1)}ac)` : '');
         return `<div class="cal-job ${cls}" onclick="event.stopPropagation();openModal('${e.id}')" title="${e.name} — ${e.address}">${nm}</div>`;
       }).join('');
-      html += `<div class="cal-day${isToday ? ' today' : ''}"><div class="cal-day-num">${d}</div>${jobHtml}</div>`;
+      const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      html += `<div class="cal-day${isToday ? ' today' : ''}" onclick="openNewLead('${dateStr}')"><div class="cal-day-num">${d}<span class="cal-add"> +</span></div>${jobHtml}</div>`;
     }
 
     // Trailing blanks
@@ -1075,6 +1164,73 @@
       else if (g.type === 'MultiPolygon') g.coordinates.forEach(poly => poly.forEach(ring => ring.forEach(c => into.push(c))));
     };
     walk(geojson);
+  }
+
+  // ── NEW LEAD MODAL ────────────────────────────────────────────────────────
+  function openNewLead(dateStr) {
+    ['nl-name','nl-phone','nl-email','nl-acres','nl-address','nl-county','nl-notes'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('nl-status').value    = 'New';
+    document.getElementById('nl-sched').value     = dateStr || '';
+    document.getElementById('nl-sched-end').value = '';
+    document.getElementById('nl-title').textContent = dateStr
+      ? `➕ Add Lead — ${fmtDate(dateStr + 'T12:00:00')}`
+      : '➕ Add New Lead';
+    document.getElementById('nl-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('nl-name').focus(), 80);
+  }
+
+  function closeNewLead() {
+    document.getElementById('nl-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  async function submitNewLead() {
+    const name    = document.getElementById('nl-name').value.trim();
+    const phone   = document.getElementById('nl-phone').value.trim();
+    const address = document.getElementById('nl-address').value.trim();
+    if (!name || !phone || !address) { alert('Name, phone, and address are required.'); return; }
+
+    const acres    = parseFloat(document.getElementById('nl-acres').value) || null;
+    const email    = document.getElementById('nl-email').value.trim()   || null;
+    const county   = document.getElementById('nl-county').value.trim()  || null;
+    const status   = document.getElementById('nl-status').value;
+    const notes    = document.getElementById('nl-notes').value.trim()   || null;
+    const sched    = document.getElementById('nl-sched').value;
+    const schedEnd = document.getElementById('nl-sched-end').value;
+
+    const input = { name, phone, address, status, submittedAt: new Date().toISOString() };
+    if (email)    input.email          = email;
+    if (acres)    input.acres          = acres;
+    if (county)   input.parcelCounty   = county;
+    if (notes)    input.notes          = notes;
+    if (sched)  { input.scheduledDate  = new Date(sched    + 'T12:00:00').toISOString(); input.jobStatus = 'Scheduled'; }
+    if (schedEnd) input.scheduledEndDate = new Date(schedEnd + 'T12:00:00').toISOString();
+
+    const btn = document.querySelector('.btn-nl-submit');
+    btn.textContent = 'Saving…'; btn.disabled = true;
+    try {
+      const data = await gql(`
+        mutation Create($input: CreateHunterEstimateInput!) {
+          createHunterEstimate(input: $input) {
+            id name phone email address acres parcelCounty
+            status notes jobStatus scheduledDate scheduledEndDate submittedAt createdAt
+          }
+        }`, { input });
+      const created = data.createHunterEstimate;
+      allEstimates.unshift(created);
+      updateStats();
+      renderTable();
+      if (activeView === 'cal') renderCalendar();
+      closeNewLead();
+      openModal(created.id);
+    } catch(e) {
+      alert('Failed to save: ' + e.message);
+    } finally {
+      btn.textContent = '➕ Add Lead'; btn.disabled = false;
+    }
   }
 
   // ── UTIL ──────────────────────────────────────────────────────────────────

@@ -33,6 +33,10 @@ app.use(toastApp);
 const hunterApp = require('./hunter/estimate');
 app.use(hunterApp);
 
+// ── SHAWN CABINETS ROUTES ──────────────────────────────────────────────────
+const cabinetsApp = require('./cabinets/estimate');
+app.use(cabinetsApp);
+
 // ── SITE HEALTH CHECK ─────────────────────────────────────────────────────
 const FOOD_TRUCK_SITES = [
   'maschingonrestaurant', 'maschingonfoodtruck', 'bar1859', 'sylviastacos',

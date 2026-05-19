@@ -1268,6 +1268,25 @@
         }`, { input });
 
       const newId = result.createCabinetsEstimate.id;
+
+      // Notify Shawn by email (fire-and-forget)
+      fetch('https://foodtruck-cymz.onrender.com/cabinets/estimate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name:        input.name,
+          phone:       input.phone,
+          email:       input.email,
+          address:     input.address,
+          projectType: input.projectType,
+          style:       input.style,
+          finish:      input.finish,
+          budget:      input.budget,
+          rooms:       input.rooms,
+          notes:       input.notes,
+        }),
+      }).catch(() => {});
+
       const trackUrl = `${location.origin}/job.html?id=${newId}`;
 
       const trackBox = document.getElementById('track-link-box');
