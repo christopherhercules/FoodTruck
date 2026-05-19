@@ -931,12 +931,28 @@
   function fmtDate(s) { return new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
   function fmtDay(s)  { return new Date(s).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }); }
 
-  function openEmail(email, subject, body) {
+  const SEND_EMAIL_URL = 'https://foodtruck-cymz.onrender.com/send-email';
+
+  async function sendEmail(email, subject, body, btnEl) {
     if (!email) {
       prompt('No email on file — copy this message to send manually:', body);
       return;
     }
-    window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const origText = btnEl ? btnEl.textContent : null;
+    if (btnEl) { btnEl.textContent = 'Sending…'; btnEl.disabled = true; }
+    try {
+      const r = await fetch(SEND_EMAIL_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: email, subject, body }),
+      });
+      const json = await r.json();
+      if (!json.ok) throw new Error(json.error || 'Send failed');
+      if (btnEl) { btnEl.textContent = '✓ Email Sent'; setTimeout(() => { btnEl.textContent = origText; btnEl.disabled = false; }, 2500); }
+    } catch(err) {
+      if (btnEl) { btnEl.textContent = origText; btnEl.disabled = false; }
+      alert('Email failed to send: ' + err.message);
+    }
   }
 
   function flashSaved(text) {
@@ -978,7 +994,7 @@
       }, '✓ Quote saved');
       const subject = `Your Hunter Land Clearing Quote — ${est.address.split(',')[0]}`;
       const body = `Hi ${firstName(est)},\n\nThank you for reaching out to Hunter Land Clearing!\n\nYour quote for clearing ${acresStr(est)}your property at ${est.address} is $${fmt$(v)}.\n\nReply to this email to confirm and schedule, or call me at (830) 832-7065 with any questions.\n\nThanks,\nJason Merz\nHunter Land Clearing\n(830) 832-7065`;
-      openEmail(est.email, subject, body);
+      sendEmail(est.email, subject, body, event.currentTarget);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -996,7 +1012,7 @@
       const dateRange = isoEnd ? `${fmtDay(iso)} through ${fmtDay(isoEnd)}` : fmtDay(iso);
       const subject = `Your Clearing Job is Scheduled — ${est.address.split(',')[0]}`;
       const body = `Hi ${firstName(est)},\n\nGreat news — your land clearing job is confirmed!\n\nProperty: ${est.address}\nScheduled: ${dateRange}\n\nWe'll arrive between 7–9am. Reply to this email if you have any questions before we get started.\n\nThanks,\nJason Merz\nHunter Land Clearing\n(830) 832-7065`;
-      openEmail(est.email, subject, body);
+      sendEmail(est.email, subject, body, event.currentTarget);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -1009,7 +1025,7 @@
       }, '✓ Job started');
       const subject = `Work Has Started — ${est.address.split(',')[0]}`;
       const body = `Hi ${firstName(est)},\n\nJust a heads up — we're at your property now and clearing work has begun today!\n\nI'll send you updates as we make progress. Reply to this email with any questions.\n\nThanks,\nJason Merz\nHunter Land Clearing\n(830) 832-7065`;
-      openEmail(est.email, subject, body);
+      sendEmail(est.email, subject, body, event.currentTarget);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -1022,7 +1038,7 @@
       }, `✓ ${p}% saved`);
       const subject = `Job Progress Update — ${est.address.split(',')[0]}`;
       const body = `Hi ${firstName(est)},\n\nQuick progress update — we're ${p}% complete on your land clearing job. Things are looking great!\n\nReply to this email with any questions.\n\nThanks,\nJason Merz\nHunter Land Clearing\n(830) 832-7065`;
-      openEmail(est.email, subject, body);
+      sendEmail(est.email, subject, body, event.currentTarget);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -1037,7 +1053,7 @@
       }, '✓ Job complete');
       const subject = `Your Land Clearing is Complete — ${est.address.split(',')[0]}`;
       const body = `Hi ${firstName(est)},\n\nGreat news — your land clearing is all done! The property is looking great.\n\nFinal total: $${fmt$(v)}\n\nI'll send the invoice shortly. Thanks for trusting Hunter Land Clearing with your property!\n\nThanks,\nJason Merz\nHunter Land Clearing\n(830) 832-7065`;
-      openEmail(est.email, subject, body);
+      sendEmail(est.email, subject, body, event.currentTarget);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -1052,7 +1068,7 @@
     }
     const subject = `Invoice — Hunter Land Clearing — ${est.address.split(',')[0]}`;
     const body = `Hi ${firstName(est)},\n\nThanks again for trusting Hunter Land Clearing with your project. Below is your final invoice.\n\nINVOICE\n=====================================\nProperty: ${est.address}\nWork: ${acresStr(est)}land clearing\nDate completed: ${est.completedDate ? fmtDate(est.completedDate) : 'recent'}\n\nTotal Due: $${fmt$(v)}\n=====================================\n\nPayment options:\n  • Check — mail to: Jason Merz, New Braunfels, TX\n  • Venmo — @Jason-Merz\n  • Zelle — (830) 832-7065\n\nReply to this email with any questions.\n\nThanks,\nJason\nHunter Land Clearing\n(830) 832-7065\nj_merz@yahoo.com`;
-    window.location.href = `mailto:${est.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    await sendEmail(est.email, subject, body, event.currentTarget);
     try { await applyAndRefresh({ id: activeId, invoiceSent: true }, '✓ Invoice sent'); } catch {}
   }
 

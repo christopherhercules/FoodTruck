@@ -37,6 +37,10 @@ app.use(hunterApp);
 const cabinetsApp = require('./cabinets/estimate');
 app.use(cabinetsApp);
 
+// ── OUTBOUND EMAIL (contractor dashboards) ─────────────────────────────────
+const sendEmailApp = require('./send-email');
+app.use(sendEmailApp);
+
 // ── SITE HEALTH CHECK ─────────────────────────────────────────────────────
 const FOOD_TRUCK_SITES = [
   'maschingonrestaurant', 'maschingonfoodtruck', 'bar1859', 'sylviastacos',

@@ -742,12 +742,28 @@
   }
   function fmt$(n) { return Number(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); }
   function firstName(e) { return (e.name || 'there').split(' ')[0]; }
-  function openEmail(email, subject, body) {
+  const SEND_EMAIL_URL = 'https://foodtruck-cymz.onrender.com/send-email';
+
+  async function sendEmail(email, subject, body, btnEl) {
     if (!email) {
       prompt('No email on file — copy this message to send manually:', body);
       return;
     }
-    window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const origText = btnEl ? btnEl.textContent : null;
+    if (btnEl) { btnEl.textContent = 'Sending…'; btnEl.disabled = true; }
+    try {
+      const r = await fetch(SEND_EMAIL_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: email, subject, body }),
+      });
+      const json = await r.json();
+      if (!json.ok) throw new Error(json.error || 'Send failed');
+      if (btnEl) { btnEl.textContent = '✓ Email Sent'; setTimeout(() => { btnEl.textContent = origText; btnEl.disabled = false; }, 2500); }
+    } catch(err) {
+      if (btnEl) { btnEl.textContent = origText; btnEl.disabled = false; }
+      alert('Email failed to send: ' + err.message);
+    }
   }
   function flashSaved(text) {
     const el = document.getElementById('save-confirm');
@@ -783,7 +799,7 @@
       await applyAndRefresh({ id: activeId, status: 'Quoted', jobStatus: 'Quoted', quotedPrice: v }, '✓ Quote saved');
       const subject = `Your Shawn Cabinets Quote — ${est.address.split(',')[0]}`;
       const body = `Hi ${firstName(est)},\n\nThank you for reaching out to Shawn Cabinets!\n\nYour quote for the ${est.projectType || 'cabinet'} project at ${est.address} is $${fmt$(v)}.\n\nReply to this email to confirm and get scheduled, or call me at ${SHAWN_PHONE} with any questions.\n\nThanks,\nShawn\nShawn Cabinets\n${SHAWN_PHONE}`;
-      openEmail(est.email, subject, body);
+      sendEmail(est.email, subject, body, event.currentTarget);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -801,7 +817,7 @@
       const dateRange = isoEnd ? `${fmtDay(iso)} through ${fmtDay(isoEnd)}` : fmtDay(iso);
       const subject = `Your Cabinet Install is Scheduled — ${est.address.split(',')[0]}`;
       const body = `Hi ${firstName(est)},\n\nGreat news — your cabinet installation is confirmed!\n\nProperty: ${est.address}\nScheduled: ${dateRange}\n\nWe'll arrive by 8am. Reply to this email if you have any questions before we get started.\n\nThanks,\nShawn\nShawn Cabinets\n${SHAWN_PHONE}`;
-      openEmail(est.email, subject, body);
+      sendEmail(est.email, subject, body, event.currentTarget);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -814,7 +830,7 @@
       }, '✓ Job started');
       const subject = `Cabinet Install Has Started — ${est.address.split(',')[0]}`;
       const body = `Hi ${firstName(est)},\n\nJust a heads up — we're at your property now and the cabinet installation has begun!\n\nI'll send you updates as we make progress. Reply to this email with any questions.\n\nThanks,\nShawn\nShawn Cabinets\n${SHAWN_PHONE}`;
-      openEmail(est.email, subject, body);
+      sendEmail(est.email, subject, body, event.currentTarget);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -825,7 +841,7 @@
       await applyAndRefresh({ id: activeId, jobStatus: 'In Progress', percentComplete: p }, `✓ ${p}% saved`);
       const subject = `Cabinet Install Progress Update — ${est.address.split(',')[0]}`;
       const body = `Hi ${firstName(est)},\n\nQuick update — the cabinet installation is ${p}% complete. Things are looking great!\n\nReply to this email with any questions.\n\nThanks,\nShawn\nShawn Cabinets\n${SHAWN_PHONE}`;
-      openEmail(est.email, subject, body);
+      sendEmail(est.email, subject, body, event.currentTarget);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -840,7 +856,7 @@
       }, '✓ Job complete');
       const subject = `Your Cabinets Are Complete! — ${est.address.split(',')[0]}`;
       const body = `Hi ${firstName(est)},\n\nGreat news — your cabinet installation is all done and they look amazing!\n\nFinal total: $${fmt$(v)}\n\nI'll send the invoice shortly. Thanks so much for choosing Shawn Cabinets!\n\nThanks,\nShawn\nShawn Cabinets\n${SHAWN_PHONE}`;
-      openEmail(est.email, subject, body);
+      sendEmail(est.email, subject, body, event.currentTarget);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -855,7 +871,7 @@
     }
     const subject = `Invoice — Shawn Cabinets — ${est.address.split(',')[0]}`;
     const body = `Hi ${firstName(est)},\n\nThank you for choosing Shawn Cabinets! Here is your final invoice.\n\nINVOICE\n=====================================\nProperty: ${est.address}\nProject: ${est.projectType || 'Cabinet Installation'}\nDate completed: ${est.completedDate ? fmtDate(est.completedDate) : 'recent'}\n\nTotal Due: $${fmt$(v)}\n=====================================\n\nPayment options:\n  • Check — payable to Shawn Cabinets\n  • Venmo — @Shawn-Cabinets\n  • Zelle — ${SHAWN_PHONE}\n\nReply with any questions.\n\nThanks,\nShawn\nShawn Cabinets\n${SHAWN_PHONE}\n${SHAWN_EMAIL}`;
-    window.location.href = `mailto:${est.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    await sendEmail(est.email, subject, body, event.currentTarget);
     try { await applyAndRefresh({ id: activeId, invoiceSent: true }, '✓ Invoice sent'); } catch {}
   }
 
