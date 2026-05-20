@@ -1009,6 +1009,8 @@
   let selectedPlanFile = null;       // File object
   let detectedRooms    = null;       // null = not analyzed, [] = analyzed result
   let planSource       = 'fallback'; // 'ai' | 'fallback'
+  let planUrl          = null;       // S3 URL of uploaded plan
+  let linearFootage    = {};         // { "Kitchen": 28, "Primary Bath": 12, ... }
 
   // Room data map: room name → { linearFt: string, notes: string }
   const roomData = {};
@@ -1099,10 +1101,15 @@
       const json = await res.json();
 
       detectedRooms = json.rooms || FALLBACK_ROOMS;
+      linearFootage = json.linearFootage || {};
+      planUrl       = json.planUrl || null;
       planSource    = json.source || 'fallback';
 
       if (planSource === 'ai') {
-        setAnalysisStatus('success', `✓ ${detectedRooms.length} rooms detected from your plan`);
+        const hasFootage = Object.keys(linearFootage).length > 0;
+        setAnalysisStatus('success',
+          `✓ ${detectedRooms.length} rooms detected from your plan` +
+          (hasFootage ? ' with linear footage estimates' : ''));
       } else {
         setAnalysisStatus('neutral', 'Plan uploaded — select which rooms need cabinets on the next step.');
       }
@@ -1196,7 +1203,20 @@
   }
 
   function createSubform(roomName, container) {
-    const id  = roomId(roomName);
+    const id = roomId(roomName);
+
+    // Use existing roomData value, then fall back to AI estimate from the plan
+    const aiLF  = linearFootage[roomName] || null;
+    const curLF = roomData[roomName]?.linearFt || (aiLF ? String(aiLF) : '');
+    if (aiLF && !roomData[roomName]?.linearFt) {
+      if (!roomData[roomName]) roomData[roomName] = { linearFt: '', notes: '' };
+      roomData[roomName].linearFt = String(aiLF);
+    }
+
+    const ftHint = aiLF
+      ? `<span style="font-size:.75rem;color:var(--gold-dim);font-weight:600;margin-left:6px;">~${aiLF} LF from plan</span>`
+      : '';
+
     const div = document.createElement('div');
     div.className = 'room-subform visible';
     div.id = id;
@@ -1204,10 +1224,10 @@
       <div class="room-subform-title">${escHtml(roomName)}</div>
       <div class="room-subform-grid">
         <div class="form-group">
-          <label class="field-label" for="${id}-ft">Linear Footage <span style="font-weight:400;color:var(--text-dim);">(optional)</span></label>
+          <label class="field-label" for="${id}-ft">Linear Footage${ftHint}</label>
           <input type="number" id="${id}-ft" placeholder="e.g. 24" min="0" step="1"
             oninput="updateRoomData('${escHtml(roomName)}', 'linearFt', this.value)"
-            value="${escHtml(roomData[roomName]?.linearFt || '')}" />
+            value="${escHtml(curLF)}" />
         </div>
         <div class="form-group">
           <label class="field-label" for="${id}-notes">Notes <span style="font-weight:400;color:var(--text-dim);">(optional)</span></label>
@@ -1257,9 +1277,17 @@
     const ptRadio = document.querySelector('input[name="projectType"]:checked');
     document.getElementById('rv-project-type').textContent = ptRadio ? ptRadio.value : '—';
 
-    document.getElementById('rv-plan').textContent = selectedPlanFile
-      ? `${selectedPlanFile.name}${planSource === 'ai' ? ' (rooms auto-detected)' : ''}`
-      : 'No file selected';
+    const planEl = document.getElementById('rv-plan');
+    if (selectedPlanFile) {
+      const label = selectedPlanFile.name + (planSource === 'ai' ? ' — rooms & footage auto-detected' : '');
+      if (planUrl) {
+        planEl.innerHTML = `<a href="${escHtml(planUrl)}" target="_blank" style="color:var(--gold);">${escHtml(label)}</a>`;
+      } else {
+        planEl.textContent = label;
+      }
+    } else {
+      planEl.textContent = 'No file selected';
+    }
 
     const styleRadio = document.querySelector('input[name="cabinetStyle"]:checked');
     document.getElementById('rv-style').textContent  = styleRadio ? styleRadio.value : 'Not specified';
@@ -1315,8 +1343,8 @@
       finish:      document.getElementById('f-finish').value.trim() || null,
       budget:      document.getElementById('f-budget').value || null,
       rooms:       roomsPayload.length > 0 ? JSON.stringify(roomsPayload) : null,
-      planUrl:     null,
-      planAnalysis: planSource === 'ai' ? JSON.stringify(detectedRooms) : null,
+      planUrl:      planUrl,
+      planAnalysis: planSource === 'ai' ? JSON.stringify({ rooms: detectedRooms, linearFootage }) : null,
       status:      'New',
       submittedAt: new Date().toISOString(),
     };

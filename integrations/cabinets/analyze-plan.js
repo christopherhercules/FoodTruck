@@ -1,35 +1,36 @@
 /**
- * Cabinets — Floor Plan Room Analyzer
+ * Cabinets — Floor Plan Analyzer & Uploader
  *
  * POST /cabinets/analyze-plan  (multipart/form-data, field name: "plan")
  *
- * Accepts a floor plan image or PDF, sends it to Claude Vision,
- * and returns the rooms detected in the plan as a JSON array.
- * Falls back to a generic room list if no file is provided or analysis fails.
+ * 1. Uploads the floor plan to S3 (cabinets-uploads.myserviceflows.com)
+ * 2. Sends it to Claude Vision to detect rooms and estimate linear footage
+ * 3. Returns { rooms, linearFootage, planUrl, source }
+ *
+ * Falls back gracefully if S3 upload or Claude analysis fails.
  */
 
-const express = require('express');
-const router  = express.Router();
-const multer  = require('multer');
+const express  = require('express');
+const router   = express.Router();
+const multer   = require('multer');
+const crypto   = require('crypto');
+const path     = require('path');
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits:  { fileSize: 20 * 1024 * 1024 }, // 20 MB
+  limits:  { fileSize: 20 * 1024 * 1024 },
 });
 
-const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
+const ANTHROPIC_API  = 'https://api.anthropic.com/v1/messages';
+const UPLOADS_BUCKET = 'cabinets-uploads.myserviceflows.com';
+const UPLOADS_URL    = `https://${UPLOADS_BUCKET}.s3.amazonaws.com`;
+
+const s3 = new S3Client({ region: process.env.AWS_DEFAULT_REGION || 'us-east-1' });
 
 const FALLBACK_ROOMS = [
-  'Kitchen',
-  'Primary Bathroom',
-  'Bathroom 2',
-  'Bathroom 3',
-  'Laundry Room',
-  'Pantry',
-  'Bar / Wet Bar',
-  'Mudroom',
-  'Office / Study',
-  'Other',
+  'Kitchen','Primary Bathroom','Bathroom 2','Bathroom 3',
+  'Laundry Room','Pantry','Bar / Wet Bar','Mudroom','Office / Study','Other',
 ];
 
 router.use((req, res, next) => {
@@ -42,30 +43,55 @@ router.use((req, res, next) => {
 
 router.post('/cabinets/analyze-plan', upload.single('plan'), async (req, res) => {
   if (!req.file) {
-    return res.json({ ok: true, rooms: FALLBACK_ROOMS, source: 'fallback' });
+    return res.json({ ok: true, rooms: FALLBACK_ROOMS, linearFootage: {}, planUrl: null, source: 'fallback' });
   }
 
+  const { mimetype, buffer, originalname } = req.file;
+
+  // ── 1. Upload to S3 ──────────────────────────────────────────────────────
+  let planUrl = null;
+  try {
+    const ext = path.extname(originalname || 'plan').toLowerCase() || '.jpg';
+    const key = `plans/${Date.now()}-${crypto.randomBytes(6).toString('hex')}${ext}`;
+    await s3.send(new PutObjectCommand({
+      Bucket:      UPLOADS_BUCKET,
+      Key:         key,
+      Body:        buffer,
+      ContentType: mimetype,
+    }));
+    planUrl = `${UPLOADS_URL}/${key}`;
+    console.log(`[analyze-plan] Uploaded to S3: ${key}`);
+  } catch (err) {
+    console.error('[analyze-plan] S3 upload failed:', err.message);
+    // Continue with analysis even if upload failed
+  }
+
+  // ── 2. Analyze with Claude Vision ────────────────────────────────────────
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    console.warn('[analyze-plan] ANTHROPIC_API_KEY not set — returning fallback rooms');
-    return res.json({ ok: true, rooms: FALLBACK_ROOMS, source: 'fallback' });
+    console.warn('[analyze-plan] ANTHROPIC_API_KEY not set — returning fallback');
+    return res.json({ ok: true, rooms: FALLBACK_ROOMS, linearFootage: {}, planUrl, source: 'fallback' });
   }
 
-  const { mimetype, buffer } = req.file;
-  const base64Data = buffer.toString('base64');
   const isPdf      = mimetype === 'application/pdf';
+  const base64Data = buffer.toString('base64');
 
-  // Build the content block — Claude uses 'document' for PDFs, 'image' for everything else
   const fileBlock = isPdf
     ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64Data } }
     : { type: 'image',    source: { type: 'base64', media_type: mimetype,           data: base64Data } };
 
   const prompt =
-    'This is a floor plan for a home. Identify every room that could need custom cabinets ' +
-    '(kitchens, bathrooms, laundry rooms, pantries, wet bars, mudrooms, offices with built-ins, etc.). ' +
-    'Use the room labels exactly as shown on the plan when they are visible. ' +
-    'Return ONLY a valid JSON array of room name strings — no explanation, no markdown, no extra text. ' +
-    'Example: ["Kitchen","Master Bathroom","Bathroom 2","Laundry Room","Pantry"]';
+    'This is a residential floor plan. Analyze it and return ONLY a valid JSON object — no markdown, no explanation.\n\n' +
+    'The JSON must have two keys:\n' +
+    '1. "rooms": array of every room name that would need custom cabinets (kitchens, bathrooms, laundry, pantry, wet bar, mudroom, office with built-ins, etc). ' +
+    'Use the exact labels from the plan when visible.\n' +
+    '2. "linearFootage": object mapping each room name to an estimated integer number of linear feet of cabinets. ' +
+    'Base estimates on the room dimensions shown and typical cabinet placement:\n' +
+    '   - Kitchen: count wall runs along countertop walls (base + upper cabinets share the same LF)\n' +
+    '   - Bathrooms: vanity width plus any linen/storage walls\n' +
+    '   - Laundry: overhead cabinets + base cabinets along the wall\n' +
+    '   - Pantry/Bar: all usable wall runs\n\n' +
+    'Example: {"rooms":["Kitchen","Master Bath","Bath 2","Laundry"],"linearFootage":{"Kitchen":28,"Master Bath":10,"Bath 2":6,"Laundry":8}}';
 
   try {
     const apiRes = await fetch(ANTHROPIC_API, {
@@ -77,30 +103,30 @@ router.post('/cabinets/analyze-plan', upload.single('plan'), async (req, res) =>
       },
       body: JSON.stringify({
         model:      'claude-haiku-4-5-20251001',
-        max_tokens: 512,
-        messages: [{ role: 'user', content: [fileBlock, { type: 'text', text: prompt }] }],
+        max_tokens: 1024,
+        messages:   [{ role: 'user', content: [fileBlock, { type: 'text', text: prompt }] }],
       }),
     });
 
-    if (!apiRes.ok) {
-      throw new Error(`Anthropic API returned ${apiRes.status}`);
-    }
+    if (!apiRes.ok) throw new Error(`Anthropic API returned ${apiRes.status}`);
 
-    const data  = await apiRes.json();
-    const text  = data.content?.[0]?.text?.trim() || '';
-    const match = text.match(/\[[\s\S]*\]/);  // extract JSON array even if wrapped in prose
-    const rooms = match ? JSON.parse(match[0]) : [];
+    const data   = await apiRes.json();
+    const text   = data.content?.[0]?.text?.trim() || '';
+    const match  = text.match(/\{[\s\S]*\}/);
+    const parsed = match ? JSON.parse(match[0]) : null;
 
-    if (!Array.isArray(rooms) || rooms.length === 0) {
-      throw new Error('No rooms detected in response');
-    }
+    const rooms         = Array.isArray(parsed?.rooms) ? parsed.rooms : null;
+    const linearFootage = (parsed?.linearFootage && typeof parsed.linearFootage === 'object')
+      ? parsed.linearFootage : {};
 
-    console.log(`[analyze-plan] Detected ${rooms.length} rooms: ${rooms.join(', ')}`);
-    return res.json({ ok: true, rooms, source: 'ai' });
+    if (!rooms || rooms.length === 0) throw new Error('No rooms in response');
+
+    console.log(`[analyze-plan] ${rooms.length} rooms detected with footage: ${JSON.stringify(linearFootage)}`);
+    return res.json({ ok: true, rooms, linearFootage, planUrl, source: 'ai' });
 
   } catch (err) {
     console.error('[analyze-plan] Analysis failed:', err.message);
-    return res.json({ ok: true, rooms: FALLBACK_ROOMS, source: 'fallback', error: err.message });
+    return res.json({ ok: true, rooms: FALLBACK_ROOMS, linearFootage: {}, planUrl, source: 'fallback', error: err.message });
   }
 });
 
