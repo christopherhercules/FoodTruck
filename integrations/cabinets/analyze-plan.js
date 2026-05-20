@@ -24,7 +24,7 @@ const upload = multer({
 
 const ANTHROPIC_API  = 'https://api.anthropic.com/v1/messages';
 const UPLOADS_BUCKET = 'cabinets-uploads.myserviceflows.com';
-const UPLOADS_URL    = `https://${UPLOADS_BUCKET}.s3.amazonaws.com`;
+const UPLOADS_URL    = `https://s3.amazonaws.com/${UPLOADS_BUCKET}`;
 
 const s3 = new S3Client({ region: process.env.AWS_DEFAULT_REGION || 'us-east-1' });
 
