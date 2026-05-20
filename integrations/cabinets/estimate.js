@@ -1,5 +1,5 @@
 /**
- * Shawn Cabinets — Estimate Request Handler
+ * Shawn's Cabinets — Estimate Request Handler
  *
  * POST /cabinets/estimate
  *
@@ -10,7 +10,7 @@ const express  = require('express');
 const router   = express.Router();
 const { SESv2Client, SendEmailCommand } = require('@aws-sdk/client-sesv2');
 
-const NOTIFY_FROM = process.env.CABINETS_EMAIL_FROM || 'noreply@aiagentassistance.com';
+const NOTIFY_FROM = process.env.CABINETS_EMAIL_FROM || "Shawn's Cabinets <noreply@aiagentassistance.com>";
 const NOTIFY_TO   = process.env.CABINETS_EMAIL_TO   || 'christopherhercules@outlook.com';
 const DASH_URL    = 'https://cabinets.myserviceflows.com/dashboard.html';
 
@@ -34,7 +34,7 @@ router.post('/cabinets/estimate', express.json(), async (req, res) => {
   const emailSubject = `New cabinet estimate: ${name} — ${address ? address.split(',')[0] : 'address unknown'}`;
 
   const emailText = [
-    'New estimate request from Shawn Cabinets website.',
+    'New estimate request from Shawn's Cabinets website.',
     '',
     'CONTACT',
     `  Name:  ${name}`,
@@ -65,7 +65,7 @@ router.post('/cabinets/estimate', express.json(), async (req, res) => {
   const emailHtml = `
 <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#222;">
   <h2 style="color:#c4a35a;margin-bottom:4px;">New Cabinet Estimate Request</h2>
-  <p style="color:#666;margin-top:0;font-size:13px;">Shawn Cabinets — submitted via website</p>
+  <p style="color:#666;margin-top:0;font-size:13px;">Shawn's Cabinets — submitted via website</p>
   <table style="width:100%;border-collapse:collapse;margin:16px 0;">
     <tr><td colspan="2" style="background:#f5f0e8;padding:8px 12px;font-weight:600;border-radius:4px 4px 0 0;">Contact</td></tr>
     <tr><td style="padding:8px 12px;width:80px;color:#666;">Name</td><td style="padding:8px 12px;font-weight:500;">${name}</td></tr>
