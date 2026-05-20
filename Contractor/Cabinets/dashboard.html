@@ -664,7 +664,7 @@
     if (roomsData.length) {
       roomsEl.innerHTML = `<div class="rooms-grid">${roomsData.map(r => `
         <div class="room-chip">
-          <div class="room-chip-name">${r.room}</div>
+          <div class="room-chip-name">${r.name || r.room || '—'}</div>
           <div class="room-chip-detail">${r.linearFt ? r.linearFt + ' LF' : ''}${r.notes ? (r.linearFt ? ' · ' : '') + r.notes : ''}</div>
         </div>`).join('')}</div>`;
     } else {
@@ -697,8 +697,15 @@
   }
 
   function parseRooms(e) {
-    try { return JSON.parse(e.rooms || e.planAnalysis || '[]') || []; }
-    catch { return []; }
+    try {
+      if (e.rooms) return JSON.parse(e.rooms) || [];
+      if (e.planAnalysis) {
+        const pa = JSON.parse(e.planAnalysis);
+        // planAnalysis is either a flat array (old) or { rooms, linearFootage } (new)
+        return Array.isArray(pa) ? pa : (pa.rooms || []).map(name => ({ name }));
+      }
+      return [];
+    } catch { return []; }
   }
 
   // ── STAGE STATES ──────────────────────────────────────────────────────────
