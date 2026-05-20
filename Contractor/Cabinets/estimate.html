@@ -778,7 +778,6 @@
       <div class="panel-sub">Upload your floor plan so we can better estimate your cabinet needs. PDF or image file accepted.</div>
 
       <div class="upload-zone" id="upload-zone">
-        <!-- TODO: wire up S3 upload via Lambda pre-signed URL -->
         <input type="file" id="f-plan-file" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileSelect(this)" />
         <div class="upload-icon" id="upload-icon">📐</div>
         <div class="upload-text" id="upload-text">Click to select a file — or drag and drop</div>
@@ -786,9 +785,15 @@
         <div class="upload-filename" id="upload-filename"></div>
       </div>
 
+      <!-- Analysis status shown after file is picked -->
+      <div id="analysis-status" style="display:none;margin-top:14px;padding:14px 16px;border-radius:9px;font-size:.88rem;line-height:1.6;border:1px solid var(--border);background:var(--card-inner);">
+        <span id="analysis-icon" style="margin-right:8px;">⏳</span>
+        <span id="analysis-text">Analyzing your floor plan…</span>
+      </div>
+
       <div class="upload-skip-note">
         No plans yet? No problem — you can describe your needs in the next step and we'll work from there.
-        Rough sketches, measurements, or even a quick description of each room are all helpful.
+        If you upload a plan, we'll automatically detect your rooms so you don't have to select them manually.
       </div>
 
       <div class="btn-row">
@@ -855,59 +860,18 @@
 
       <hr class="section-divider" />
 
-      <!-- Room Selection -->
+      <!-- Room Selection — populated dynamically from plan analysis or generic list -->
       <div class="form-group">
         <label class="field-label">Rooms Needing Cabinets</label>
-        <p style="font-size:.83rem;color:var(--text-dim);margin-bottom:12px;margin-top:2px;">Select all that apply. For each room, you can add an optional linear footage estimate and notes.</p>
-        <div class="checkbox-group">
-          <div class="checkbox-item">
-            <input type="checkbox" id="room-kitchen" value="Kitchen" onchange="toggleRoomSubform('Kitchen', this.checked)" />
-            <label for="room-kitchen">
-              <span class="checkbox-check">✓</span> Kitchen
-            </label>
-          </div>
-          <div class="checkbox-item">
-            <input type="checkbox" id="room-primary-bath" value="Primary Bathroom" onchange="toggleRoomSubform('Primary Bathroom', this.checked)" />
-            <label for="room-primary-bath">
-              <span class="checkbox-check">✓</span> Primary Bathroom
-            </label>
-          </div>
-          <div class="checkbox-item">
-            <input type="checkbox" id="room-bath2" value="Bathroom 2" onchange="toggleRoomSubform('Bathroom 2', this.checked)" />
-            <label for="room-bath2">
-              <span class="checkbox-check">✓</span> Bathroom 2
-            </label>
-          </div>
-          <div class="checkbox-item">
-            <input type="checkbox" id="room-bath3" value="Bathroom 3" onchange="toggleRoomSubform('Bathroom 3', this.checked)" />
-            <label for="room-bath3">
-              <span class="checkbox-check">✓</span> Bathroom 3
-            </label>
-          </div>
-          <div class="checkbox-item">
-            <input type="checkbox" id="room-laundry" value="Laundry Room" onchange="toggleRoomSubform('Laundry Room', this.checked)" />
-            <label for="room-laundry">
-              <span class="checkbox-check">✓</span> Laundry Room
-            </label>
-          </div>
-          <div class="checkbox-item">
-            <input type="checkbox" id="room-bar" value="Bar / Wet Bar" onchange="toggleRoomSubform('Bar / Wet Bar', this.checked)" />
-            <label for="room-bar">
-              <span class="checkbox-check">✓</span> Bar / Wet Bar
-            </label>
-          </div>
-          <div class="checkbox-item">
-            <input type="checkbox" id="room-pantry" value="Pantry" onchange="toggleRoomSubform('Pantry', this.checked)" />
-            <label for="room-pantry">
-              <span class="checkbox-check">✓</span> Pantry
-            </label>
-          </div>
-          <div class="checkbox-item">
-            <input type="checkbox" id="room-other" value="Other" onchange="toggleRoomSubform('Other', this.checked)" />
-            <label for="room-other">
-              <span class="checkbox-check">✓</span> Other
-            </label>
-          </div>
+        <p id="rooms-source-note" style="font-size:.83rem;color:var(--text-dim);margin-bottom:12px;margin-top:2px;">Select all that apply. For each room, you can add an optional linear footage estimate and notes.</p>
+        <div class="checkbox-group" id="rooms-checkbox-group">
+          <!-- Rendered by renderRoomCheckboxes() -->
+        </div>
+
+        <!-- Add custom room -->
+        <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <input type="text" id="custom-room-input" placeholder="Add a room not listed above…" style="flex:1;min-width:200px;" onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomRoom();}" />
+          <button type="button" class="btn btn-back" style="padding:11px 18px;font-size:.84rem;white-space:nowrap;" onclick="addCustomRoom()">➕ Add Room</button>
         </div>
       </div>
 
@@ -1020,8 +984,14 @@
 
 <script>
   // ── CONFIG ─────────────────────────────────────────────────────────────────
-  const APPSYNC_URL = 'https://d2zlzofjerf4hd6gltypy2rnlm.appsync-api.us-east-1.amazonaws.com/graphql';
-  const APPSYNC_KEY = 'da2-6l2dtmahczbbnlp3m2vmgihqby';
+  const APPSYNC_URL   = 'https://d2zlzofjerf4hd6gltypy2rnlm.appsync-api.us-east-1.amazonaws.com/graphql';
+  const APPSYNC_KEY   = 'da2-6l2dtmahczbbnlp3m2vmgihqby';
+  const RENDER_URL    = 'https://foodtruck-cymz.onrender.com';
+
+  const FALLBACK_ROOMS = [
+    'Kitchen','Primary Bathroom','Bathroom 2','Bathroom 3',
+    'Laundry Room','Pantry','Bar / Wet Bar','Mudroom','Office / Study','Other',
+  ];
 
   async function gql(query, variables = {}) {
     const res = await fetch(APPSYNC_URL, {
@@ -1035,26 +1005,22 @@
   }
 
   // ── STATE ──────────────────────────────────────────────────────────────────
-  let currentStep = 1;
-
-  // File upload state (plan upload — actual S3 upload not yet implemented)
-  let selectedPlanFile = null; // File object, stored locally only
+  let currentStep      = 1;
+  let selectedPlanFile = null;       // File object
+  let detectedRooms    = null;       // null = not analyzed, [] = analyzed result
+  let planSource       = 'fallback'; // 'ai' | 'fallback'
 
   // Room data map: room name → { linearFt: string, notes: string }
   const roomData = {};
 
   // ── STEP NAVIGATION ────────────────────────────────────────────────────────
   function goStep(n) {
-    // Mark current as done (or un-done if going back past it)
     document.getElementById(`panel-${currentStep}`).classList.remove('active');
 
     const prevProg = document.getElementById(`prog-${currentStep}`);
     prevProg.classList.remove('active');
-    if (n > currentStep) {
-      prevProg.classList.add('done');
-    } else {
-      prevProg.classList.remove('done');
-    }
+    if (n > currentStep) prevProg.classList.add('done');
+    else prevProg.classList.remove('done');
 
     currentStep = n;
     document.getElementById(`panel-${n}`).classList.add('active');
@@ -1063,10 +1029,12 @@
     curProg.classList.remove('done');
     curProg.classList.add('active');
 
-    // Update connector lines
-    [1, 2, 3].forEach(i => {
+    [1,2,3].forEach(i => {
       document.getElementById(`line-${i}`).classList.toggle('done', i < n);
     });
+
+    // When entering step 3, render the room checkboxes
+    if (n === 3) renderRoomCheckboxes();
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -1086,83 +1054,179 @@
       alert('Please select a project type before continuing.');
       return;
     }
-
     goStep(2);
   }
 
-  // ── FILE UPLOAD HANDLER ────────────────────────────────────────────────────
+  // ── FILE UPLOAD + PLAN ANALYSIS ────────────────────────────────────────────
   function handleFileSelect(input) {
-    // TODO: wire up S3 upload via Lambda pre-signed URL
-    const file = input.files && input.files[0];
-    const zone = document.getElementById('upload-zone');
-    const fnEl  = document.getElementById('upload-filename');
+    const file   = input.files && input.files[0];
+    const zone   = document.getElementById('upload-zone');
+    const fnEl   = document.getElementById('upload-filename');
     const iconEl = document.getElementById('upload-icon');
     const textEl = document.getElementById('upload-text');
 
-    if (file) {
-      selectedPlanFile = file; // store for display only — not uploaded
-      zone.classList.add('has-file');
-      iconEl.textContent = '✅';
-      textEl.textContent = 'File selected:';
-      fnEl.textContent = file.name;
-      fnEl.classList.add('show');
-    } else {
+    if (!file) {
       selectedPlanFile = null;
+      detectedRooms    = null;
       zone.classList.remove('has-file');
       iconEl.textContent = '📐';
       textEl.textContent = 'Click to select a file — or drag and drop';
       fnEl.classList.remove('show');
       fnEl.textContent = '';
+      setAnalysisStatus('hidden');
+      return;
+    }
+
+    selectedPlanFile = file;
+    zone.classList.add('has-file');
+    iconEl.textContent = '✅';
+    textEl.textContent = 'File selected:';
+    fnEl.textContent   = file.name;
+    fnEl.classList.add('show');
+
+    // Kick off analysis immediately
+    analyzePlan(file);
+  }
+
+  async function analyzePlan(file) {
+    setAnalysisStatus('loading', 'Analyzing your floor plan — this takes a few seconds…');
+
+    const form = new FormData();
+    form.append('plan', file);
+
+    try {
+      const res  = await fetch(`${RENDER_URL}/cabinets/analyze-plan`, { method: 'POST', body: form });
+      const json = await res.json();
+
+      detectedRooms = json.rooms || FALLBACK_ROOMS;
+      planSource    = json.source || 'fallback';
+
+      if (planSource === 'ai') {
+        setAnalysisStatus('success', `✓ ${detectedRooms.length} rooms detected from your plan`);
+      } else {
+        setAnalysisStatus('neutral', 'Plan uploaded — select which rooms need cabinets on the next step.');
+      }
+    } catch (err) {
+      console.error('[analyze-plan]', err);
+      detectedRooms = FALLBACK_ROOMS;
+      planSource    = 'fallback';
+      setAnalysisStatus('neutral', 'Could not analyze plan automatically — you can select rooms manually.');
     }
   }
 
-  // ── ROOM TOGGLES ───────────────────────────────────────────────────────────
-  const ROOM_KEYS = {
-    'Kitchen':          'room-kitchen',
-    'Primary Bathroom': 'room-primary-bath',
-    'Bathroom 2':       'room-bath2',
-    'Bathroom 3':       'room-bath3',
-    'Laundry Room':     'room-laundry',
-    'Bar / Wet Bar':    'room-bar',
-    'Pantry':           'room-pantry',
-    'Other':            'room-other',
-  };
+  function setAnalysisStatus(state, message) {
+    const el   = document.getElementById('analysis-status');
+    const icon = document.getElementById('analysis-icon');
+    const text = document.getElementById('analysis-text');
 
+    if (state === 'hidden') { el.style.display = 'none'; return; }
+
+    el.style.display = 'block';
+    el.style.borderColor = state === 'success' ? 'var(--gold-dim)' : 'var(--border)';
+    el.style.background  = state === 'success' ? 'rgba(196,163,90,.08)' : 'var(--card-inner)';
+    icon.textContent     = state === 'loading' ? '⏳' : state === 'success' ? '🪵' : 'ℹ️';
+    text.textContent     = message;
+  }
+
+  // ── ROOM CHECKBOXES (dynamic) ───────────────────────────────────────────────
+  function renderRoomCheckboxes() {
+    const rooms     = detectedRooms || FALLBACK_ROOMS;
+    const fromAI    = planSource === 'ai';
+    const group     = document.getElementById('rooms-checkbox-group');
+    const noteEl    = document.getElementById('rooms-source-note');
+    const container = document.getElementById('rooms-container');
+
+    noteEl.textContent = fromAI
+      ? `These rooms were detected from your floor plan. Check the ones that need cabinets and add details below.`
+      : `Select all rooms that need cabinets. For each, you can add an optional linear footage estimate and notes.`;
+
+    // Build checkboxes — preserve any previously checked rooms
+    group.innerHTML = rooms.map((room, i) => {
+      const id      = `dyn-room-${i}`;
+      const checked = roomData[room] ? 'checked' : '';
+      return `<div class="checkbox-item">
+        <input type="checkbox" id="${id}" value="${escHtml(room)}" ${checked}
+          onchange="toggleRoomSubform('${escHtml(room)}', this.checked)" />
+        <label for="${id}">
+          <span class="checkbox-check">✓</span> ${escHtml(room)}
+        </label>
+      </div>`;
+    }).join('');
+
+    // Re-render any subforms that were already open (e.g. going back then forward)
+    container.innerHTML = '';
+    Object.keys(roomData).forEach(name => {
+      if (rooms.includes(name)) createSubform(name, container);
+    });
+  }
+
+  function addCustomRoom() {
+    const input = document.getElementById('custom-room-input');
+    const name  = input.value.trim();
+    if (!name) return;
+
+    const group = document.getElementById('rooms-checkbox-group');
+
+    // Don't duplicate
+    const existing = Array.from(group.querySelectorAll('input[type="checkbox"]'))
+      .find(cb => cb.value.toLowerCase() === name.toLowerCase());
+    if (existing) {
+      existing.checked = true;
+      toggleRoomSubform(existing.value, true);
+      input.value = '';
+      return;
+    }
+
+    const i  = group.children.length;
+    const id = `dyn-room-custom-${i}`;
+    const div = document.createElement('div');
+    div.className = 'checkbox-item';
+    div.innerHTML = `<input type="checkbox" id="${id}" value="${escHtml(name)}" checked
+        onchange="toggleRoomSubform('${escHtml(name)}', this.checked)" />
+      <label for="${id}"><span class="checkbox-check">✓</span> ${escHtml(name)}</label>`;
+    group.appendChild(div);
+
+    toggleRoomSubform(name, true);
+    input.value = '';
+  }
+
+  // ── ROOM SUB-FORMS ─────────────────────────────────────────────────────────
   function roomId(name) {
     return 'subform-' + name.replace(/[^a-z0-9]/gi, '-').toLowerCase();
   }
 
+  function createSubform(roomName, container) {
+    const id  = roomId(roomName);
+    const div = document.createElement('div');
+    div.className = 'room-subform visible';
+    div.id = id;
+    div.innerHTML = `
+      <div class="room-subform-title">${escHtml(roomName)}</div>
+      <div class="room-subform-grid">
+        <div class="form-group">
+          <label class="field-label" for="${id}-ft">Linear Footage <span style="font-weight:400;color:var(--text-dim);">(optional)</span></label>
+          <input type="number" id="${id}-ft" placeholder="e.g. 24" min="0" step="1"
+            oninput="updateRoomData('${escHtml(roomName)}', 'linearFt', this.value)"
+            value="${escHtml(roomData[roomName]?.linearFt || '')}" />
+        </div>
+        <div class="form-group">
+          <label class="field-label" for="${id}-notes">Notes <span style="font-weight:400;color:var(--text-dim);">(optional)</span></label>
+          <input type="text" id="${id}-notes" placeholder="e.g. upper + lower cabinets, island needed"
+            oninput="updateRoomData('${escHtml(roomName)}', 'notes', this.value)"
+            value="${escHtml(roomData[roomName]?.notes || '')}" />
+        </div>
+      </div>`;
+    container.appendChild(div);
+  }
+
   function toggleRoomSubform(roomName, checked) {
     const container = document.getElementById('rooms-container');
-    const id = roomId(roomName);
+    const id        = roomId(roomName);
 
     if (checked) {
       roomData[roomName] = roomData[roomName] || { linearFt: '', notes: '' };
-
-      // Create sub-form if it doesn't already exist
       if (!document.getElementById(id)) {
-        const div = document.createElement('div');
-        div.className = 'room-subform visible';
-        div.id = id;
-        div.innerHTML = `
-          <div class="room-subform-title">${escHtml(roomName)}</div>
-          <div class="room-subform-grid">
-            <div class="form-group">
-              <label class="field-label" for="${id}-ft">Linear Footage <span style="font-weight:400;color:var(--text-dim);">(optional)</span></label>
-              <input type="number" id="${id}-ft" placeholder="e.g. 24" min="0" step="1"
-                onchange="updateRoomData('${roomName}', 'linearFt', this.value)"
-                oninput="updateRoomData('${roomName}', 'linearFt', this.value)"
-                value="${escHtml(roomData[roomName].linearFt)}" />
-            </div>
-            <div class="form-group">
-              <label class="field-label" for="${id}-notes">Notes <span style="font-weight:400;color:var(--text-dim);">(optional)</span></label>
-              <input type="text" id="${id}-notes" placeholder="e.g. upper + lower cabinets, island needed"
-                onchange="updateRoomData('${roomName}', 'notes', this.value)"
-                oninput="updateRoomData('${roomName}', 'notes', this.value)"
-                value="${escHtml(roomData[roomName].notes)}" />
-            </div>
-          </div>`;
-        container.appendChild(div);
+        createSubform(roomName, container);
       } else {
         document.getElementById(id).classList.add('visible');
       }
@@ -1180,13 +1244,11 @@
 
   // ── STEP 3 → STEP 4 ────────────────────────────────────────────────────────
   function goToReview() {
-    // No required fields on step 3 — just build the review and proceed
     buildReview();
     goStep(4);
   }
 
   function buildReview() {
-    // Contact
     document.getElementById('rv-name').textContent    = document.getElementById('f-name').value.trim() || '—';
     document.getElementById('rv-phone').textContent   = document.getElementById('f-phone').value.trim() || '—';
     document.getElementById('rv-email').textContent   = document.getElementById('f-email').value.trim() || 'Not provided';
@@ -1195,17 +1257,16 @@
     const ptRadio = document.querySelector('input[name="projectType"]:checked');
     document.getElementById('rv-project-type').textContent = ptRadio ? ptRadio.value : '—';
 
-    // Plan
-    document.getElementById('rv-plan').textContent = selectedPlanFile ? selectedPlanFile.name : 'No file selected';
+    document.getElementById('rv-plan').textContent = selectedPlanFile
+      ? `${selectedPlanFile.name}${planSource === 'ai' ? ' (rooms auto-detected)' : ''}`
+      : 'No file selected';
 
-    // Style / Finish / Budget
     const styleRadio = document.querySelector('input[name="cabinetStyle"]:checked');
     document.getElementById('rv-style').textContent  = styleRadio ? styleRadio.value : 'Not specified';
     document.getElementById('rv-finish').textContent = document.getElementById('f-finish').value.trim() || 'Not specified';
     document.getElementById('rv-budget').textContent = document.getElementById('f-budget').value || 'Not specified';
 
-    // Rooms
-    const roomsList = document.getElementById('rv-rooms-list');
+    const roomsList    = document.getElementById('rv-rooms-list');
     const selectedRooms = Object.keys(roomData);
 
     if (selectedRooms.length === 0) {
@@ -1215,11 +1276,13 @@
         const d = roomData[room];
         const details = [
           d.linearFt ? `~${d.linearFt} linear ft` : null,
-          d.notes    ? d.notes                      : null,
+          d.notes    ? d.notes                     : null,
         ].filter(Boolean).join(' · ');
         return `<div class="review-room-card">
           <div class="review-room-name">${escHtml(room)}</div>
-          ${details ? `<div class="review-room-detail">${escHtml(details)}</div>` : '<div class="review-room-detail" style="color:var(--text-dim);">No additional details</div>'}
+          ${details
+            ? `<div class="review-room-detail">${escHtml(details)}</div>`
+            : '<div class="review-room-detail" style="color:var(--text-dim);">No additional details</div>'}
         </div>`;
       }).join('');
     }
@@ -1227,13 +1290,12 @@
 
   // ── SUBMIT ─────────────────────────────────────────────────────────────────
   async function submitEstimate() {
-    const btn = document.getElementById('btn-submit');
+    const btn   = document.getElementById('btn-submit');
     const errEl = document.getElementById('error-msg');
     btn.textContent = 'Sending…';
-    btn.disabled = true;
+    btn.disabled    = true;
     errEl.classList.remove('show');
 
-    // Serialize rooms to JSON
     const roomsPayload = Object.entries(roomData).map(([name, d]) => ({
       name,
       linearFt: d.linearFt ? parseInt(d.linearFt, 10) : null,
@@ -1253,8 +1315,8 @@
       finish:      document.getElementById('f-finish').value.trim() || null,
       budget:      document.getElementById('f-budget').value || null,
       rooms:       roomsPayload.length > 0 ? JSON.stringify(roomsPayload) : null,
-      planUrl:     null,      // TODO: wire up S3 upload via Lambda pre-signed URL
-      planAnalysis: null,     // TODO: wire up AI plan analysis Lambda
+      planUrl:     null,
+      planAnalysis: planSource === 'ai' ? JSON.stringify(detectedRooms) : null,
       status:      'New',
       submittedAt: new Date().toISOString(),
     };
@@ -1262,40 +1324,29 @@
     try {
       const result = await gql(`
         mutation CreateCabinetsEstimate($input: CreateCabinetsEstimateInput!) {
-          createCabinetsEstimate(input: $input) {
-            id
-          }
+          createCabinetsEstimate(input: $input) { id }
         }`, { input });
 
       const newId = result.createCabinetsEstimate.id;
 
-      // Notify Shawn by email (fire-and-forget)
-      fetch('https://foodtruck-cymz.onrender.com/cabinets/estimate', {
+      fetch(`${RENDER_URL}/cabinets/estimate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name:        input.name,
-          phone:       input.phone,
-          email:       input.email,
-          address:     input.address,
-          projectType: input.projectType,
-          style:       input.style,
-          finish:      input.finish,
-          budget:      input.budget,
-          rooms:       input.rooms,
-          notes:       input.notes,
+          name: input.name, phone: input.phone, email: input.email,
+          address: input.address, projectType: input.projectType,
+          style: input.style, finish: input.finish, budget: input.budget,
+          rooms: input.rooms,
         }),
       }).catch(() => {});
 
-      const trackUrl = `${location.origin}/job.html?id=${newId}`;
-
-      const trackBox = document.getElementById('track-link-box');
+      const trackUrl  = `${location.origin}/job.html?id=${newId}`;
+      const trackBox  = document.getElementById('track-link-box');
       const trackLink = document.getElementById('track-link');
-      trackLink.href = trackUrl;
+      trackLink.href        = trackUrl;
       trackLink.textContent = trackUrl;
       trackBox.style.display = 'block';
 
-      // Hide all panels, show success
       document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
       document.getElementById('success-panel').classList.add('show');
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1305,29 +1356,25 @@
       errEl.textContent = 'Something went wrong submitting your request. Please try again, or contact us directly.';
       errEl.classList.add('show');
       btn.textContent = 'Submit Estimate Request';
-      btn.disabled = false;
+      btn.disabled    = false;
     }
   }
 
   function copyTrackLink() {
     const url = document.getElementById('track-link').href;
     navigator.clipboard.writeText(url).then(() => {
-      const btn = document.querySelector('.btn-copy');
+      const btn  = document.querySelector('.btn-copy');
       const orig = btn.textContent;
       btn.textContent = 'Copied!';
       setTimeout(() => { btn.textContent = orig; }, 2000);
-    }).catch(() => {
-      alert('Could not copy automatically. URL: ' + url);
-    });
+    }).catch(() => { alert('Could not copy automatically. URL: ' + url); });
   }
 
   // ── UTILS ──────────────────────────────────────────────────────────────────
   function escHtml(s) {
     return String(s || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 </script>
 </body>

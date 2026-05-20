@@ -34,8 +34,10 @@ const hunterApp = require('./hunter/estimate');
 app.use(hunterApp);
 
 // ── SHAWN CABINETS ROUTES ──────────────────────────────────────────────────
-const cabinetsApp = require('./cabinets/estimate');
+const cabinetsApp        = require('./cabinets/estimate');
+const cabinetsAnalyzeApp = require('./cabinets/analyze-plan');
 app.use(cabinetsApp);
+app.use(cabinetsAnalyzeApp);
 
 // ── OUTBOUND EMAIL (contractor dashboards) ─────────────────────────────────
 const sendEmailApp = require('./send-email');
