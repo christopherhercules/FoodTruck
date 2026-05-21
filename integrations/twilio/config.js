@@ -73,7 +73,7 @@ const RESTAURANT_PROFILES = {
 
 // ── OUR APPSYNC BACKEND ────────────────────────────────────────────────────
 const APPSYNC_URL = "https://d2zlzofjerf4hd6gltypy2rnlm.appsync-api.us-east-1.amazonaws.com/graphql";
-const API_KEY     = "da2-6l2dtmahczbbnlp3m2vmgihqby";
+const API_KEY     = process.env.APPSYNC_API_KEY;
 
 module.exports = {
   TWILIO_ACCOUNT_SID,

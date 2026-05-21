@@ -11,12 +11,12 @@
  */
 
 // ── TOAST API CREDENTIALS ──────────────────────────────────────────────────
-const TOAST_CLIENT_ID     = "REPLACE_WITH_TOAST_CLIENT_ID";
-const TOAST_CLIENT_SECRET = "REPLACE_WITH_TOAST_CLIENT_SECRET";
+const TOAST_CLIENT_ID     = process.env.TOAST_CLIENT_ID;
+const TOAST_CLIENT_SECRET = process.env.TOAST_CLIENT_SECRET;
 
 // Restaurant GUID — found in Toast Web → Restaurants → select restaurant → URL bar
 // Format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-const TOAST_RESTAURANT_GUID = "REPLACE_WITH_RESTAURANT_GUID";
+const TOAST_RESTAURANT_GUID = process.env.TOAST_RESTAURANT_GUID;
 
 // ── ENVIRONMENT ────────────────────────────────────────────────────────────
 // "sandbox" for testing, "production" for live
@@ -28,7 +28,7 @@ const TOAST_BASE_URL = TOAST_ENV === "production"
 
 // ── OUR APPSYNC BACKEND ────────────────────────────────────────────────────
 const APPSYNC_URL = "https://d2zlzofjerf4hd6gltypy2rnlm.appsync-api.us-east-1.amazonaws.com/graphql";
-const API_KEY     = "da2-6l2dtmahczbbnlp3m2vmgihqby";
+const API_KEY     = process.env.APPSYNC_API_KEY;
 
 // ── SOURCE MAPPING ─────────────────────────────────────────────────────────
 // Maps our DynamoDB source names to Toast restaurant GUIDs

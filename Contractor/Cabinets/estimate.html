@@ -651,6 +651,33 @@
     }
     .error-msg.show { display: block; }
 
+    /* ── ADDRESS MAP ── */
+    .address-map-wrap {
+      display: none;
+      margin-top: 10px;
+      border-radius: 9px;
+      overflow: hidden;
+      border: 1.5px solid var(--border-mid);
+      position: relative;
+    }
+    .address-map-wrap.visible { display: block; }
+    .address-map-wrap iframe {
+      width: 100%;
+      height: 180px;
+      border: none;
+      display: block;
+    }
+    .address-map-link {
+      display: block;
+      text-align: right;
+      font-size: .75rem;
+      color: var(--gold-dim);
+      padding: 5px 8px;
+      background: var(--card-inner);
+      text-decoration: none;
+    }
+    .address-map-link:hover { color: var(--gold); }
+
     /* ── MOBILE ── */
     @media (max-width: 640px) {
       .topbar { padding: 0 18px; }
@@ -740,7 +767,12 @@
         </div>
         <div class="form-group">
           <label class="field-label" for="f-address">Project Address <span class="req">*</span></label>
-          <input type="text" id="f-address" placeholder="123 Main St, City, TX" autocomplete="street-address" />
+          <input type="text" id="f-address" placeholder="123 Main St, City, TX" autocomplete="street-address"
+            onblur="showAddressMap(this.value)" />
+          <div class="address-map-wrap" id="address-map-wrap">
+            <iframe id="address-map-iframe" src="" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <a id="address-map-link" href="#" target="_blank" class="address-map-link">Open in Google Maps ↗</a>
+          </div>
         </div>
       </div>
 
@@ -1407,6 +1439,18 @@
       btn.textContent = 'Copied!';
       setTimeout(() => { btn.textContent = orig; }, 2000);
     }).catch(() => { alert('Could not copy automatically. URL: ' + url); });
+  }
+
+  // ── ADDRESS MAP ────────────────────────────────────────────────────────────
+  function showAddressMap(address) {
+    const wrap  = document.getElementById('address-map-wrap');
+    const frame = document.getElementById('address-map-iframe');
+    const link  = document.getElementById('address-map-link');
+    if (!address || address.trim().length < 8) { wrap.classList.remove('visible'); return; }
+    const encoded = encodeURIComponent(address.trim());
+    frame.src     = `https://maps.google.com/maps?q=${encoded}&output=embed&z=15`;
+    link.href     = `https://www.google.com/maps/search/?api=1&query=${encoded}`;
+    wrap.classList.add('visible');
   }
 
   // ── UTILS ──────────────────────────────────────────────────────────────────

@@ -763,9 +763,66 @@
   function firstName(e) { return (e.name || 'there').split(' ')[0]; }
   const SEND_EMAIL_URL = 'https://foodtruck-cymz.onrender.com/send-email';
 
-  async function sendEmail(email, subject, body, btnEl) {
+  // ── EMAIL TEMPLATE ────────────────────────────────────────────────────────
+  function emailHtml(heading, content) {
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f0ebe0;font-family:Arial,Helvetica,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0ebe0;padding:32px 16px;">
+<tr><td align="center">
+<table width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;border-radius:8px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.14);">
+<tr><td style="background:#0f0d0b;padding:28px 36px 22px;text-align:center;">
+  <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin-bottom:10px;">
+    <tr>
+      <td style="border:2px solid #c4a35a;border-radius:3px;padding:4px 7px;margin-right:3px;">
+        <table cellpadding="0" cellspacing="0" border="0"><tr>
+          <td style="width:12px;height:20px;border:1.5px solid #c4a35a;border-radius:2px;background:rgba(196,163,90,0.1);"></td>
+          <td style="width:3px;"></td>
+          <td style="width:12px;height:20px;border:1.5px solid #c4a35a;border-radius:2px;background:rgba(196,163,90,0.1);"></td>
+        </tr></table>
+      </td>
+    </tr>
+  </table>
+  <div style="font-family:Georgia,Times,serif;font-size:24px;font-weight:700;color:#c4a35a;letter-spacing:0.5px;">Shawn&rsquo;s Cabinets</div>
+  <div style="font-size:11px;color:#9a8a74;letter-spacing:2px;text-transform:uppercase;margin-top:5px;">Custom Cabinet Design &amp; Installation</div>
+</td></tr>
+<tr><td style="background:#c4a35a;padding:13px 36px;">
+  <div style="font-family:Georgia,Times,serif;font-size:16px;font-weight:700;color:#0f0d0b;text-align:center;">${heading}</div>
+</td></tr>
+<tr><td style="background:#ffffff;padding:32px 36px;color:#2a2218;font-size:15px;line-height:1.8;">
+  ${content}
+</td></tr>
+<tr><td style="background:#f7f3ec;border-top:2px solid #e8dcc8;padding:24px 36px;text-align:center;">
+  <div style="font-family:Georgia,Times,serif;font-size:14px;font-weight:700;color:#3a2e22;margin-bottom:6px;">Shawn&rsquo;s Cabinets</div>
+  <div style="font-size:13px;color:#7a6a52;line-height:1.9;">${SHAWN_PHONE} &nbsp;&bull;&nbsp; ${SHAWN_EMAIL}<br>Serving Waco, Hewitt, Woodway &amp; surrounding areas</div>
+  <div style="margin-top:14px;font-size:11px;color:#b0a090;">You received this because you submitted an estimate request with Shawn&rsquo;s Cabinets.</div>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body></html>`;
+  }
+
+  function infoBox(rows) {
+    const cells = rows.map(([label, value]) =>
+      `<tr><td style="padding:6px 0;border-bottom:1px solid #f0e8d8;">
+        <span style="font-size:11px;color:#9a8a74;text-transform:uppercase;letter-spacing:1px;">${label}</span><br>
+        <span style="font-size:15px;font-weight:600;color:#2a2218;">${value}</span>
+      </td></tr>`
+    ).join('');
+    return `<table width="100%" cellpadding="0" cellspacing="0" border="0"
+      style="background:#faf7f2;border:1px solid #e8dcc8;border-radius:6px;margin:20px 0;padding:0;">
+      <tr><td style="padding:20px 24px;"><table width="100%" cellpadding="0" cellspacing="0" border="0">${cells}</table></td></tr>
+    </table>`;
+  }
+
+  function stripTags(html) {
+    return html.replace(/<[^>]*>/g, ' ').replace(/&rsquo;/g, "'").replace(/&mdash;/g, '—')
+      .replace(/&amp;/g, '&').replace(/&bull;/g, '·').replace(/\s{2,}/g, ' ').trim();
+  }
+
+  async function sendEmail(email, subject, html, btnEl) {
     if (!email) {
-      prompt('No email on file — copy this message to send manually:', body);
+      prompt('No email on file — copy this message to send manually:', stripTags(html));
       return;
     }
     const origText = btnEl ? btnEl.textContent : null;
@@ -774,7 +831,7 @@
       const r = await fetch(SEND_EMAIL_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: email, subject, body }),
+        body: JSON.stringify({ to: email, subject, body: stripTags(html), html }),
       });
       const json = await r.json();
       if (!json.ok) throw new Error(json.error || 'Send failed');
@@ -817,8 +874,13 @@
     try {
       await applyAndRefresh({ id: activeId, status: 'Quoted', jobStatus: 'Quoted', quotedPrice: v }, '✓ Quote saved');
       const subject = `Your Shawn's Cabinets Quote — ${est.address.split(',')[0]}`;
-      const body = `Hi ${firstName(est)},\n\nThank you for reaching out to Shawn's Cabinets!\n\nYour quote for the ${est.projectType || 'cabinet'} project at ${est.address} is $${fmt$(v)}.\n\nReply to this email to confirm and get scheduled, or call me at ${SHAWN_PHONE} with any questions.\n\nThanks,\nShawn\nShawn's Cabinets\n${SHAWN_PHONE}`;
-      sendEmail(est.email, subject, body, null);
+      const html = emailHtml('Your Cabinet Quote', `
+        <p>Hi ${firstName(est)},</p>
+        <p>Thank you for reaching out to <strong>Shawn&rsquo;s Cabinets</strong>! We&rsquo;ve reviewed your project and are pleased to provide the following quote.</p>
+        ${infoBox([['Project Address', est.address], ['Project Type', est.projectType || 'Cabinet Installation'], ['Quote Amount', `<span style="font-size:28px;color:#c4a35a;font-family:Georgia,Times,serif;">$${fmt$(v)}</span>`]])}
+        <p>Reply to this email to confirm and get scheduled, or call us at <strong>${SHAWN_PHONE}</strong> with any questions.</p>
+        <p>We look forward to working with you!<br><br><strong>Shawn</strong><br>Shawn&rsquo;s Cabinets</p>`);
+      sendEmail(est.email, subject, html, null);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -835,8 +897,13 @@
       await applyAndRefresh(update, '✓ Scheduled');
       const dateRange = isoEnd ? `${fmtDay(iso)} through ${fmtDay(isoEnd)}` : fmtDay(iso);
       const subject = `Your Cabinet Install is Scheduled — ${est.address.split(',')[0]}`;
-      const body = `Hi ${firstName(est)},\n\nGreat news — your cabinet installation is confirmed!\n\nProperty: ${est.address}\nScheduled: ${dateRange}\n\nWe'll arrive by 8am. Reply to this email if you have any questions before we get started.\n\nThanks,\nShawn\nShawn's Cabinets\n${SHAWN_PHONE}`;
-      sendEmail(est.email, subject, body, null);
+      const html = emailHtml('Installation Confirmed ✓', `
+        <p>Hi ${firstName(est)},</p>
+        <p>Great news &mdash; your cabinet installation is <strong>confirmed</strong>!</p>
+        ${infoBox([['Property', est.address], ['Scheduled Date', `<span style="font-size:17px;color:#c4a35a;font-family:Georgia,Times,serif;">${dateRange}</span>`]])}
+        <p>We&rsquo;ll arrive by 8am. Reply to this email if you have any questions before we get started.</p>
+        <p>See you then!<br><br><strong>Shawn</strong><br>Shawn&rsquo;s Cabinets</p>`);
+      sendEmail(est.email, subject, html, null);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -848,8 +915,13 @@
         startedDate: new Date().toISOString(), percentComplete: 0,
       }, '✓ Job started');
       const subject = `Cabinet Install Has Started — ${est.address.split(',')[0]}`;
-      const body = `Hi ${firstName(est)},\n\nJust a heads up — we're at your property now and the cabinet installation has begun!\n\nI'll send you updates as we make progress. Reply to this email with any questions.\n\nThanks,\nShawn\nShawn's Cabinets\n${SHAWN_PHONE}`;
-      sendEmail(est.email, subject, body, null);
+      const html = emailHtml('Installation Has Begun 🚪', `
+        <p>Hi ${firstName(est)},</p>
+        <p>Just a heads up &mdash; we&rsquo;re at your property now and the cabinet installation has <strong>begun</strong>!</p>
+        ${infoBox([['Property', est.address], ['Status', '<span style="color:#c4a35a;font-weight:700;">In Progress</span>']])}
+        <p>I&rsquo;ll send you updates as we make progress. Reply to this email with any questions.</p>
+        <p>Thanks,<br><br><strong>Shawn</strong><br>Shawn&rsquo;s Cabinets</p>`);
+      sendEmail(est.email, subject, html, null);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -859,8 +931,22 @@
     try {
       await applyAndRefresh({ id: activeId, jobStatus: 'In Progress', percentComplete: p }, `✓ ${p}% saved`);
       const subject = `Cabinet Install Progress Update — ${est.address.split(',')[0]}`;
-      const body = `Hi ${firstName(est)},\n\nQuick update — the cabinet installation is ${p}% complete. Things are looking great!\n\nReply to this email with any questions.\n\nThanks,\nShawn\nShawn's Cabinets\n${SHAWN_PHONE}`;
-      sendEmail(est.email, subject, body, null);
+      const html = emailHtml(`Installation Update — ${p}% Complete`, `
+        <p>Hi ${firstName(est)},</p>
+        <p>Quick update on your cabinet installation &mdash; things are coming along great!</p>
+        ${infoBox([['Property', est.address]])}
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:20px 0;">
+          <tr><td>
+            <div style="font-size:11px;color:#9a8a74;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Progress</div>
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#e8dcc8;border-radius:20px;overflow:hidden;height:18px;">
+              <tr><td width="${p}%" style="background:#c4a35a;border-radius:20px;height:18px;"></td><td></td></tr>
+            </table>
+            <div style="font-size:22px;font-weight:700;color:#c4a35a;font-family:Georgia,Times,serif;margin-top:8px;">${p}% Complete</div>
+          </td></tr>
+        </table>
+        <p>I&rsquo;ll keep you posted as we move forward. Reply with any questions.</p>
+        <p>Thanks,<br><br><strong>Shawn</strong><br>Shawn&rsquo;s Cabinets</p>`);
+      sendEmail(est.email, subject, html, null);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -874,8 +960,13 @@
         completedDate: new Date().toISOString(), finalPrice: v, percentComplete: 100,
       }, '✓ Job complete');
       const subject = `Your Cabinets Are Complete! — ${est.address.split(',')[0]}`;
-      const body = `Hi ${firstName(est)},\n\nGreat news — your cabinet installation is all done and they look amazing!\n\nFinal total: $${fmt$(v)}\n\nI'll send the invoice shortly. Thanks so much for choosing Shawn's Cabinets!\n\nThanks,\nShawn\nShawn's Cabinets\n${SHAWN_PHONE}`;
-      sendEmail(est.email, subject, body, null);
+      const html = emailHtml('Installation Complete ✅', `
+        <p>Hi ${firstName(est)},</p>
+        <p>Great news &mdash; your cabinet installation is <strong>all done</strong> and they look amazing!</p>
+        ${infoBox([['Property', est.address], ['Project Type', est.projectType || 'Cabinet Installation'], ['Final Total', `<span style="font-size:28px;color:#c4a35a;font-family:Georgia,Times,serif;">$${fmt$(v)}</span>`]])}
+        <p>I&rsquo;ll send the invoice shortly. Thanks so much for choosing Shawn&rsquo;s Cabinets &mdash; it was a pleasure working with you!</p>
+        <p>Thanks,<br><br><strong>Shawn</strong><br>Shawn&rsquo;s Cabinets</p>`);
+      sendEmail(est.email, subject, html, null);
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -889,8 +980,29 @@
       return;
     }
     const subject = `Invoice — Shawn's Cabinets — ${est.address.split(',')[0]}`;
-    const body = `Hi ${firstName(est)},\n\nThank you for choosing Shawn's Cabinets! Here is your final invoice.\n\nINVOICE\n=====================================\nProperty: ${est.address}\nProject: ${est.projectType || 'Cabinet Installation'}\nDate completed: ${est.completedDate ? fmtDate(est.completedDate) : 'recent'}\n\nTotal Due: $${fmt$(v)}\n=====================================\n\nPayment options:\n  • Check — payable to Shawn's Cabinets\n  • Venmo — @Shawn-Cabinets\n  • Zelle — ${SHAWN_PHONE}\n\nReply with any questions.\n\nThanks,\nShawn\nShawn's Cabinets\n${SHAWN_PHONE}\n${SHAWN_EMAIL}`;
-    await sendEmail(est.email, subject, body, event.currentTarget);
+    const html = emailHtml('Your Invoice', `
+      <p>Hi ${firstName(est)},</p>
+      <p>Thank you for choosing <strong>Shawn&rsquo;s Cabinets</strong>! Here is your final invoice.</p>
+      ${infoBox([
+        ['Property', est.address],
+        ['Project', est.projectType || 'Cabinet Installation'],
+        ['Date Completed', est.completedDate ? fmtDate(est.completedDate) : 'Recent'],
+        ['Total Due', `<span style="font-size:28px;color:#c4a35a;font-family:Georgia,Times,serif;">$${fmt$(v)}</span>`]
+      ])}
+      <table width="100%" cellpadding="0" cellspacing="0" border="0"
+        style="background:#faf7f2;border:1px solid #e8dcc8;border-radius:6px;margin:20px 0;">
+        <tr><td style="padding:18px 24px;">
+          <div style="font-size:12px;color:#9a8a74;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Payment Options</div>
+          <div style="font-size:14px;color:#2a2218;line-height:2;">
+            &bull; <strong>Check</strong> &mdash; payable to Shawn&rsquo;s Cabinets<br>
+            &bull; <strong>Venmo</strong> &mdash; @Shawn-Cabinets<br>
+            &bull; <strong>Zelle</strong> &mdash; ${SHAWN_PHONE}
+          </div>
+        </td></tr>
+      </table>
+      <p>Reply with any questions. Thank you for your business!</p>
+      <p><strong>Shawn</strong><br>Shawn&rsquo;s Cabinets</p>`);
+    await sendEmail(est.email, subject, html, event.currentTarget);
     try { await applyAndRefresh({ id: activeId, invoiceSent: true }, '✓ Invoice sent'); } catch {}
   }
 

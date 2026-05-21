@@ -24,17 +24,18 @@ router.use((req, res, next) => {
 });
 
 router.post('/send-email', express.json(), async (req, res) => {
-  const { to, subject, body, from } = req.body || {};
+  const { to, subject, body, html: htmlOverride, from } = req.body || {};
 
-  if (!to || !subject || !body) {
-    return res.status(400).json({ error: 'Missing required fields: to, subject, body' });
+  if (!to || !subject || (!body && !htmlOverride)) {
+    return res.status(400).json({ error: 'Missing required fields: to, subject, body or html' });
   }
 
   const fromAddress = from || DEFAULT_FROM;
+  const plainText   = body || '';
 
-  // Convert plain-text body to simple HTML
-  const html = `<div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#222;line-height:1.6;">
-    ${body.replace(/\n/g, '<br>').replace(/={5,}/g, '<hr style="border:1px solid #ddd;margin:12px 0;">')}
+  // Use caller-provided HTML if given, otherwise convert plain text
+  const html = htmlOverride || `<div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#222;line-height:1.6;">
+    ${plainText.replace(/\n/g, '<br>').replace(/={5,}/g, '<hr style="border:1px solid #ddd;margin:12px 0;">')}
   </div>`;
 
   try {
@@ -44,7 +45,7 @@ router.post('/send-email', express.json(), async (req, res) => {
       Content: {
         Simple: {
           Subject: { Data: subject },
-          Body: { Text: { Data: body }, Html: { Data: html } },
+          Body: { Text: { Data: plainText }, Html: { Data: html } },
         },
       },
     }));
