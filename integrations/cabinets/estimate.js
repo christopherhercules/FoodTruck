@@ -34,7 +34,7 @@ router.post('/cabinets/estimate', express.json(), async (req, res) => {
   const emailSubject = `New cabinet estimate: ${name} — ${address ? address.split(',')[0] : 'address unknown'}`;
 
   const emailText = [
-    'New estimate request from Shawn's Cabinets website.',
+    "New estimate request from Shawn's Cabinets website.",
     '',
     'CONTACT',
     `  Name:  ${name}`,
