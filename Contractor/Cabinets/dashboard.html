@@ -831,7 +831,7 @@
       const r = await fetch(SEND_EMAIL_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: email, subject, body: stripTags(html), html }),
+        body: JSON.stringify({ to: email, subject, body: stripTags(html), html, from: "Shawn's Cabinets <noreply@myserviceflows.com>" }),
       });
       const json = await r.json();
       if (!json.ok) throw new Error(json.error || 'Send failed');
