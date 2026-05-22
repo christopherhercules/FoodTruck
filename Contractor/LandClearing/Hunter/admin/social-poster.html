@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Poster — Hunter Land Clearing</title>
+<style>
+  :root {
+    --green-dark:  #1c3a1c;
+    --green-mid:   #2d5a27;
+    --amber:       #b45309;
+    --amber-light: #f59e0b;
+    --bg:          #f5f2ee;
+    --surface:     #ffffff;
+    --border:      #d4c9b8;
+    --text:        #1a1a1a;
+    --text-mid:    #555;
+    --radius:      10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* ── AUTH ── */
+  #auth-screen {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; background: var(--green-dark);
+  }
+  .auth-box {
+    background: var(--surface); border-radius: 14px; padding: 40px 36px;
+    width: 340px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,.25);
+  }
+  .auth-box .logo { font-size: 2.4rem; margin-bottom: 6px; }
+  .auth-box h2 { font-size: 1.15rem; color: var(--green-dark); margin-bottom: 4px; }
+  .auth-box p { font-size: .85rem; color: var(--text-mid); margin-bottom: 24px; }
+  .auth-box input {
+    width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 1rem; margin-bottom: 12px; outline: none;
+  }
+  .auth-box input:focus { border-color: var(--green-mid); }
+  .auth-box button {
+    width: 100%; padding: 12px; background: var(--green-mid); color: #fff;
+    border: none; border-radius: var(--radius); font-size: 1rem; font-weight: 600;
+    cursor: pointer;
+  }
+  .auth-box button:hover { background: var(--green-dark); }
+  .auth-error { color: #c0392b; font-size: .85rem; margin-top: 8px; display: none; }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--green-dark); color: #fff;
+    padding: 16px 24px; display: flex; align-items: center; gap: 12px;
+  }
+  header .logo { font-size: 1.5rem; }
+  header h1 { font-size: 1.1rem; font-weight: 700; }
+  header p  { font-size: .78rem; color: rgba(255,255,255,.65); margin-top: 1px; }
+  header a  {
+    margin-left: auto; background: var(--amber); color: #fff; text-decoration: none;
+    padding: 8px 16px; border-radius: 8px; font-size: .82rem; font-weight: 600;
+    white-space: nowrap;
+  }
+  header a:hover { background: var(--amber-light); color: var(--green-dark); }
+
+  /* ── MAIN ── */
+  main { max-width: 760px; margin: 0 auto; padding: 28px 20px 60px; }
+
+  /* ── UPLOAD ── */
+  .upload-zone {
+    border: 2.5px dashed var(--border); border-radius: 14px;
+    background: var(--surface); padding: 48px 24px; text-align: center;
+    cursor: pointer; transition: border-color .2s, background .2s; position: relative;
+  }
+  .upload-zone:hover, .upload-zone.drag-over { border-color: var(--green-mid); background: #f0f7ee; }
+  .upload-zone .icon { font-size: 2.4rem; margin-bottom: 10px; }
+  .upload-zone h3 { font-size: 1rem; color: var(--green-dark); margin-bottom: 4px; }
+  .upload-zone p { font-size: .82rem; color: var(--text-mid); }
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .upload-zone .hint { margin-top: 8px; font-size: .75rem; color: #aaa; }
+
+  /* ── PREVIEW ── */
+  .preview-wrap { display: none; text-align: center; margin-top: 0; }
+  .preview-wrap img {
+    max-height: 320px; max-width: 100%; border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.12); margin-bottom: 16px;
+  }
+  .change-btn {
+    background: none; border: 1.5px solid var(--border); border-radius: 8px;
+    padding: 7px 16px; font-size: .82rem; color: var(--text-mid); cursor: pointer;
+  }
+  .change-btn:hover { border-color: var(--green-mid); color: var(--green-mid); }
+
+  /* ── GENERATE BTN ── */
+  .generate-btn {
+    display: block; width: 100%; margin-top: 20px;
+    background: var(--green-mid); color: #fff; border: none;
+    border-radius: var(--radius); padding: 15px; font-size: 1.05rem;
+    font-weight: 700; cursor: pointer; transition: background .2s;
+  }
+  .generate-btn:hover:not(:disabled) { background: var(--green-dark); }
+  .generate-btn:disabled { opacity: .55; cursor: not-allowed; }
+
+  /* ── SPINNER ── */
+  .spinner {
+    display: none; text-align: center; padding: 32px;
+    color: var(--text-mid); font-size: .9rem;
+  }
+  .spinner::before {
+    content: ''; display: block; width: 36px; height: 36px;
+    border: 3px solid var(--border); border-top-color: var(--green-mid);
+    border-radius: 50%; animation: spin .8s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── RESULTS ── */
+  #results { display: none; margin-top: 28px; }
+
+  .section-label {
+    font-size: .72rem; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--amber); margin-bottom: 12px;
+  }
+
+  /* caption cards */
+  .caption-cards { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .caption-card {
+    border: 2px solid var(--border); border-radius: var(--radius);
+    padding: 14px 16px; cursor: pointer; background: var(--surface);
+    transition: border-color .15s, background .15s;
+  }
+  .caption-card:hover { border-color: var(--green-mid); }
+  .caption-card.selected { border-color: var(--green-mid); background: #f0f7ee; }
+  .caption-card .cap-label {
+    font-size: .72rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--amber); margin-bottom: 5px;
+  }
+  .caption-card .cap-text { font-size: .92rem; line-height: 1.55; color: var(--text); }
+
+  /* editor */
+  .editor-box { background: var(--surface); border-radius: var(--radius); padding: 18px; margin-bottom: 20px; border: 1.5px solid var(--border); }
+  .editor-box label { font-size: .78rem; font-weight: 600; color: var(--text-mid); display: block; margin-bottom: 8px; }
+  .editor-box textarea {
+    width: 100%; min-height: 90px; border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 10px 12px; font-size: .92rem; line-height: 1.55;
+    resize: vertical; font-family: inherit; outline: none;
+  }
+  .editor-box textarea:focus { border-color: var(--green-mid); }
+
+  /* hashtags */
+  .hashtag-wrap { margin-bottom: 20px; }
+  .hashtag-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    background: #eef3ee; border: 1.5px solid #c5d9c3; border-radius: 20px;
+    padding: 5px 12px; font-size: .8rem; color: var(--green-dark);
+    cursor: pointer; user-select: none; transition: background .15s, border-color .15s;
+  }
+  .chip:hover { background: #ddeedd; }
+  .chip.off { background: #f0f0f0; border-color: #ddd; color: #aaa; text-decoration: line-through; }
+
+  /* copy btn */
+  .copy-btn {
+    display: block; width: 100%; padding: 15px;
+    background: var(--amber); color: #fff; border: none;
+    border-radius: var(--radius); font-size: 1.05rem; font-weight: 700;
+    cursor: pointer; transition: background .2s;
+  }
+  .copy-btn:hover { background: var(--amber-light); color: var(--green-dark); }
+  .copy-btn.copied { background: var(--green-mid); }
+
+  .postoria-link {
+    display: block; text-align: center; margin-top: 14px;
+    color: var(--amber); font-size: .85rem; text-decoration: none;
+  }
+  .postoria-link:hover { text-decoration: underline; }
+
+  .error-msg {
+    background: #fdecea; border: 1.5px solid #f5c6c2; border-radius: var(--radius);
+    padding: 14px 16px; color: #c0392b; font-size: .88rem; margin-top: 16px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="logo">🌿</div>
+    <h2>Hunter Land Clearing</h2>
+    <p>Social Media Poster — Admin Only</p>
+    <input type="password" id="auth-pw" placeholder="Password" />
+    <button onclick="checkAuth()">Sign In</button>
+    <div class="auth-error" id="auth-error">Incorrect password</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none;">
+
+<header>
+  <div class="logo">🌿</div>
+  <div>
+    <h1>Hunter Land Clearing</h1>
+    <p>Social Media Poster</p>
+  </div>
+  <a href="https://app.postoria.io" target="_blank">Open Postoria →</a>
+</header>
+
+<main>
+
+  <!-- UPLOAD -->
+  <div id="upload-section">
+    <div class="upload-zone" id="drop-zone">
+      <input type="file" id="file-input" accept="image/*" />
+      <div class="icon">📷</div>
+      <h3>Upload a Job Photo</h3>
+      <p>Drag & drop or click to select</p>
+      <p class="hint">JPEG, PNG, or WebP · Max 15 MB</p>
+    </div>
+
+    <div class="preview-wrap" id="preview-wrap">
+      <img id="preview-img" src="" alt="Preview" />
+      <br>
+      <button class="change-btn" onclick="resetPhoto()">← Change Photo</button>
+    </div>
+
+    <button class="generate-btn" id="generate-btn" disabled onclick="generateCaptions()">
+      ✨ Generate Captions
+    </button>
+  </div>
+
+  <div class="spinner" id="spinner">Analyzing photo and writing captions…</div>
+  <div class="error-msg" id="error-msg"></div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div class="section-label">Choose a Caption</div>
+    <div class="caption-cards" id="caption-cards"></div>
+
+    <div class="editor-box">
+      <label>Edit Caption (optional)</label>
+      <textarea id="caption-editor" placeholder="Select a caption above…"></textarea>
+    </div>
+
+    <div class="hashtag-wrap">
+      <div class="section-label">Hashtags — click to toggle</div>
+      <div class="hashtag-chips" id="hashtag-chips"></div>
+    </div>
+
+    <button class="copy-btn" id="copy-btn" onclick="copyAll()">
+      📋 Copy Caption + Hashtags
+    </button>
+    <a class="postoria-link" href="https://app.postoria.io" target="_blank">
+      Open Postoria to paste and post →
+    </a>
+  </div>
+
+</main>
+</div>
+
+<script>
+const API = 'https://foodtruck-cymz.onrender.com/hunter/social/caption';
+const PASSWORD = 'Hunter2025!';
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+function checkAuth() {
+  const val = document.getElementById('auth-pw').value;
+  if (val === PASSWORD) {
+    sessionStorage.setItem('hlc_social_auth', '1');
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+  } else {
+    document.getElementById('auth-error').style.display = 'block';
+  }
+}
+document.getElementById('auth-pw').addEventListener('keydown', e => { if (e.key === 'Enter') checkAuth(); });
+if (sessionStorage.getItem('hlc_social_auth') === '1') {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+}
+
+// ── FILE HANDLING ─────────────────────────────────────────────────────────────
+let selectedFile = null;
+
+document.getElementById('file-input').addEventListener('change', e => {
+  if (e.target.files[0]) handleFile(e.target.files[0]);
+});
+
+const dropZone = document.getElementById('drop-zone');
+dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+
+function handleFile(file) {
+  if (!file.type.startsWith('image/')) { alert('Please select an image file.'); return; }
+  selectedFile = file;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    document.getElementById('preview-img').src = ev.target.result;
+    document.getElementById('drop-zone').style.display = 'none';
+    document.getElementById('preview-wrap').style.display = 'block';
+    document.getElementById('generate-btn').disabled = false;
+    hideResults();
+  };
+  reader.readAsDataURL(file);
+}
+
+function resetPhoto() {
+  selectedFile = null;
+  document.getElementById('file-input').value = '';
+  document.getElementById('drop-zone').style.display = 'block';
+  document.getElementById('preview-wrap').style.display = 'none';
+  document.getElementById('generate-btn').disabled = true;
+  hideResults();
+}
+
+// ── GENERATE ──────────────────────────────────────────────────────────────────
+async function generateCaptions() {
+  if (!selectedFile) return;
+
+  document.getElementById('generate-btn').disabled = true;
+  document.getElementById('spinner').style.display = 'block';
+  document.getElementById('error-msg').style.display = 'none';
+  hideResults();
+
+  try {
+    const form = new FormData();
+    form.append('photo', selectedFile);
+
+    const res  = await fetch(API, { method: 'POST', body: form });
+    const data = await res.json();
+
+    if (!res.ok || data.error) throw new Error(data.error || 'Server error');
+
+    renderResults(data);
+  } catch (err) {
+    const el = document.getElementById('error-msg');
+    el.textContent = 'Error: ' + err.message;
+    el.style.display = 'block';
+  } finally {
+    document.getElementById('spinner').style.display = 'none';
+    document.getElementById('generate-btn').disabled = false;
+  }
+}
+
+// ── RENDER RESULTS ────────────────────────────────────────────────────────────
+let activeHashtags = [];
+
+function renderResults({ captions, hashtags }) {
+  // caption cards
+  const cardsEl = document.getElementById('caption-cards');
+  cardsEl.innerHTML = '';
+  captions.forEach((c, i) => {
+    const card = document.createElement('div');
+    card.className = 'caption-card';
+    card.innerHTML = `<div class="cap-label">${c.label}</div><div class="cap-text">${c.text}</div>`;
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.caption-card').forEach(el => el.classList.remove('selected'));
+      card.classList.add('selected');
+      document.getElementById('caption-editor').value = c.text;
+    });
+    cardsEl.appendChild(card);
+    if (i === 0) {
+      card.classList.add('selected');
+      document.getElementById('caption-editor').value = c.text;
+    }
+  });
+
+  // hashtags
+  activeHashtags = [...hashtags];
+  const chipsEl = document.getElementById('hashtag-chips');
+  chipsEl.innerHTML = '';
+  hashtags.forEach(tag => {
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = tag;
+    chip.addEventListener('click', () => {
+      chip.classList.toggle('off');
+      if (chip.classList.contains('off')) {
+        activeHashtags = activeHashtags.filter(t => t !== tag);
+      } else {
+        activeHashtags.push(tag);
+      }
+    });
+    chipsEl.appendChild(chip);
+  });
+
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('copy-btn').textContent = '📋 Copy Caption + Hashtags';
+  document.getElementById('copy-btn').classList.remove('copied');
+}
+
+function hideResults() {
+  document.getElementById('results').style.display = 'none';
+}
+
+// ── COPY ──────────────────────────────────────────────────────────────────────
+function copyAll() {
+  const caption  = document.getElementById('caption-editor').value.trim();
+  const tags     = activeHashtags.join(' ');
+  const full     = caption + (tags ? '\n\n' + tags : '');
+  navigator.clipboard.writeText(full).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '📋 Copy Caption + Hashtags';
+      btn.classList.remove('copied');
+    }, 2500);
+  });
+}
+</script>
+</body>
+</html>

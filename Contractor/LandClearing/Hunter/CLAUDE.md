@@ -180,7 +180,7 @@ All customer comms use `sms:` protocol (opens native phone app — no Twilio nee
 Pattern: `openSMS(phone, messageText)` → `window.open('sms:' + phone + '?body=' + encodeURIComponent(msg))`
 
 Jason's phone (used in job.html contact buttons): `(830) 832-7065`
-Jason's email (used in bill template): `jasonmerz@hunterexteriors.com` *(confirm with Jason)*
+Jason's email (used in bill template + contact buttons): `hunterlandclearing@yahoo.com`
 
 ---
 
@@ -210,5 +210,5 @@ Jason's email (used in bill template): `jasonmerz@hunterexteriors.com` *(confirm
 
 - [ ] Photo upload for job progress (photoUrls field exists, UI not built)
 - [ ] Parcel lookup reliability improvements (TNRIS can be slow/unavailable)
-- [ ] Email invoice — confirm Jason's actual email address
+- [ ] Email invoice — Jason's email confirmed: `hunterlandclearing@yahoo.com`
 - [ ] Consider adding estimate request notifications (email/SMS to Jason on new submission)

@@ -470,7 +470,7 @@
             <label>Quote Amount ($)</label>
             <input type="number" id="f-quote" placeholder="2500" step="50" />
           </div>
-          <button class="stage-btn stage-btn-amber" onclick="actionSendQuote()">📄 Save Quote & Email Customer</button>
+          <button class="stage-btn stage-btn-amber" onclick="actionSendQuote(event)">📄 Save Quote & Email Customer</button>
         </div>
       </div>
 
@@ -490,7 +490,7 @@
             <label>Scheduled End Date <span style="font-weight:400;color:#aaa;">(optional — for multi-day jobs)</span></label>
             <input type="date" id="f-scheduled-end" />
           </div>
-          <button class="stage-btn stage-btn-amber" onclick="actionSchedule()">📅 Confirm Schedule & Email Customer</button>
+          <button class="stage-btn stage-btn-amber" onclick="actionSchedule(event)">📅 Confirm Schedule & Email Customer</button>
         </div>
       </div>
 
@@ -502,7 +502,7 @@
           <div class="stage-status" id="start-status"></div>
         </div>
         <div class="stage-body">
-          <button class="stage-btn stage-btn-amber" onclick="actionStartJob()" style="width:100%;">🚜 Start Job Today & Email Customer</button>
+          <button class="stage-btn stage-btn-amber" onclick="actionStartJob(event)" style="width:100%;">🚜 Start Job Today & Email Customer</button>
         </div>
       </div>
 
@@ -518,7 +518,7 @@
             <label>Percent Complete: <span id="f-pct-label" style="font-weight:800;color:var(--green-dark);">0%</span></label>
             <input type="range" id="f-pct" min="0" max="100" step="5" value="0" oninput="document.getElementById('f-pct-label').textContent=this.value+'%'" />
           </div>
-          <button class="stage-btn stage-btn-amber" onclick="actionUpdateProgress()">📊 Update Progress & Email Customer</button>
+          <button class="stage-btn stage-btn-amber" onclick="actionUpdateProgress(event)">📊 Update Progress & Email Customer</button>
         </div>
       </div>
 
@@ -534,7 +534,7 @@
             <label>Final Price ($)</label>
             <input type="number" id="f-final" placeholder="2500" step="50" />
           </div>
-          <button class="stage-btn stage-btn-green" onclick="actionComplete()">✅ Mark Complete & Email Customer</button>
+          <button class="stage-btn stage-btn-green" onclick="actionComplete(event)">✅ Mark Complete & Email Customer</button>
         </div>
       </div>
 
@@ -546,7 +546,7 @@
           <div class="stage-status" id="bill-status"></div>
         </div>
         <div class="stage-body">
-          <button class="stage-btn stage-btn-green" onclick="actionSendBill()" style="flex:1;">💰 Email Invoice to Customer</button>
+          <button class="stage-btn stage-btn-green" onclick="actionSendBill(event)" style="flex:1;">💰 Email Invoice to Customer</button>
           <button class="stage-btn" onclick="actionTextBill()" style="background:#f5f5f5;color:var(--text-mid);">💬 Email Bill Reminder</button>
         </div>
       </div>
@@ -984,7 +984,7 @@
 
   // ── STAGE ACTIONS ─────────────────────────────────────────────────────────
 
-  async function actionSendQuote() {
+  async function actionSendQuote(event) {
     const est = allEstimates.find(x => x.id === activeId); if (!est) return;
     const v = parseFloat(document.getElementById('f-quote').value);
     if (!v || v <= 0) { alert('Enter a quote amount first.'); return; }
@@ -998,7 +998,7 @@
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
-  async function actionSchedule() {
+  async function actionSchedule(event) {
     const est = allEstimates.find(x => x.id === activeId); if (!est) return;
     const d = document.getElementById('f-scheduled').value;
     if (!d) { alert('Pick a scheduled start date first.'); return; }
@@ -1016,7 +1016,7 @@
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
-  async function actionStartJob() {
+  async function actionStartJob(event) {
     const est = allEstimates.find(x => x.id === activeId); if (!est) return;
     try {
       await applyAndRefresh({
@@ -1029,7 +1029,7 @@
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
-  async function actionUpdateProgress() {
+  async function actionUpdateProgress(event) {
     const est = allEstimates.find(x => x.id === activeId); if (!est) return;
     const p = parseInt(document.getElementById('f-pct').value);
     try {
@@ -1042,7 +1042,7 @@
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
-  async function actionComplete() {
+  async function actionComplete(event) {
     const est = allEstimates.find(x => x.id === activeId); if (!est) return;
     const v = parseFloat(document.getElementById('f-final').value);
     if (!v || v <= 0) { alert('Enter the final price first.'); return; }
@@ -1057,7 +1057,7 @@
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
-  async function actionSendBill() {
+  async function actionSendBill(event) {
     const est = allEstimates.find(x => x.id === activeId); if (!est) return;
     const v = est.finalPrice != null ? est.finalPrice : parseFloat(document.getElementById('f-final').value || 0);
     if (!v || v <= 0) { alert('Set the final price first.'); return; }
@@ -1067,7 +1067,7 @@
       return;
     }
     const subject = `Invoice — Hunter Land Clearing — ${est.address.split(',')[0]}`;
-    const body = `Hi ${firstName(est)},\n\nThanks again for trusting Hunter Land Clearing with your project. Below is your final invoice.\n\nINVOICE\n=====================================\nProperty: ${est.address}\nWork: ${acresStr(est)}land clearing\nDate completed: ${est.completedDate ? fmtDate(est.completedDate) : 'recent'}\n\nTotal Due: $${fmt$(v)}\n=====================================\n\nPayment options:\n  • Check — mail to: Jason Merz, New Braunfels, TX\n  • Venmo — @Jason-Merz\n  • Zelle — (830) 832-7065\n\nReply to this email with any questions.\n\nThanks,\nJason\nHunter Land Clearing\n(830) 832-7065\nj_merz@yahoo.com`;
+    const body = `Hi ${firstName(est)},\n\nThanks again for trusting Hunter Land Clearing with your project. Below is your final invoice.\n\nINVOICE\n=====================================\nProperty: ${est.address}\nWork: ${acresStr(est)}land clearing\nDate completed: ${est.completedDate ? fmtDate(est.completedDate) : 'recent'}\n\nTotal Due: $${fmt$(v)}\n=====================================\n\nPayment options:\n  • Check — mail to: Jason Merz, New Braunfels, TX\n  • Venmo — @Jason-Merz\n  • Zelle — (830) 832-7065\n\nReply to this email with any questions.\n\nThanks,\nJason\nHunter Land Clearing\n(830) 832-7065\nhunterlandclearing@yahoo.com`;
     await sendEmail(est.email, subject, body, event.currentTarget);
     try { await applyAndRefresh({ id: activeId, invoiceSent: true }, '✓ Invoice sent'); } catch {}
   }
