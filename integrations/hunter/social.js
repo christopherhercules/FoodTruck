@@ -81,10 +81,12 @@ router.post('/hunter/social/caption', upload.single('photo'), async (req, res) =
     'This photo is from Hunter Land Clearing, a land clearing, brush removal, and excavation company in the New Braunfels, TX area. ' +
     'Write 3 different social media captions for this photo — suitable for both Facebook and Instagram. ' +
     'Each caption should be engaging, showcase the work professionally, and speak to property owners in the Texas Hill Country. ' +
-    'End each caption with a line break then relevant hashtags (e.g. #LandClearing #TexasHillCountry #HunterExteriors). ' +
+    'Each caption MUST include a relevant Bible verse at the end — choose a verse that connects to land, stewardship, creation, hard work, or God\'s provision (e.g. Genesis 1:28, Psalm 24:1, Proverbs 12:11, Deuteronomy 8:7-8, Isaiah 58:12). ' +
+    'Use a different verse in each of the 3 captions. Format the verse like: 📖 "The earth is the Lord\'s, and everything in it." — Psalm 24:1 ' +
+    'After the verse, add a line break then relevant hashtags (e.g. #LandClearing #TexasHillCountry #HunterExteriors #FaithAndWork). ' +
     'Keep each caption under 2000 characters. ' +
     'Return ONLY a valid JSON array of 3 strings — no markdown, no explanation. ' +
-    'Example format: ["Caption one...\\n\\n#Hashtag1 #Hashtag2", "Caption two...", "Caption three..."]';
+    'Example format: ["Caption one...\\n\\n📖 \\"Verse text\\" — Reference\\n\\n#Hashtag1 #Hashtag2", "Caption two...", "Caption three..."]';
 
   try {
     const apiRes = await fetch(ANTHROPIC_API, {
