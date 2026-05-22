@@ -12,7 +12,7 @@ const express = require('express');
 const router  = express.Router();
 const { SESv2Client, SendEmailCommand } = require('@aws-sdk/client-sesv2');
 
-const DEFAULT_FROM = process.env.NOTIFY_FROM || "Shawn's Cabinets <noreply@myserviceflows.com>";
+const DEFAULT_FROM = process.env.NOTIFY_FROM || 'noreply@myserviceflows.com';
 const ses = new SESv2Client({ region: process.env.AWS_DEFAULT_REGION || 'us-east-1' });
 
 router.use((req, res, next) => {
