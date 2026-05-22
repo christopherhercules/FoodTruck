@@ -46,8 +46,8 @@ async function start() {
   app.use(toastApp);
 
   // ── HUNTER LAND CLEARING ROUTES ──────────────────────────────────────────
-  const hunterApp        = require('./hunter/estimate');
-  const hunterSocialApp  = require('./hunter/social');
+  const hunterApp       = require('./hunter/estimate');
+  const hunterSocialApp = require('./hunter/social');
   app.use(hunterApp);
   app.use(hunterSocialApp);
 

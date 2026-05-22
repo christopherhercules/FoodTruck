@@ -1,414 +1,469 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Social Poster — Hunter Land Clearing</title>
-<style>
-  :root {
-    --green-dark:  #1c3a1c;
-    --green-mid:   #2d5a27;
-    --amber:       #b45309;
-    --amber-light: #f59e0b;
-    --bg:          #f5f2ee;
-    --surface:     #ffffff;
-    --border:      #d4c9b8;
-    --text:        #1a1a1a;
-    --text-mid:    #555;
-    --radius:      10px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Social Poster — Hunter Land Clearing</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* ── AUTH ── */
-  #auth-screen {
-    display: flex; align-items: center; justify-content: center;
-    min-height: 100vh; background: var(--green-dark);
-  }
-  .auth-box {
-    background: var(--surface); border-radius: 14px; padding: 40px 36px;
-    width: 340px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,.25);
-  }
-  .auth-box .logo { font-size: 2.4rem; margin-bottom: 6px; }
-  .auth-box h2 { font-size: 1.15rem; color: var(--green-dark); margin-bottom: 4px; }
-  .auth-box p { font-size: .85rem; color: var(--text-mid); margin-bottom: 24px; }
-  .auth-box input {
-    width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
-    border-radius: var(--radius); font-size: 1rem; margin-bottom: 12px; outline: none;
-  }
-  .auth-box input:focus { border-color: var(--green-mid); }
-  .auth-box button {
-    width: 100%; padding: 12px; background: var(--green-mid); color: #fff;
-    border: none; border-radius: var(--radius); font-size: 1rem; font-weight: 600;
-    cursor: pointer;
-  }
-  .auth-box button:hover { background: var(--green-dark); }
-  .auth-error { color: #c0392b; font-size: .85rem; margin-top: 8px; display: none; }
+    :root {
+      --green-dark:  #1E3D0F;
+      --green-mid:   #2E5E12;
+      --green-light: #4A8A20;
+      --amber:       #D4821A;
+      --amber-light: #F0A030;
+      --bg:          #F4F6F0;
+      --card:        #FFFFFF;
+      --text:        #1A2410;
+      --text-mid:    #4A5C3A;
+      --border:      #D8E0D0;
+      --red:         #C0392B;
+      --green-ok:    #1E7B34;
+    }
 
-  /* ── HEADER ── */
-  header {
-    background: var(--green-dark); color: #fff;
-    padding: 16px 24px; display: flex; align-items: center; gap: 12px;
-  }
-  header .logo { font-size: 1.5rem; }
-  header h1 { font-size: 1.1rem; font-weight: 700; }
-  header p  { font-size: .78rem; color: rgba(255,255,255,.65); margin-top: 1px; }
-  header a  {
-    margin-left: auto; background: var(--amber); color: #fff; text-decoration: none;
-    padding: 8px 16px; border-radius: 8px; font-size: .82rem; font-weight: 600;
-    white-space: nowrap;
-  }
-  header a:hover { background: var(--amber-light); color: var(--green-dark); }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-  /* ── MAIN ── */
-  main { max-width: 760px; margin: 0 auto; padding: 28px 20px 60px; }
+    /* ── LOGIN ── */
+    #login-screen {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; background: var(--green-dark);
+    }
+    .login-card {
+      background: white; border-radius: 16px; padding: 48px 40px; width: 360px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.3); text-align: center;
+    }
+    .login-logo { font-size: 2.5rem; margin-bottom: 8px; }
+    .login-card h1 { font-size: 1.3rem; color: var(--green-dark); margin-bottom: 4px; }
+    .login-card p  { font-size: .9rem; color: var(--text-mid); margin-bottom: 28px; }
+    .login-card input {
+      width: 100%; padding: 12px 16px; border: 2px solid var(--border);
+      border-radius: 8px; font-size: 1rem; margin-bottom: 14px; outline: none;
+    }
+    .login-card input:focus { border-color: var(--green-mid); }
+    .login-btn {
+      width: 100%; padding: 13px; background: var(--green-mid); color: white;
+      border: none; border-radius: 8px; font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: background .2s;
+    }
+    .login-btn:hover { background: var(--green-dark); }
+    .login-error { color: var(--red); font-size: .85rem; margin-top: 10px; }
 
-  /* ── UPLOAD ── */
-  .upload-zone {
-    border: 2.5px dashed var(--border); border-radius: 14px;
-    background: var(--surface); padding: 48px 24px; text-align: center;
-    cursor: pointer; transition: border-color .2s, background .2s; position: relative;
-  }
-  .upload-zone:hover, .upload-zone.drag-over { border-color: var(--green-mid); background: #f0f7ee; }
-  .upload-zone .icon { font-size: 2.4rem; margin-bottom: 10px; }
-  .upload-zone h3 { font-size: 1rem; color: var(--green-dark); margin-bottom: 4px; }
-  .upload-zone p { font-size: .82rem; color: var(--text-mid); }
-  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-  .upload-zone .hint { margin-top: 8px; font-size: .75rem; color: #aaa; }
+    /* ── HEADER ── */
+    .header {
+      background: var(--green-dark); color: white; padding: 16px 24px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .header-icon { font-size: 1.6rem; }
+    .header h1  { font-size: 1.2rem; font-weight: 700; }
+    .header p   { font-size: .8rem; opacity: .7; }
 
-  /* ── PREVIEW ── */
-  .preview-wrap { display: none; text-align: center; margin-top: 0; }
-  .preview-wrap img {
-    max-height: 320px; max-width: 100%; border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0,0,0,.12); margin-bottom: 16px;
-  }
-  .change-btn {
-    background: none; border: 1.5px solid var(--border); border-radius: 8px;
-    padding: 7px 16px; font-size: .82rem; color: var(--text-mid); cursor: pointer;
-  }
-  .change-btn:hover { border-color: var(--green-mid); color: var(--green-mid); }
+    /* ── MAIN ── */
+    .main { max-width: 720px; margin: 0 auto; padding: 28px 20px 60px; }
 
-  /* ── GENERATE BTN ── */
-  .generate-btn {
-    display: block; width: 100%; margin-top: 20px;
-    background: var(--green-mid); color: #fff; border: none;
-    border-radius: var(--radius); padding: 15px; font-size: 1.05rem;
-    font-weight: 700; cursor: pointer; transition: background .2s;
-  }
-  .generate-btn:hover:not(:disabled) { background: var(--green-dark); }
-  .generate-btn:disabled { opacity: .55; cursor: not-allowed; }
+    /* ── UPLOAD ZONE ── */
+    .upload-zone {
+      border: 2.5px dashed var(--border); border-radius: 16px;
+      padding: 48px 24px; text-align: center; background: var(--card);
+      cursor: pointer; transition: border-color .2s, background .2s;
+      position: relative;
+    }
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: var(--green-mid); background: #F0F5EC;
+    }
+    .upload-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .upload-icon { font-size: 2.8rem; margin-bottom: 12px; }
+    .upload-zone h2 { font-size: 1.1rem; color: var(--green-dark); margin-bottom: 6px; }
+    .upload-zone p  { font-size: .9rem; color: var(--text-mid); }
+    .upload-btn-hint {
+      display: inline-block; margin-top: 14px; padding: 8px 20px;
+      background: var(--green-mid); color: white; border-radius: 8px;
+      font-size: .9rem; font-weight: 600; pointer-events: none;
+    }
 
-  /* ── SPINNER ── */
-  .spinner {
-    display: none; text-align: center; padding: 32px;
-    color: var(--text-mid); font-size: .9rem;
-  }
-  .spinner::before {
-    content: ''; display: block; width: 36px; height: 36px;
-    border: 3px solid var(--border); border-top-color: var(--green-mid);
-    border-radius: 50%; animation: spin .8s linear infinite;
-    margin: 0 auto 12px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+    /* ── PREVIEW ── */
+    .preview-wrap { margin-top: 24px; display: none; }
+    .preview-wrap img {
+      width: 100%; max-height: 420px; object-fit: contain;
+      border-radius: 12px; border: 1px solid var(--border);
+      background: #000;
+    }
+    .preview-actions {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 10px;
+    }
+    .preview-filename { font-size: .85rem; color: var(--text-mid); }
+    .btn-ghost {
+      background: none; border: 1.5px solid var(--border); padding: 6px 14px;
+      border-radius: 6px; font-size: .85rem; cursor: pointer; color: var(--text-mid);
+      transition: border-color .2s;
+    }
+    .btn-ghost:hover { border-color: var(--amber); color: var(--amber); }
 
-  /* ── RESULTS ── */
-  #results { display: none; margin-top: 28px; }
+    /* ── LOADING ── */
+    .loading-wrap { margin-top: 28px; display: none; text-align: center; padding: 32px; }
+    .spinner {
+      display: inline-block; width: 40px; height: 40px;
+      border: 4px solid var(--border); border-top-color: var(--green-mid);
+      border-radius: 50%; animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-wrap p { margin-top: 14px; color: var(--text-mid); font-size: .95rem; }
 
-  .section-label {
-    font-size: .72rem; font-weight: 700; letter-spacing: .08em;
-    text-transform: uppercase; color: var(--amber); margin-bottom: 12px;
-  }
+    /* ── CAPTIONS ── */
+    .captions-wrap { margin-top: 28px; display: none; }
+    .captions-wrap h2 { font-size: 1.05rem; font-weight: 700; color: var(--green-dark); margin-bottom: 14px; }
 
-  /* caption cards */
-  .caption-cards { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-  .caption-card {
-    border: 2px solid var(--border); border-radius: var(--radius);
-    padding: 14px 16px; cursor: pointer; background: var(--surface);
-    transition: border-color .15s, background .15s;
-  }
-  .caption-card:hover { border-color: var(--green-mid); }
-  .caption-card.selected { border-color: var(--green-mid); background: #f0f7ee; }
-  .caption-card .cap-label {
-    font-size: .72rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: .06em; color: var(--amber); margin-bottom: 5px;
-  }
-  .caption-card .cap-text { font-size: .92rem; line-height: 1.55; color: var(--text); }
+    .caption-card {
+      background: var(--card); border: 2px solid var(--border); border-radius: 12px;
+      padding: 16px 18px; margin-bottom: 14px; cursor: pointer;
+      transition: border-color .15s;
+    }
+    .caption-card.selected { border-color: var(--green-mid); background: #F0F5EC; }
+    .caption-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .caption-radio {
+      width: 18px; height: 18px; accent-color: var(--green-mid);
+      cursor: pointer; flex-shrink: 0;
+    }
+    .caption-label { font-size: .8rem; font-weight: 700; color: var(--text-mid); text-transform: uppercase; letter-spacing: .04em; }
+    .caption-text {
+      width: 100%; border: none; resize: vertical; font-size: .95rem;
+      line-height: 1.5; color: var(--text); background: transparent;
+      font-family: inherit; min-height: 100px; outline: none;
+    }
 
-  /* editor */
-  .editor-box { background: var(--surface); border-radius: var(--radius); padding: 18px; margin-bottom: 20px; border: 1.5px solid var(--border); }
-  .editor-box label { font-size: .78rem; font-weight: 600; color: var(--text-mid); display: block; margin-bottom: 8px; }
-  .editor-box textarea {
-    width: 100%; min-height: 90px; border: 1.5px solid var(--border);
-    border-radius: 8px; padding: 10px 12px; font-size: .92rem; line-height: 1.55;
-    resize: vertical; font-family: inherit; outline: none;
-  }
-  .editor-box textarea:focus { border-color: var(--green-mid); }
+    /* ── POST BUTTON ── */
+    .post-wrap { margin-top: 24px; display: none; }
+    .btn-post {
+      width: 100%; padding: 16px; background: var(--amber); color: white;
+      border: none; border-radius: 10px; font-size: 1.05rem; font-weight: 700;
+      cursor: pointer; transition: background .2s; display: flex; align-items: center;
+      justify-content: center; gap: 10px;
+    }
+    .btn-post:hover:not(:disabled) { background: var(--amber-light); }
+    .btn-post:disabled { opacity: .5; cursor: not-allowed; }
 
-  /* hashtags */
-  .hashtag-wrap { margin-bottom: 20px; }
-  .hashtag-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-  .chip {
-    background: #eef3ee; border: 1.5px solid #c5d9c3; border-radius: 20px;
-    padding: 5px 12px; font-size: .8rem; color: var(--green-dark);
-    cursor: pointer; user-select: none; transition: background .15s, border-color .15s;
-  }
-  .chip:hover { background: #ddeedd; }
-  .chip.off { background: #f0f0f0; border-color: #ddd; color: #aaa; text-decoration: line-through; }
+    /* ── RESULT ── */
+    .result-wrap { margin-top: 20px; display: none; }
+    .result-row {
+      display: flex; align-items: center; gap: 12px; padding: 14px 18px;
+      border-radius: 10px; margin-bottom: 10px; font-size: .95rem; font-weight: 500;
+    }
+    .result-row.ok  { background: #EBF5ED; color: var(--green-ok); border: 1.5px solid #A8D5B0; }
+    .result-row.err { background: #FDECEA; color: var(--red);      border: 1.5px solid #F5B4B0; }
+    .result-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .result-detail { font-size: .8rem; font-weight: 400; margin-top: 2px; opacity: .8; word-break: break-all; }
 
-  /* copy btn */
-  .copy-btn {
-    display: block; width: 100%; padding: 15px;
-    background: var(--amber); color: #fff; border: none;
-    border-radius: var(--radius); font-size: 1.05rem; font-weight: 700;
-    cursor: pointer; transition: background .2s;
-  }
-  .copy-btn:hover { background: var(--amber-light); color: var(--green-dark); }
-  .copy-btn.copied { background: var(--green-mid); }
+    .divider { border: none; border-top: 1.5px solid var(--border); margin: 28px 0; }
 
-  .postoria-link {
-    display: block; text-align: center; margin-top: 14px;
-    color: var(--amber); font-size: .85rem; text-decoration: none;
-  }
-  .postoria-link:hover { text-decoration: underline; }
-
-  .error-msg {
-    background: #fdecea; border: 1.5px solid #f5c6c2; border-radius: var(--radius);
-    padding: 14px 16px; color: #c0392b; font-size: .88rem; margin-top: 16px;
-    display: none;
-  }
-</style>
+    /* ── GENERATE AGAIN ── */
+    .btn-again {
+      background: none; border: 1.5px solid var(--green-mid); color: var(--green-mid);
+      padding: 8px 18px; border-radius: 8px; font-size: .9rem; font-weight: 600;
+      cursor: pointer; transition: all .2s; margin-bottom: 14px;
+    }
+    .btn-again:hover { background: var(--green-mid); color: white; }
+  </style>
 </head>
 <body>
 
-<!-- AUTH -->
-<div id="auth-screen">
-  <div class="auth-box">
-    <div class="logo">🌿</div>
-    <h2>Hunter Land Clearing</h2>
-    <p>Social Media Poster — Admin Only</p>
-    <input type="password" id="auth-pw" placeholder="Password" />
-    <button onclick="checkAuth()">Sign In</button>
-    <div class="auth-error" id="auth-error">Incorrect password</div>
+<!-- ── LOGIN GATE ─────────────────────────────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">🌿</div>
+    <h1>Social Poster</h1>
+    <p>Hunter Land Clearing — Admin Only</p>
+    <input type="password" id="pw-input" placeholder="Password" />
+    <button class="login-btn" onclick="checkLogin()">Sign In</button>
+    <div class="login-error" id="login-error"></div>
   </div>
 </div>
 
-<!-- APP -->
+<!-- ── APP ───────────────────────────────────────────────────────────── -->
 <div id="app" style="display:none;">
 
-<header>
-  <div class="logo">🌿</div>
-  <div>
-    <h1>Hunter Land Clearing</h1>
-    <p>Social Media Poster</p>
+  <div class="header">
+    <div class="header-icon">🌿</div>
+    <div>
+      <h1>Social Poster</h1>
+      <p>Hunter Land Clearing — Post to Facebook & Instagram</p>
+    </div>
   </div>
-  <a href="https://app.postoria.io" target="_blank">Open Postoria →</a>
-</header>
 
-<main>
+  <div class="main">
 
-  <!-- UPLOAD -->
-  <div id="upload-section">
-    <div class="upload-zone" id="drop-zone">
-      <input type="file" id="file-input" accept="image/*" />
-      <div class="icon">📷</div>
-      <h3>Upload a Job Photo</h3>
-      <p>Drag & drop or click to select</p>
-      <p class="hint">JPEG, PNG, or WebP · Max 15 MB</p>
+    <!-- Upload zone -->
+    <div class="upload-zone" id="upload-zone">
+      <input type="file" id="photo-input" accept="image/*" />
+      <div class="upload-icon">📷</div>
+      <h2>Upload a job photo</h2>
+      <p>Drag & drop or click to browse</p>
+      <div class="upload-btn-hint">Choose Photo</div>
     </div>
 
+    <!-- Preview -->
     <div class="preview-wrap" id="preview-wrap">
       <img id="preview-img" src="" alt="Preview" />
-      <br>
-      <button class="change-btn" onclick="resetPhoto()">← Change Photo</button>
+      <div class="preview-actions">
+        <span class="preview-filename" id="preview-filename"></span>
+        <button class="btn-ghost" onclick="resetAll()">Change Photo</button>
+      </div>
     </div>
 
-    <button class="generate-btn" id="generate-btn" disabled onclick="generateCaptions()">
-      ✨ Generate Captions
-    </button>
+    <!-- Loading -->
+    <div class="loading-wrap" id="loading-wrap">
+      <div class="spinner"></div>
+      <p>AI is analyzing your photo and writing captions…</p>
+    </div>
+
+    <!-- Captions -->
+    <div class="captions-wrap" id="captions-wrap">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <h2 style="margin:0;">Pick a caption</h2>
+        <button class="btn-again" id="btn-again" onclick="regenerateCaptions()">↻ Regenerate</button>
+      </div>
+      <div id="captions-list"></div>
+    </div>
+
+    <!-- Post button -->
+    <div class="post-wrap" id="post-wrap">
+      <button class="btn-post" id="btn-post" onclick="postNow()">
+        <span>📤</span>
+        <span>Post to Facebook &amp; Instagram</span>
+      </button>
+    </div>
+
+    <!-- Result -->
+    <div class="result-wrap" id="result-wrap"></div>
+
   </div>
-
-  <div class="spinner" id="spinner">Analyzing photo and writing captions…</div>
-  <div class="error-msg" id="error-msg"></div>
-
-  <!-- RESULTS -->
-  <div id="results">
-    <div class="section-label">Choose a Caption</div>
-    <div class="caption-cards" id="caption-cards"></div>
-
-    <div class="editor-box">
-      <label>Edit Caption (optional)</label>
-      <textarea id="caption-editor" placeholder="Select a caption above…"></textarea>
-    </div>
-
-    <div class="hashtag-wrap">
-      <div class="section-label">Hashtags — click to toggle</div>
-      <div class="hashtag-chips" id="hashtag-chips"></div>
-    </div>
-
-    <button class="copy-btn" id="copy-btn" onclick="copyAll()">
-      📋 Copy Caption + Hashtags
-    </button>
-    <a class="postoria-link" href="https://app.postoria.io" target="_blank">
-      Open Postoria to paste and post →
-    </a>
-  </div>
-
-</main>
 </div>
 
 <script>
-const API = 'https://foodtruck-cymz.onrender.com/hunter/social/caption';
-const PASSWORD = 'Hunter2025!';
+const SERVER = 'https://foodtruck-cymz.onrender.com';
+const PW     = 'Hunter2025!';
 
-// ── AUTH ──────────────────────────────────────────────────────────────────────
-function checkAuth() {
-  const val = document.getElementById('auth-pw').value;
-  if (val === PASSWORD) {
+let currentFile     = null;
+let currentImageUrl = null;
+let selectedCaption = null;
+
+// ── Auth ─────────────────────────────────────────────────────────────────────
+function checkLogin() {
+  const val = document.getElementById('pw-input').value;
+  if (val === PW) {
     sessionStorage.setItem('hlc_social_auth', '1');
-    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
   } else {
-    document.getElementById('auth-error').style.display = 'block';
+    document.getElementById('login-error').textContent = 'Incorrect password.';
+    document.getElementById('pw-input').value = '';
   }
 }
-document.getElementById('auth-pw').addEventListener('keydown', e => { if (e.key === 'Enter') checkAuth(); });
+
+document.getElementById('pw-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkLogin();
+});
+
 if (sessionStorage.getItem('hlc_social_auth') === '1') {
-  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
 }
 
-// ── FILE HANDLING ─────────────────────────────────────────────────────────────
-let selectedFile = null;
+// ── Upload / drag-drop ────────────────────────────────────────────────────────
+const zone  = document.getElementById('upload-zone');
+const input = document.getElementById('photo-input');
 
-document.getElementById('file-input').addEventListener('change', e => {
-  if (e.target.files[0]) handleFile(e.target.files[0]);
+zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
+zone.addEventListener('dragleave', ()  => zone.classList.remove('drag-over'));
+zone.addEventListener('drop', e => {
+  e.preventDefault();
+  zone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) handleFile(file);
 });
 
-const dropZone = document.getElementById('drop-zone');
-dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault(); dropZone.classList.remove('drag-over');
-  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+input.addEventListener('change', () => {
+  if (input.files[0]) handleFile(input.files[0]);
 });
 
 function handleFile(file) {
-  if (!file.type.startsWith('image/')) { alert('Please select an image file.'); return; }
-  selectedFile = file;
+  currentFile = file;
+  currentImageUrl = null;
+  selectedCaption = null;
+
+  // Show preview
   const reader = new FileReader();
-  reader.onload = ev => {
-    document.getElementById('preview-img').src = ev.target.result;
-    document.getElementById('drop-zone').style.display = 'none';
-    document.getElementById('preview-wrap').style.display = 'block';
-    document.getElementById('generate-btn').disabled = false;
-    hideResults();
+  reader.onload = e => {
+    document.getElementById('preview-img').src = e.target.result;
   };
   reader.readAsDataURL(file);
+
+  document.getElementById('upload-zone').style.display  = 'none';
+  document.getElementById('preview-wrap').style.display = 'block';
+  document.getElementById('preview-filename').textContent = file.name;
+
+  generateCaptions();
 }
 
-function resetPhoto() {
-  selectedFile = null;
-  document.getElementById('file-input').value = '';
-  document.getElementById('drop-zone').style.display = 'block';
-  document.getElementById('preview-wrap').style.display = 'none';
-  document.getElementById('generate-btn').disabled = true;
-  hideResults();
-}
-
-// ── GENERATE ──────────────────────────────────────────────────────────────────
+// ── Caption generation ────────────────────────────────────────────────────────
 async function generateCaptions() {
-  if (!selectedFile) return;
+  show('loading-wrap');
+  hide('captions-wrap');
+  hide('post-wrap');
+  hide('result-wrap');
+  selectedCaption = null;
 
-  document.getElementById('generate-btn').disabled = true;
-  document.getElementById('spinner').style.display = 'block';
-  document.getElementById('error-msg').style.display = 'none';
-  hideResults();
+  const form = new FormData();
+  form.append('photo', currentFile);
 
   try {
-    const form = new FormData();
-    form.append('photo', selectedFile);
-
-    const res  = await fetch(API, { method: 'POST', body: form });
+    const res  = await fetch(`${SERVER}/hunter/social/caption`, { method: 'POST', body: form });
     const data = await res.json();
 
-    if (!res.ok || data.error) throw new Error(data.error || 'Server error');
+    if (!res.ok || !data.ok) throw new Error(data.error || 'Caption generation failed');
 
-    renderResults(data);
+    currentImageUrl = data.imageUrl;
+    renderCaptions(data.captions);
+
+    hide('loading-wrap');
+    show('captions-wrap');
   } catch (err) {
-    const el = document.getElementById('error-msg');
-    el.textContent = 'Error: ' + err.message;
-    el.style.display = 'block';
-  } finally {
-    document.getElementById('spinner').style.display = 'none';
-    document.getElementById('generate-btn').disabled = false;
+    hide('loading-wrap');
+    showError(err.message);
   }
 }
 
-// ── RENDER RESULTS ────────────────────────────────────────────────────────────
-let activeHashtags = [];
+function regenerateCaptions() {
+  if (!currentFile) return;
+  generateCaptions();
+}
 
-function renderResults({ captions, hashtags }) {
-  // caption cards
-  const cardsEl = document.getElementById('caption-cards');
-  cardsEl.innerHTML = '';
-  captions.forEach((c, i) => {
+function renderCaptions(captions) {
+  const list = document.getElementById('captions-list');
+  list.innerHTML = '';
+
+  captions.forEach((text, i) => {
     const card = document.createElement('div');
     card.className = 'caption-card';
-    card.innerHTML = `<div class="cap-label">${c.label}</div><div class="cap-text">${c.text}</div>`;
-    card.addEventListener('click', () => {
-      document.querySelectorAll('.caption-card').forEach(el => el.classList.remove('selected'));
-      card.classList.add('selected');
-      document.getElementById('caption-editor').value = c.text;
-    });
-    cardsEl.appendChild(card);
-    if (i === 0) {
-      card.classList.add('selected');
-      document.getElementById('caption-editor').value = c.text;
-    }
-  });
+    card.id = `card-${i}`;
+    card.innerHTML = `
+      <div class="caption-card-header">
+        <input type="radio" class="caption-radio" name="caption" id="radio-${i}" value="${i}" />
+        <label class="caption-label" for="radio-${i}">Option ${i + 1}</label>
+      </div>
+      <textarea class="caption-text" id="caption-text-${i}" rows="5">${escHtml(text)}</textarea>
+    `;
+    list.appendChild(card);
 
-  // hashtags
-  activeHashtags = [...hashtags];
-  const chipsEl = document.getElementById('hashtag-chips');
-  chipsEl.innerHTML = '';
-  hashtags.forEach(tag => {
-    const chip = document.createElement('div');
-    chip.className = 'chip';
-    chip.textContent = tag;
-    chip.addEventListener('click', () => {
-      chip.classList.toggle('off');
-      if (chip.classList.contains('off')) {
-        activeHashtags = activeHashtags.filter(t => t !== tag);
-      } else {
-        activeHashtags.push(tag);
-      }
+    card.addEventListener('click', e => {
+      if (e.target.tagName === 'TEXTAREA') return;
+      document.getElementById(`radio-${i}`).checked = true;
+      selectCaption(i);
     });
-    chipsEl.appendChild(chip);
-  });
 
-  document.getElementById('results').style.display = 'block';
-  document.getElementById('copy-btn').textContent = '📋 Copy Caption + Hashtags';
-  document.getElementById('copy-btn').classList.remove('copied');
+    document.getElementById(`radio-${i}`).addEventListener('change', () => selectCaption(i));
+  });
 }
 
-function hideResults() {
-  document.getElementById('results').style.display = 'none';
+function selectCaption(i) {
+  document.querySelectorAll('.caption-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById(`card-${i}`).classList.add('selected');
+  selectedCaption = i;
+  show('post-wrap');
+  hide('result-wrap');
 }
 
-// ── COPY ──────────────────────────────────────────────────────────────────────
-function copyAll() {
-  const caption  = document.getElementById('caption-editor').value.trim();
-  const tags     = activeHashtags.join(' ');
-  const full     = caption + (tags ? '\n\n' + tags : '');
-  navigator.clipboard.writeText(full).then(() => {
-    const btn = document.getElementById('copy-btn');
-    btn.textContent = '✓ Copied!';
-    btn.classList.add('copied');
-    setTimeout(() => {
-      btn.textContent = '📋 Copy Caption + Hashtags';
-      btn.classList.remove('copied');
-    }, 2500);
-  });
+// ── Post ──────────────────────────────────────────────────────────────────────
+async function postNow() {
+  if (selectedCaption === null || !currentImageUrl) return;
+
+  const caption = document.getElementById(`caption-text-${selectedCaption}`).value.trim();
+  if (!caption) { alert('Caption is empty.'); return; }
+
+  const btn = document.getElementById('btn-post');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="width:22px;height:22px;border-width:3px;"></span><span>Posting…</span>';
+
+  try {
+    const res  = await fetch(`${SERVER}/hunter/social/post`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ imageUrl: currentImageUrl, caption }),
+    });
+    const data = await res.json();
+    renderResult(data);
+  } catch (err) {
+    renderResult({ facebook: { error: err.message }, instagram: { error: err.message } });
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>📤</span><span>Post to Facebook &amp; Instagram</span>';
+  }
+}
+
+function renderResult(data) {
+  const wrap = document.getElementById('result-wrap');
+  const fbOk = data.facebook && !data.facebook.error;
+  const igOk = data.instagram && !data.instagram.error;
+
+  wrap.innerHTML = `
+    <div class="result-row ${fbOk ? 'ok' : 'err'}">
+      <span class="result-icon">${fbOk ? '✅' : '❌'}</span>
+      <div>
+        <div>Facebook — ${fbOk ? 'Posted successfully' : 'Failed'}</div>
+        ${fbOk
+          ? `<div class="result-detail">Post ID: ${data.facebook.postId}</div>`
+          : `<div class="result-detail">${escHtml(data.facebook?.error || 'Unknown error')}</div>`}
+      </div>
+    </div>
+    <div class="result-row ${igOk ? 'ok' : 'err'}">
+      <span class="result-icon">${igOk ? '✅' : '❌'}</span>
+      <div>
+        <div>Instagram — ${igOk ? 'Posted successfully' : 'Failed'}</div>
+        ${igOk
+          ? `<div class="result-detail">Media ID: ${data.instagram.postId}</div>`
+          : `<div class="result-detail">${escHtml(data.instagram?.error || 'Unknown error')}</div>`}
+      </div>
+    </div>
+    ${(fbOk || igOk) ? `<p style="text-align:center;margin-top:14px;font-size:.9rem;color:var(--text-mid);">
+      <a href="#" onclick="resetAll();return false;" style="color:var(--green-mid);font-weight:600;">Post another photo →</a>
+    </p>` : ''}
+  `;
+  show('result-wrap');
+}
+
+function showError(msg) {
+  const wrap = document.getElementById('result-wrap');
+  wrap.innerHTML = `<div class="result-row err"><span class="result-icon">❌</span><div>${escHtml(msg)}</div></div>`;
+  show('result-wrap');
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function show(id) { document.getElementById(id).style.display = ''; }
+function hide(id) { document.getElementById(id).style.display = 'none'; }
+
+function resetAll() {
+  currentFile     = null;
+  currentImageUrl = null;
+  selectedCaption = null;
+  document.getElementById('photo-input').value = '';
+  document.getElementById('preview-img').src    = '';
+  document.getElementById('captions-list').innerHTML = '';
+  show('upload-zone');
+  hide('preview-wrap');
+  hide('loading-wrap');
+  hide('captions-wrap');
+  hide('post-wrap');
+  hide('result-wrap');
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 </script>
 </body>

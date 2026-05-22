@@ -16,6 +16,9 @@ const SSM_PARAMS = {
   '/contractor/hunter/email_to':          'HUNTER_EMAIL_TO',
   '/contractor/cabinets/notify_email':    'CABINETS_NOTIFY_EMAIL',
   '/contractor/hunter/mapbox_token':      'MAPBOX_TOKEN',
+  '/contractor/hunter/facebook_token':    'HUNTER_FB_PAGE_TOKEN',
+  '/contractor/hunter/facebook_page_id':  'HUNTER_FB_PAGE_ID',
+  '/contractor/hunter/instagram_id':      'HUNTER_IG_USER_ID',
 };
 
 async function loadSecrets() {
