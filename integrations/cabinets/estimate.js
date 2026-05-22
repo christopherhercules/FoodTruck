@@ -11,7 +11,7 @@ const router   = express.Router();
 const { SESv2Client, SendEmailCommand } = require('@aws-sdk/client-sesv2');
 
 const NOTIFY_FROM = process.env.CABINETS_EMAIL_FROM || "Shawn's Cabinets <noreply@myserviceflows.com>";
-const NOTIFY_TO   = process.env.CABINETS_EMAIL_TO   || 'christopherhercules@outlook.com';
+const NOTIFY_TO   = process.env.CABINETS_NOTIFY_EMAIL || 'christopherhercules@outlook.com';
 const DASH_URL    = 'https://cabinets.myserviceflows.com/dashboard.html';
 
 const ses = new SESv2Client({ region: process.env.AWS_DEFAULT_REGION || 'us-east-1' });
