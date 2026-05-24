@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Agent Assistance — Sales Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
   <style>
     :root {
       --bg:      #0f0f0f;
@@ -269,6 +270,48 @@
     .last-contact { font-size:11px; color:var(--muted); margin-top:2px; }
     .last-contact.recent { color:var(--green); }
 
+    /* ── AWS COSTS TAB ── */
+    .cost-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-bottom:24px; }
+    .cost-card {
+      background:var(--bg2); border:1px solid var(--border); border-radius:12px;
+      padding:18px 20px;
+    }
+    .cost-card.c-blue   { border-left:4px solid var(--accent); }
+    .cost-card.c-green  { border-left:4px solid var(--green); }
+    .cost-card.c-yellow { border-left:4px solid var(--yellow); }
+    .cost-card.c-red    { border-left:4px solid #ef4444; }
+    .cost-card .c-label { font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.7px; margin-bottom:8px; }
+    .cost-card .c-value { font-size:28px; font-weight:700; color:var(--text); line-height:1; }
+    .cost-card .c-sub   { font-size:12px; color:var(--muted); margin-top:6px; }
+    .cost-progress { background:var(--bg3); border-radius:99px; height:6px; margin-top:10px; overflow:hidden; }
+    .cost-progress-bar { height:100%; border-radius:99px; background:linear-gradient(90deg,var(--accent),var(--purple)); transition:width .6s ease; }
+
+    .cost-section { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:20px 24px; margin-bottom:18px; }
+    .cost-section h3 { font-size:13px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.7px; margin-bottom:16px; }
+    .cost-chart-wrap { height:220px; position:relative; }
+
+    .cost-table { width:100%; border-collapse:collapse; }
+    .cost-table th { text-align:left; padding:9px 12px; font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.7px; border-bottom:1px solid var(--border); }
+    .cost-table td { padding:11px 12px; font-size:13px; border-bottom:1px solid rgba(46,46,46,.5); }
+    .cost-table tbody tr:last-child td { border-bottom:none; }
+    .cost-table tbody tr:hover td { background:rgba(255,255,255,.02); }
+    .cost-flag { display:inline-block; background:rgba(245,158,11,.12); color:var(--yellow); border:1px solid rgba(245,158,11,.3); font-size:11px; font-weight:600; padding:2px 8px; border-radius:20px; }
+    .cost-ok   { display:inline-block; background:rgba(34,197,94,.1); color:var(--green); border:1px solid rgba(34,197,94,.25); font-size:11px; font-weight:600; padding:2px 8px; border-radius:20px; }
+    .cost-amount { font-family:monospace; font-size:13px; font-weight:600; color:var(--text); }
+
+    .cost-meta { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:10px; }
+    .cost-meta .updated { font-size:12px; color:var(--muted); }
+    .cost-refresh-btn {
+      background:transparent; border:1px solid var(--border); color:var(--muted);
+      padding:6px 14px; border-radius:8px; cursor:pointer; font-size:12px;
+      font-family:'Outfit',sans-serif; transition:all .2s;
+    }
+    .cost-refresh-btn:hover { border-color:var(--accent); color:var(--text); }
+    .cost-empty { text-align:center; padding:48px 24px; color:var(--muted); }
+    .cost-empty .big { font-size:36px; margin-bottom:12px; }
+    .cost-empty p { font-size:14px; line-height:1.6; }
+    .cost-empty code { background:var(--bg3); border:1px solid var(--border); padding:2px 8px; border-radius:5px; font-size:13px; color:var(--accent); }
+
     /* ── PROSPECT STATUS ── */
     .filter-btn {
       background:transparent; border:1px solid var(--border); color:var(--muted);
@@ -326,6 +369,7 @@
       <button class="tab active" onclick="switchTab('pitch',this)">📣 Sales Pitch</button>
       <button class="tab" onclick="switchTab('clients',this)">🏪 Client Sites</button>
       <button class="tab" onclick="switchTab('prospects',this)">🎯 Prospects</button>
+      <button class="tab" onclick="switchTab('costs',this)">☁️ AWS Costs</button>
     </div>
 
     <!-- ══ PITCH TAB ══ -->
@@ -503,6 +547,20 @@
       </div>
     </div>
 
+    <!-- ══ AWS COSTS TAB ══ -->
+    <div class="tab-panel" id="tab-costs">
+      <div class="cost-meta">
+        <span class="updated" id="costUpdated">Loading...</span>
+        <button class="cost-refresh-btn" onclick="loadCostData()">↻ Refresh</button>
+      </div>
+      <div id="costContent">
+        <div class="cost-empty">
+          <div class="big">☁️</div>
+          <p>Loading cost data...</p>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -596,6 +654,7 @@ function switchTab(id, btn) {
   btn.classList.add("active");
   document.getElementById("tab-"+id).classList.add("active");
   if (id === "prospects") buildProspects();
+  if (id === "costs") loadCostData();
 }
 
 // ── Dashboard ──
@@ -984,6 +1043,127 @@ window.clearContact = function() {
   }
   _modalIsProspect = false;
 };
+
+// ══════════════════════════════════════════
+// AWS COSTS
+// ══════════════════════════════════════════
+
+let _costChart = null;
+
+async function loadCostData() {
+  const content = document.getElementById("costContent");
+  const meta    = document.getElementById("costUpdated");
+  meta.textContent = "Loading...";
+
+  try {
+    const res = await fetch("./aws_costs_data.json?_=" + Date.now());
+    if (!res.ok) throw new Error("not found");
+    const d = await res.json();
+    meta.textContent = "Last updated: " + d.generated_at;
+    renderCosts(d);
+  } catch(e) {
+    meta.textContent = "No data yet";
+    content.innerHTML = `
+      <div class="cost-empty">
+        <div class="big">☁️</div>
+        <p>No cost data found.<br><br>
+        Run the script on your local machine to generate and upload it:<br><br>
+        <code>python Dashboards/aws_cost_dashboard.py</code></p>
+      </div>`;
+  }
+}
+
+function renderCosts(d) {
+  const flagColor = d.flagged_count > 0 ? "c-red" : "c-green";
+  const pct = Math.min(100, (d.days_elapsed / d.days_in_month * 100)).toFixed(1);
+
+  let serviceRows = d.services.map(s => {
+    const badge = s.is_flagged
+      ? `<span class="cost-flag">⚠ ${s.flag_reason.join(", ")}</span>`
+      : `<span class="cost-ok">✓ OK</span>`;
+    return `<tr>
+      <td>${s.name}</td>
+      <td class="cost-amount">$${s.amount.toFixed(4)}</td>
+      <td>${badge}</td>
+    </tr>`;
+  }).join("");
+
+  document.getElementById("costContent").innerHTML = `
+    <div class="cost-cards">
+      <div class="cost-card c-blue">
+        <div class="c-label">Month-to-Date</div>
+        <div class="c-value">$${d.total_mtd.toFixed(2)}</div>
+        <div class="c-sub">${d.days_elapsed} of ${d.days_in_month} days — ${d.month_label}</div>
+        <div class="cost-progress"><div class="cost-progress-bar" style="width:${pct}%"></div></div>
+      </div>
+      <div class="cost-card c-green">
+        <div class="c-label">Daily Average</div>
+        <div class="c-value">$${d.daily_avg.toFixed(2)}</div>
+        <div class="c-sub">per day so far</div>
+      </div>
+      <div class="cost-card c-yellow">
+        <div class="c-label">Projected Month-End</div>
+        <div class="c-value">$${d.projected.toFixed(2)}</div>
+        <div class="c-sub">at current pace</div>
+      </div>
+      <div class="cost-card ${flagColor}">
+        <div class="c-label">Flagged Services</div>
+        <div class="c-value">${d.flagged_count}</div>
+        <div class="c-sub">${d.flagged_count > 0 ? "need review" : "everything looks clean"}</div>
+      </div>
+    </div>
+
+    <div class="cost-section">
+      <h3>Daily Spend Trend — ${d.month_label}</h3>
+      <div class="cost-chart-wrap"><canvas id="costChartCanvas"></canvas></div>
+    </div>
+
+    <div class="cost-section">
+      <h3>Service Breakdown</h3>
+      <table class="cost-table">
+        <thead><tr><th>Service</th><th>Cost (USD)</th><th>Status</th></tr></thead>
+        <tbody>${serviceRows}</tbody>
+      </table>
+    </div>`;
+
+  // Destroy old chart instance before creating new one
+  if (_costChart) { _costChart.destroy(); _costChart = null; }
+  const ctx = document.getElementById("costChartCanvas").getContext("2d");
+  _costChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: d.daily_labels,
+      datasets: [{
+        label: "Daily Spend (USD)",
+        data: d.daily_amounts,
+        backgroundColor: "rgba(79,142,247,0.15)",
+        borderColor: "rgba(79,142,247,0.8)",
+        borderWidth: 2,
+        borderRadius: 5,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => "$" + c.parsed.y.toFixed(4) } }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: "rgba(255,255,255,0.05)" },
+          ticks: { color: "#888", callback: v => "$" + v.toFixed(2), font: { size: 11 } }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: "#888", font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
 
 function refreshProspectCell(p) {
   const cKey = `prospect_${p.id}`;

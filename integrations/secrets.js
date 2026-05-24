@@ -19,6 +19,9 @@ const SSM_PARAMS = {
   '/contractor/hunter/facebook_token':    'HUNTER_FB_PAGE_TOKEN',
   '/contractor/hunter/facebook_page_id':  'HUNTER_FB_PAGE_ID',
   '/contractor/hunter/instagram_id':      'HUNTER_IG_USER_ID',
+  '/platform/aiagent/facebook_token':     'AIAGENT_FB_PAGE_TOKEN',
+  '/platform/aiagent/facebook_page_id':   'AIAGENT_FB_PAGE_ID',
+  '/platform/aiagent/instagram_id':       'AIAGENT_IG_USER_ID',
 };
 
 async function loadSecrets() {

@@ -654,7 +654,7 @@
       previewMap.on('load', () => {
         previewMap.addSource('parcel', { type: 'geojson', data: parcel });
         previewMap.addLayer({ id: 'parcel-fill', type: 'fill', source: 'parcel',
-          paint: { 'fill-color': '#3D7A1B', 'fill-opacity': 0.25 } });
+          paint: { 'fill-color': '#ffffff', 'fill-opacity': 0.05 } });
         previewMap.addLayer({ id: 'parcel-line', type: 'line', source: 'parcel',
           paint: { 'line-color': '#2E5E12', 'line-width': 2.5 } });
         // Fit to parcel
@@ -793,9 +793,9 @@
     if (!drawMap.getSource('parcel')) {
       drawMap.addSource('parcel', { type: 'geojson', data: parcelGeoJSON });
       drawMap.addLayer({ id: 'parcel-fill', type: 'fill', source: 'parcel',
-        paint: { 'fill-color': '#2E5E12', 'fill-opacity': 0.12 } });
+        paint: { 'fill-color': '#ffffff', 'fill-opacity': 0.05 } });
       drawMap.addLayer({ id: 'parcel-outline', type: 'line', source: 'parcel',
-        paint: { 'line-color': '#2E5E12', 'line-width': 2.5, 'line-dasharray': [4,2] } });
+        paint: { 'line-color': '#ffffff', 'line-width': 2, 'line-dasharray': [4,2], 'line-opacity': 0.8 } });
     }
     const bbox = turf.bbox(parcelGeoJSON);
     drawMap.fitBounds(bbox, { padding: 60 });
@@ -1034,8 +1034,8 @@
     rMap.on('load', () => {
       if (parcelGeoJSON) {
         rMap.addSource('p', { type: 'geojson', data: parcelGeoJSON });
-        rMap.addLayer({ id: 'p-fill', type: 'fill', source: 'p', paint: { 'fill-color': '#2E5E12', 'fill-opacity': 0.2 } });
-        rMap.addLayer({ id: 'p-line', type: 'line', source: 'p', paint: { 'line-color': '#2E5E12', 'line-width': 2 } });
+        rMap.addLayer({ id: 'p-fill', type: 'fill', source: 'p', paint: { 'fill-color': '#ffffff', 'fill-opacity': 0.05 } });
+        rMap.addLayer({ id: 'p-line', type: 'line', source: 'p', paint: { 'line-color': '#ffffff', 'line-width': 2, 'line-opacity': 0.8 } });
       }
       if (drawnGeoJSON && drawnGeoJSON.features.length) {
         rMap.addSource('d', { type: 'geojson', data: drawnGeoJSON });
@@ -1099,8 +1099,8 @@
         document.getElementById('track-link-wrap').style.display = 'block';
       }
 
-      // Notify Jason by email + SMS (fire-and-forget)
-      fetch('https://foodtruck-cymz.onrender.com/hunter/estimate', {
+      // Notify Jason by email (fire-and-forget)
+      fetch('https://w6zmfgv2d1.execute-api.us-east-1.amazonaws.com/notify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

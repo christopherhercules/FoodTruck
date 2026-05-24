@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Online - Mas Chingon Mexican Grill</title>
+    <title>Order Online - Mas Chingon Restaurant</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -212,14 +212,46 @@
             color: var(--green-light);
         }
 
-        .customize-select {
-            font-size: 0.78rem;
-            padding: 0.3rem 0.5rem;
-            margin: 0.3rem 0;
-            background: var(--bg2);
-            border-color: #444;
-            border-radius: 6px;
+        /* ── CUSTOMIZATION MODAL ─────────────────────────────── */
+        #customizeModal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.75); z-index: 9999;
+            align-items: center; justify-content: center; padding: 1rem;
         }
+        .cm-card {
+            background: var(--bg2); border: 1px solid #333; border-radius: 20px;
+            padding: 24px 20px; width: 100%; max-width: 420px;
+            max-height: 85vh; overflow-y: auto;
+        }
+        .cm-header { margin-bottom: 16px; }
+        .cm-header h3 { color: var(--text); font-size: 1.1rem; margin: 0 0 2px; }
+        .cm-header .cm-price { color: var(--gold); font-size: 1rem; font-weight: 700; }
+        .cm-group { margin-bottom: 16px; }
+        .cm-group-label { font-size: 0.78rem; text-transform: uppercase;
+            letter-spacing: 1px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; }
+        .cm-options { display: flex; flex-wrap: wrap; gap: 8px; }
+        .cm-option {
+            display: flex; align-items: center; gap: 6px;
+            background: var(--bg3); border: 1.5px solid #444; border-radius: 20px;
+            padding: 6px 12px; cursor: pointer; font-size: 0.85rem; color: var(--text);
+            transition: all 0.15s; user-select: none;
+        }
+        .cm-option input { display: none; }
+        .cm-option:has(input:checked) { border-color: var(--red); background: rgba(214,40,40,0.15); color: #fff; }
+        .cm-qty-row { display:flex; align-items:center; justify-content:space-between;
+            padding: 12px 0; border-top: 1px solid #333; margin-top: 8px; }
+        .cm-qty-ctrl { display:flex; align-items:center; gap:16px; }
+        .cm-qty-btn { width:32px; height:32px; border-radius:50%; border:1.5px solid #555;
+            background:transparent; color:var(--text); font-size:1.2rem; cursor:pointer;
+            display:flex; align-items:center; justify-content:center; line-height:1; }
+        .cm-qty-btn:hover { border-color:var(--red); color:var(--red); }
+        #cmQtyVal { font-size:1.1rem; font-weight:700; min-width:20px; text-align:center; }
+        .cm-actions { display: flex; gap: 10px; margin-top: 12px; }
+        .cm-cancel { flex: 1; padding: 12px; border-radius: 12px; border: 1.5px solid #444;
+            background: transparent; color: #aaa; font-size: 0.9rem; cursor: pointer; font-family: inherit; }
+        .cm-confirm { flex: 2; padding: 12px; border-radius: 12px; border: none;
+            background: var(--red); color: #fff; font-size: 0.95rem; font-weight: 700;
+            cursor: pointer; font-family: inherit; }
 
         .add-btn {
             background: var(--red);
@@ -378,12 +410,12 @@
             letter-spacing: 1px;
         }
         .new-order-btn:hover { background: #1e4d38; }
-    </style>
+    .consent-label{display:flex;align-items:flex-start;gap:0.6rem;cursor:pointer;font-size:0.78rem;color:var(--text-muted,#888);line-height:1.4;padding:0.6rem 0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px}.consent-label input[type=checkbox]{margin-top:2px;accent-color:#D62828;width:15px;height:15px;flex-shrink:0;cursor:pointer}.consent-label span a{color:inherit;text-decoration:underline}.sms-consent-wrap{margin-bottom:0.75rem}</style>
 </head>
 <body>
 
 <header>
-    <a href="index.html" class="logo" style="text-decoration:none;">Mas <span>Chingon</span></a>
+    <a href="index.html" class="logo" style="text-decoration:none;">Mas <span>Chingon</span> <span style="color:#888;font-size:1.2rem;letter-spacing:0">Restaurant</span></a>
     <div class="cart-badge" onclick="scrollToCart()">
         🛒 My Order
         <div class="cart-count" id="cartCount">0</div>
@@ -433,6 +465,16 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label>Phone (optional)</label>
+                    <input type="tel" id="customerPhone" placeholder="For order-ready text" oninput="document.getElementById('smsConsentGroup').style.display=this.value?'block':'none'">
+                </div>
+                <div class="form-group" id="smsConsentGroup" style="display:none">
+                    <label class="consent-label">
+                        <input type="checkbox" id="smsConsent">
+                        <span>Text me when my order is ready. Msg &amp; data rates may apply. Reply STOP to opt out.</span>
+                    </label>
+                </div>
+                <div class="form-group">
                     <label>Special Instructions</label>
                     <input type="text" id="specialInstructions" placeholder="Allergies, preferences...">
                 </div>
@@ -461,7 +503,7 @@
                         <p>Add items to get started!</p>
                     </div>
                 </div>
-                <button class="place-order-btn" id="placeOrderBtn" disabled onclick="placeOrder()">
+                <button class="place-order-btn" id="placeOrderBtn" disabled onclick="placeOrderWithConfirm()">
                     Place Order
                 </button>
             </div>
@@ -521,7 +563,20 @@
     let cart = [];
     let activeCategory = "All";
 
-    const CATEGORIES = ["All", "Breakfast", "Main", "Antojitos", "Specialty", "Drinks"];
+    // ─── LOAD PENDING CART FROM CHAT WIDGET ────────────────────────────────────
+    (function loadPendingCart() {
+      try {
+        const pending = JSON.parse(localStorage.getItem('ft-pending-cart') || '[]');
+        if (pending.length > 0) {
+          pending.forEach(item => {
+            cart.push({ itemId: item.itemId, name: item.name, price: parseFloat(item.price), customization: item.customization || '' });
+          });
+          localStorage.removeItem('ft-pending-cart');
+        }
+      } catch(e) {}
+    })();
+
+    const CATEGORIES = ["All", "Breakfast", "Main", "Antojitos", "Specialty", "Extras", "Drinks"];
 
     const TABLE_ASSIGNMENTS = {
         "1": "Maria", "2": "Maria", "3": "Carlos", "4": "Carlos",
@@ -533,9 +588,9 @@
     async function loadMenu() {
         const query = `
             query ListMenuItems {
-                listMenuItems(limit: 100) {
+                listMenuItems(limit: 1000, filter: { itemId: { beginsWith: "ITEM-" } }) {
                     items {
-                        id itemId name description price category available customizationOptions
+                        id itemId name description price category available customizationOptions modifierGroups
                     }
                 }
             }
@@ -547,6 +602,7 @@
                 .sort((a, b) => a.name.localeCompare(b.name));
             renderCategoryTabs();
             renderMenu();
+            if (cart.length > 0) renderCart();
         } catch (err) {
             document.getElementById("menuContainer").innerHTML = `
                 <div class="error-msg">
@@ -584,44 +640,138 @@
         document.getElementById("menuContainer").innerHTML = `
             <div class="menu-grid">
                 ${items.map(item => {
-                    let opts = [];
-                    try { opts = JSON.parse(item.customizationOptions || "[]"); } catch(e) {}
-                    const hasOpts = opts.length > 0;
-                    const selectId = `opt_${item.itemId}`;
+                    let groups = [];
+                    try { groups = JSON.parse(item.modifierGroups || item.customizationOptions || "[]"); } catch(e) {}
+                    const encoded = groups.length ? encodeURIComponent(JSON.stringify(groups)) : '';
                     return `
                         <div class="menu-item">
                             <div class="item-name">${item.name}</div>
                             <div class="item-desc">${item.description || ''}</div>
-                            ${hasOpts ? `
-                                <select class="customize-select" id="${selectId}">
-                                    <option value="">Choose option...</option>
-                                    ${opts.map(o => `<option value="${o}">${o}</option>`).join('')}
-                                </select>
-                            ` : ''}
                             <div class="item-footer">
                                 <span class="item-price">$${parseFloat(item.price).toFixed(2)}</span>
-                                <button class="add-btn" onclick="window.addToCart('${item.itemId}', '${item.name.replace(/'/g,"\\'")}', ${item.price}, '${selectId}', ${hasOpts})">
-                                    + Add
-                                </button>
+                                <button class="add-btn" onclick="window.openCustomizeModal('${item.itemId}','${item.name.replace(/'/g,"\\'")}',${item.price},'${encoded}')">+ Add</button>
                             </div>
                         </div>`;
                 }).join('')}
             </div>`;
     }
 
-    // ─── CART ───────────────────────────────────────────────────────────────────
-    window.addToCart = function(itemId, name, price, selectId, hasOpts) {
-        let customization = '';
-        if (hasOpts) {
-            const sel = document.getElementById(selectId);
-            if (!sel || !sel.value) {
-                sel.style.borderColor = 'var(--red)';
-                sel.focus();
-                setTimeout(() => { sel.style.borderColor = ''; }, 2000);
-                return;
-            }
-            customization = sel.value;
+    // ─── CUSTOMIZATION MODAL ────────────────────────────────────────────────────
+    let _modalItem = null;
+    let _modalQty  = 1;
+
+    function cmUpdatePrice() {
+        if (!_modalItem) return;
+        const modal = document.getElementById('customizeModal');
+        let modTotal = 0;
+        modal.querySelectorAll('input:checked').forEach(inp => {
+            modTotal += parseFloat(inp.dataset.price || 0);
+        });
+        const lineTotal = (_modalItem.price + modTotal) * _modalQty;
+        document.getElementById('cmLivePrice').textContent = `$${lineTotal.toFixed(2)}`;
+    }
+
+    window.openCustomizeModal = function(itemId, name, price, encoded) {
+        let groups = [];
+        try { groups = encoded ? JSON.parse(decodeURIComponent(encoded)) : []; } catch(e) {}
+
+        // No modifiers — straight to cart
+        if (!groups.length) {
+            cart.push({ itemId, name, price: parseFloat(price), modifiers: [], customization: '', quantity: 1 });
+            renderCart(); return;
         }
+
+        // Normalise legacy flat string array
+        if (typeof groups[0] === 'string') {
+            groups = [{ name:'Choose Option', required:true, min:1, max:1,
+                options: groups.map(o => ({ name: o, price: 0 })) }];
+        }
+
+        _modalItem = { itemId, name, price: parseFloat(price) };
+        _modalQty  = 1;
+        document.getElementById('cmItemName').textContent = name;
+        document.getElementById('cmQtyVal').textContent   = '1';
+
+        document.getElementById('cmGroups').innerHTML = groups.map((g, gi) => {
+            const req  = g.required !== false;
+            const max  = g.max || 99;
+            const type = max === 1 ? 'radio' : 'checkbox';
+            const lbl  = `${g.name}${req
+                ? ' <span style="color:var(--red)">*</span>'
+                : ' <span style="color:var(--text-muted);font-size:.75rem">(optional)</span>'}`;
+            const opts = g.options.map((opt, oi) => {
+                const pid  = `cm_${gi}_${oi}`;
+                const pLbl = opt.price > 0 ? ` <span style="color:var(--gold);font-size:.75rem">+$${opt.price.toFixed(2)}</span>` : '';
+                return `<label class="cm-option" for="${pid}">
+                    <input type="${type}" id="${pid}" name="cm_grp_${gi}"
+                        value="${opt.name}" data-price="${opt.price || 0}"
+                        onchange="cmUpdatePrice()">
+                    <span>${opt.name}${pLbl}</span>
+                </label>`;
+            }).join('');
+            return `<div class="cm-group" data-gi="${gi}" data-req="${req}" data-min="${g.min||0}" data-max="${max}">
+                <div class="cm-group-label">${lbl}</div>
+                <div class="cm-options">${opts}</div>
+            </div>`;
+        }).join('');
+
+        cmUpdatePrice();
+        document.getElementById('customizeModal').style.display = 'flex';
+    };
+
+    window.cmChangeQty = function(delta) {
+        _modalQty = Math.max(1, _modalQty + delta);
+        document.getElementById('cmQtyVal').textContent = _modalQty;
+        cmUpdatePrice();
+    };
+
+    window.closeCustomizeModal = function() {
+        document.getElementById('customizeModal').style.display = 'none';
+        _modalItem = null; _modalQty = 1;
+    };
+
+    window.addFromModal = function() {
+        if (!_modalItem) return;
+        const groups = document.getElementById('cmGroups').querySelectorAll('.cm-group');
+        const parts = [], modifiers = [];
+        let valid = true, modTotal = 0;
+
+        groups.forEach(grp => {
+            const req     = grp.dataset.req === 'true';
+            const checked = [...grp.querySelectorAll('input:checked')];
+            if (req && !checked.length) {
+                grp.querySelector('.cm-group-label').style.color = 'var(--red)';
+                valid = false;
+            } else {
+                grp.querySelector('.cm-group-label').style.color = '';
+                checked.forEach(inp => {
+                    const p = parseFloat(inp.dataset.price || 0);
+                    modifiers.push({ name: inp.value, price: p });
+                    modTotal += p;
+                    parts.push(inp.value);
+                });
+            }
+        });
+
+        if (!valid) return;
+
+        const unitPrice = _modalItem.price + modTotal;
+        for (let q = 0; q < _modalQty; q++) {
+            cart.push({
+                itemId:        _modalItem.itemId,
+                name:          _modalItem.name,
+                price:         unitPrice,
+                modifiers,
+                customization: parts.join(' · '),
+                quantity:      1,
+            });
+        }
+        renderCart();
+        window.closeCustomizeModal();
+    };
+
+    // ─── CART ───────────────────────────────────────────────────────────────────
+    window.addToCart = function(itemId, name, price, customization = '') {
         cart.push({ itemId, name, price: parseFloat(price), customization });
         renderCart();
     };
@@ -662,12 +812,104 @@
             </div>`;
     }
 
+    // ─── ORDER CONFIRMATION MODAL ───────────────────────────────────────────────
+    window.placeOrderWithConfirm = function() {
+        const name      = document.getElementById("customerName").value.trim();
+        const orderType = document.getElementById("orderType").value;
+        const tableNumber = document.getElementById("tableNumber").value;
+
+        // Run the same upfront validation so modal only shows when form is ready
+        if (!name)      { alert("Please enter your name."); return; }
+        if (!orderType) { alert("Please select an order type."); return; }
+        if (orderType === "Dine-In" && !tableNumber) { alert("Please select your table."); return; }
+        if (cart.length === 0) { alert("Your cart is empty!"); return; }
+
+        const total = cart.reduce((s, i) => s + i.price, 0);
+        const itemRows = cart.map(i => `
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid #2a2a2a;">
+                <span style="color:#f0f0f0;font-size:14px;">
+                    ${i.name}
+                    ${i.customization ? `<br><span style="color:#888;font-size:12px;">${i.customization}</span>` : ''}
+                </span>
+                <span style="color:#c8a951;font-weight:700;white-space:nowrap;margin-left:12px;">$${i.price.toFixed(2)}</span>
+            </div>`).join('');
+
+        const orderMeta = orderType === 'Dine-In'
+            ? `Dine-In · Table ${tableNumber}`
+            : orderType;
+
+        // Build modal
+        const overlay = document.createElement('div');
+        overlay.id = 'orderConfirmOverlay';
+        overlay.style.cssText = `
+            position:fixed;inset:0;background:rgba(0,0,0,0.75);
+            z-index:99999;display:flex;align-items:center;justify-content:center;
+            padding:16px;animation:confirmFadeIn .2s ease;
+        `;
+        overlay.innerHTML = `
+            <div style="
+                background:#1a1a1a;border:1px solid #333;border-radius:20px;
+                padding:28px 24px;width:100%;max-width:420px;
+                box-shadow:0 20px 60px rgba(0,0,0,0.6);
+            ">
+                <h2 style="margin:0 0 4px;color:#f0f0f0;font-size:18px;">Confirm Your Order</h2>
+                <p style="margin:0 0 16px;color:#888;font-size:13px;">
+                    ${name} &nbsp;·&nbsp; ${orderMeta}
+                </p>
+
+                <div style="margin-bottom:16px;">
+                    ${itemRows}
+                </div>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;
+                            padding:10px 0;border-top:1px solid #333;margin-bottom:20px;">
+                    <span style="color:#f0f0f0;font-weight:700;">Total</span>
+                    <span style="color:#c8a951;font-size:20px;font-weight:700;">$${total.toFixed(2)}</span>
+                </div>
+
+                <div style="display:flex;gap:10px;">
+                    <button id="confirmCancelBtn" style="
+                        flex:1;padding:14px;border-radius:12px;border:1.5px solid #444;
+                        background:transparent;color:#aaa;font-size:14px;cursor:pointer;
+                        font-family:inherit;transition:background .15s;
+                    ">Go Back</button>
+                    <button id="confirmPlaceBtn" style="
+                        flex:2;padding:14px;border-radius:12px;border:none;
+                        background:#D62828;color:#fff;font-size:15px;font-weight:700;
+                        cursor:pointer;font-family:inherit;transition:background .15s;
+                    ">Place Order ✓</button>
+                </div>
+            </div>
+        `;
+
+        // Add fade-in keyframe once
+        if (!document.getElementById('confirmModalStyle')) {
+            const s = document.createElement('style');
+            s.id = 'confirmModalStyle';
+            s.textContent = '@keyframes confirmFadeIn { from { opacity:0; } to { opacity:1; } }';
+            document.head.appendChild(s);
+        }
+
+        document.body.appendChild(overlay);
+
+        overlay.querySelector('#confirmCancelBtn').onclick = () => overlay.remove();
+        overlay.querySelector('#confirmPlaceBtn').onclick  = () => {
+            overlay.remove();
+            window.placeOrder();
+        };
+
+        // Tap outside to dismiss
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+    };
+
     // ─── PLACE ORDER ────────────────────────────────────────────────────────────
     window.placeOrder = async function() {
         const name = document.getElementById("customerName").value.trim();
         const orderType = document.getElementById("orderType").value;
         const tableNumber = document.getElementById("tableNumber").value;
         const specialInstructions = document.getElementById("specialInstructions").value.trim();
+        const phone = document.getElementById("customerPhone").value.trim();
+        const smsConsent = document.getElementById("smsConsent")?.checked || false;
 
         if (!name) { alert("Please enter your name."); return; }
         if (!orderType) { alert("Please select an order type."); return; }
@@ -695,6 +937,8 @@
                 input: {
                     orderId,
                     customerName: name,
+                    customerPhone: phone || null,
+                    smsConsent: phone ? smsConsent : false,
                     orderType,
                     tableNumber: orderType === "Dine-In" ? tableNumber : null,
                     items: JSON.stringify(cart),
@@ -738,5 +982,35 @@
         document.getElementById("cartSection").scrollIntoView({ behavior: "smooth" });
     };
 </script>
+
+<!-- AI Chat Widget -->
+<!-- CUSTOMIZATION MODAL -->
+<div id="customizeModal" onclick="if(event.target===this)window.closeCustomizeModal()">
+  <div class="cm-card">
+    <div class="cm-header">
+      <h3 id="cmItemName"></h3>
+    </div>
+    <div id="cmGroups"></div>
+    <div class="cm-qty-row">
+      <span style="font-size:.85rem;color:var(--text-muted);">Quantity</span>
+      <div class="cm-qty-ctrl">
+        <button class="cm-qty-btn" onclick="window.cmChangeQty(-1)">−</button>
+        <span id="cmQtyVal">1</span>
+        <button class="cm-qty-btn" onclick="window.cmChangeQty(1)">+</button>
+      </div>
+    </div>
+    <div class="cm-actions">
+      <button class="cm-cancel" onclick="window.closeCustomizeModal()">Cancel</button>
+      <button class="cm-confirm" onclick="window.addFromModal()">Add to Cart — <span id="cmLivePrice">$0.00</span></button>
+    </div>
+  </div>
+</div>
+
+<script
+  src="https://aiagentassistance.com/chat-widget.js"
+  data-restaurant-id="maschingonrestaurant"
+  data-color="#D62828"
+  data-greeting="¡Hola! 🌮 Tell me what you're craving and I'll add it to your cart!"
+></script>
 </body>
 </html>

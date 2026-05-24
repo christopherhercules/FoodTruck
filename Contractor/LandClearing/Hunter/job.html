@@ -400,9 +400,9 @@
           const parcel = JSON.parse(job.parcelGeoJSON);
           map.addSource('parcel', { type: 'geojson', data: parcel });
           map.addLayer({ id: 'p-fill', type: 'fill', source: 'parcel',
-            paint: { 'fill-color': '#2E5E12', 'fill-opacity': 0.12 } });
+            paint: { 'fill-color': '#ffffff', 'fill-opacity': 0.05 } });
           map.addLayer({ id: 'p-line', type: 'line', source: 'parcel',
-            paint: { 'line-color': '#2E5E12', 'line-width': 2.5, 'line-dasharray': [4,2] } });
+            paint: { 'line-color': '#ffffff', 'line-width': 2, 'line-dasharray': [4,2], 'line-opacity': 0.8 } });
           collectCoords(parcel, allCoords);
         } catch(e) { console.warn('parcel parse', e); }
       }

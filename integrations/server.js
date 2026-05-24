@@ -1,22 +1,30 @@
 /**
  * Combined Webhook Server
  *
- * Mounts both Twilio and Toast webhook handlers on a single Express instance.
- * One server, one port, one deployment.
- *
  * Routes:
- *   POST /twilio/sms       ← Twilio inbound messages
- *   POST /twilio/status    ← Twilio delivery receipts
+ *   POST /twilio/sms            ← Twilio inbound messages
+ *   POST /twilio/status         ← Twilio delivery receipts
  *   GET  /twilio/health
  *
- *   POST /toast/webhook    ← Toast order/menu events
+ *   POST /toast/webhook         ← Toast order/menu events
  *   GET  /toast/health
  *
- *   GET  /health           ← top-level health check
- *   GET  /sites/health     ← ping all 15 food truck sites, return real HTTP status codes
+ *   POST /hunter/estimate       ← Hunter Land Clearing leads
+ *   POST /hunter/social/caption ← Hunter social caption generation
+ *   POST /hunter/social/post    ← Hunter social post to FB + IG
+ *
+ *   POST /cabinets/estimate     ← Shawn Cabinets leads
+ *   POST /cabinets/analyze-plan ← Shawn Cabinets plan analyzer
+ *
+ *   POST /demo-request          ← aiagentassistance.com demo form
+ *   POST /aiagent/social/caption ← AI Agent social caption generation
+ *   POST /aiagent/social/post    ← AI Agent social post to FB + IG
+ *
+ *   GET  /health                ← top-level health check
+ *   GET  /sites/health          ← ping all 15 food truck sites
  */
 
-const express        = require('express');
+const express         = require('express');
 const { loadSecrets } = require('./secrets');
 
 const PORT = process.env.PORT || 3000;
@@ -32,7 +40,6 @@ const SITE_TIMEOUT_MS = 8000;
 
 async function start() {
   // Load all secrets from SSM into process.env before any route files are required.
-  // Route modules read process.env at import time, so this must run first.
   await loadSecrets();
 
   const app = express();
@@ -60,6 +67,14 @@ async function start() {
   // ── OUTBOUND EMAIL (contractor dashboards) ────────────────────────────────
   const sendEmailApp = require('./send-email');
   app.use(sendEmailApp);
+
+  // ── DEMO REQUEST ──────────────────────────────────────────────────────────
+  const demoApp = require('./demo/request');
+  app.use(demoApp);
+
+  // ── AIAGENT SOCIAL POSTER ─────────────────────────────────────────────────
+  const aiagentSocialApp = require('./aiagent/social');
+  app.use(aiagentSocialApp);
 
   // ── SITE HEALTH CHECK ────────────────────────────────────────────────────
   app.get('/sites/health', async (req, res) => {
@@ -97,8 +112,8 @@ async function start() {
       }
     });
 
-    const results  = await Promise.all(checks);
-    const upCount  = results.filter(r => r.ok).length;
+    const results = await Promise.all(checks);
+    const upCount = results.filter(r => r.ok).length;
 
     res.json({
       checked_at: new Date().toISOString(),
@@ -117,8 +132,14 @@ async function start() {
         'POST /twilio/status',
         'POST /toast/webhook',
         'POST /hunter/estimate',
+        'POST /hunter/social/caption',
+        'POST /hunter/social/post',
+        'POST /demo-request',
+        'POST /aiagent/social/caption',
+        'POST /aiagent/social/post',
         'GET  /twilio/health',
-        'GET  /toast/health'
+        'GET  /toast/health',
+        'GET  /sites/health',
       ]
     });
   });
@@ -126,10 +147,14 @@ async function start() {
   // ── START ─────────────────────────────────────────────────────────────────
   app.listen(PORT, () => {
     console.log(`\n🚀 Webhook server running on port ${PORT}`);
-    console.log(`   POST /twilio/sms    ← inbound SMS`);
-    console.log(`   POST /toast/webhook ← Toast events`);
-    console.log(`   GET  /health        ← server status`);
-    console.log(`   GET  /sites/health  ← ping all 15 food truck sites\n`);
+    console.log(`   POST /twilio/sms             ← inbound SMS`);
+    console.log(`   POST /toast/webhook          ← Toast events`);
+    console.log(`   POST /hunter/estimate        ← Hunter leads`);
+    console.log(`   POST /demo-request           ← aiagentassistance.com demo form`);
+    console.log(`   POST /aiagent/social/caption ← AI Agent caption gen`);
+    console.log(`   POST /aiagent/social/post    ← AI Agent social post`);
+    console.log(`   GET  /health                 ← server status`);
+    console.log(`   GET  /sites/health           ← ping all 15 food truck sites\n`);
   });
 
   return app;

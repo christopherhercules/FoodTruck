@@ -176,12 +176,39 @@
     .filter-search::placeholder { color: var(--text-mid); }
     .filter-search:focus { border-color: var(--green); background: rgba(255,255,255,0.09); }
 
+<<<<<<< Updated upstream
     /* ── VIEW TOGGLE ─────────────────────────────────────────────────────── */
     .view-toggle { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
     .view-btn { padding: 7px 16px; background: transparent; border: none; cursor: pointer; font-size: .82rem; font-weight: 500; color: var(--text-mid); transition: all .15s; font-family: inherit; }
     .view-btn.active { background: var(--green-dark); color: white; }
 
     /* ── TABLE ───────────────────────────────────────────────────────────── */
+=======
+    /* ── CALENDAR ── */
+    #calendar-view { display:none; padding: 0 28px 40px; }
+    .cal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+    .cal-header h3 { font-size:1.1rem; font-weight:700; color:var(--green-dark); }
+    .cal-nav { background:none; border:1.5px solid var(--border); border-radius:8px; padding:6px 14px; cursor:pointer; font-size:.9rem; color:var(--text-mid); }
+    .cal-nav:hover { border-color:var(--green-mid); color:var(--green-mid); }
+    .cal-grid { background:var(--card); border-radius:12px; border:1px solid var(--border); overflow:hidden; }
+    .cal-day-headers { display:grid; grid-template-columns:repeat(7,1fr); background:var(--green-dark); }
+    .cal-day-header { padding:10px; text-align:center; color:white; font-size:.75rem; font-weight:600; }
+    .cal-days { display:grid; grid-template-columns:repeat(7,1fr); }
+    .cal-day { min-height:90px; border-right:1px solid var(--border); border-bottom:1px solid var(--border); padding:8px; position:relative; }
+    .cal-day:nth-child(7n) { border-right:none; }
+    .cal-day.other-month { background:#f9faf7; }
+    .cal-day.today { background:#EDF5E7; }
+    .cal-day-num { font-size:.78rem; font-weight:600; color:var(--text-mid); margin-bottom:4px; }
+    .cal-day.today .cal-day-num { color:var(--green-mid); }
+    .cal-job { background:var(--amber); color:white; border-radius:4px; padding:3px 6px; font-size:.72rem; font-weight:600; cursor:pointer; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .cal-job:hover { background:var(--amber-light); }
+    .cal-job.completed { background:#aaa; }
+    .filter-btn.cal-tab { border-color:var(--amber); color:var(--amber); margin-left:8px; }
+    .filter-btn.cal-tab.active { background:#FFF3E0; border-color:var(--amber); color:var(--amber); font-weight:700; }
+    .booked-hint { font-size:.78rem; color:var(--amber); margin-top:6px; min-height:18px; }
+
+    /* ── TABLE ── */
+>>>>>>> Stashed changes
     .table-wrap { padding: 0 28px 40px; }
     .table-card {
       background: rgba(6, 18, 4, 0.72);
@@ -459,6 +486,46 @@
       th, td { padding: 10px 12px; }
       .header-actions .btn-refresh span { display: none; }
     }
+
+    /* ── CALENDAR POPOVER ── */
+    #cal-popover {
+      display:none; position:fixed; background:#fff; border-radius:12px;
+      box-shadow:0 8px 32px rgba(0,0,0,.25); padding:18px 20px; width:290px;
+      z-index:500; border:1px solid var(--border);
+    }
+    .cp-title { font-weight:700; font-size:.95rem; color:var(--green-dark); margin-bottom:2px; }
+    .cp-addr  { font-size:.8rem; color:var(--text-mid); margin-bottom:14px; }
+    .cp-row   { display:flex; gap:8px; margin-bottom:10px; }
+    .cp-field { display:flex; flex-direction:column; gap:3px; flex:1; }
+    .cp-field label { font-size:.7rem; font-weight:700; color:var(--text-mid); text-transform:uppercase; }
+    .cp-field input { padding:7px 10px; border:1.5px solid var(--border); border-radius:7px; font-size:.85rem; outline:none; }
+    .cp-field input:focus { border-color:var(--green-mid); }
+    .cp-actions { display:flex; gap:8px; margin-top:12px; }
+    .cp-btn-save { flex:1; background:var(--green-mid); color:#fff; border:none; border-radius:7px; padding:8px; font-size:.85rem; font-weight:600; cursor:pointer; }
+    .cp-btn-open { background:#f0f0f0; color:var(--text-mid); border:none; border-radius:7px; padding:8px 12px; font-size:.82rem; font-weight:600; cursor:pointer; }
+    .cp-close { float:right; background:none; border:none; font-size:1.1rem; cursor:pointer; color:#aaa; margin:-4px -4px 0 0; }
+
+    /* ── ADD LEAD MODAL ── */
+    #addlead-overlay {
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,.5);
+      z-index:400; align-items:center; justify-content:center; padding:20px;
+    }
+    .addlead-card { background:#fff; border-radius:16px; width:100%; max-width:500px; box-shadow:0 16px 60px rgba(0,0,0,.3); overflow:hidden; }
+    .addlead-header { background:var(--green-dark); color:#fff; padding:16px 22px; display:flex; align-items:center; justify-content:space-between; }
+    .addlead-header h3 { font-size:1rem; font-weight:700; margin:0; }
+    .addlead-body { padding:22px; }
+    .al-field { margin-bottom:13px; }
+    .al-field label { display:block; font-size:.72rem; font-weight:700; color:var(--text-mid); text-transform:uppercase; letter-spacing:.4px; margin-bottom:4px; }
+    .al-field input, .al-field select, .al-field textarea {
+      width:100%; padding:9px 13px; border:1.5px solid var(--border); border-radius:8px;
+      font-size:.9rem; font-family:inherit; outline:none;
+    }
+    .al-field input:focus, .al-field select:focus, .al-field textarea:focus { border-color:var(--green-mid); }
+    .al-row { display:flex; gap:12px; }
+    .al-row .al-field { flex:1; }
+    .al-footer { display:flex; gap:10px; justify-content:flex-end; margin-top:6px; }
+    .al-btn-cancel { background:#f0f0f0; color:var(--text-mid); border:none; border-radius:8px; padding:10px 18px; font-size:.9rem; font-weight:600; cursor:pointer; }
+    .al-btn-save { background:var(--green-mid); color:#fff; border:none; border-radius:8px; padding:10px 22px; font-size:.9rem; font-weight:600; cursor:pointer; }
   </style>
 </head>
 <body>
@@ -508,10 +575,32 @@
     <button class="filter-btn" data-status="Quoted" onclick="setFilter('Quoted', this)">📄 Quoted</button>
     <button class="filter-btn" data-status="Won"    onclick="setFilter('Won', this)">✅ Won</button>
     <button class="filter-btn" data-status="Lost"   onclick="setFilter('Lost', this)">❌ Lost</button>
+    <button class="filter-btn cal-tab" id="cal-tab-btn" onclick="toggleCalendar(this)">📅 Calendar</button>
     <input class="filter-search" id="search-input" placeholder="🔍  Search name, address..." oninput="renderTable()" />
+<<<<<<< Updated upstream
     <div class="view-toggle">
       <button class="view-btn active" id="btn-list-view" onclick="setView('list')">☰ List</button>
       <button class="view-btn"        id="btn-cal-view"  onclick="setView('cal')">📅 Calendar</button>
+=======
+    <button class="filter-btn" style="background:var(--green-mid);color:#fff;border-color:var(--green-mid);white-space:nowrap;" onclick="openAddLead()">➕ Add Lead</button>
+  </div>
+
+  <!-- CALENDAR VIEW -->
+  <div id="calendar-view">
+    <div class="cal-header">
+      <button class="cal-nav" onclick="calNav(-1)">◀ Prev</button>
+      <h3 id="cal-month-label"></h3>
+      <button class="cal-nav" onclick="calNav(1)">Next ▶</button>
+    </div>
+    <div class="cal-grid">
+      <div class="cal-day-headers">
+        <div class="cal-day-header">Sun</div><div class="cal-day-header">Mon</div>
+        <div class="cal-day-header">Tue</div><div class="cal-day-header">Wed</div>
+        <div class="cal-day-header">Thu</div><div class="cal-day-header">Fri</div>
+        <div class="cal-day-header">Sat</div>
+      </div>
+      <div class="cal-days" id="cal-days"></div>
+>>>>>>> Stashed changes
     </div>
   </div>
 
@@ -649,6 +738,7 @@
         </div>
         <div class="stage-body">
           <div class="stage-input">
+<<<<<<< Updated upstream
             <label>Scheduled Start Date</label>
             <input type="date" id="f-scheduled" />
           </div>
@@ -657,6 +747,18 @@
             <input type="date" id="f-scheduled-end" />
           </div>
           <button class="stage-btn stage-btn-amber" onclick="actionSchedule(event)">📅 Confirm Schedule & Email Customer</button>
+=======
+            <label>Start Date</label>
+            <input type="date" id="f-scheduled" oninput="updateBookedHint()" />
+          </div>
+          <div class="stage-input">
+            <label>End Date <span style="font-weight:400;color:#bbb;font-size:.65rem;">multi-day</span></label>
+            <input type="date" id="f-scheduled-end" oninput="updateBookedHint()" />
+          </div>
+          <div class="booked-hint" id="booked-hint" style="flex-basis:100%;margin-top:0;"></div>
+          <button class="stage-btn stage-btn-amber" onclick="actionSchedule()">📅 Confirm Schedule & Email Customer</button>
+          <button class="stage-btn" id="btn-reschedule-notify" style="display:none;background:#f5f5f5;color:var(--text-mid);" onclick="actionRescheduleNotify()">📧 Notify Customer of Date Change</button>
+>>>>>>> Stashed changes
         </div>
       </div>
 
@@ -1035,6 +1137,10 @@
 
     refreshStageStates(e);
 
+    // Calendar: reset reschedule button, populate booked hint
+    document.getElementById('btn-reschedule-notify').style.display = 'none';
+    updateBookedHint();
+
     document.getElementById('save-confirm').style.display = 'none';
     document.getElementById('modal-overlay').classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -1057,10 +1163,19 @@
     };
 
     if (e.quotedPrice != null) set('quote', `Quoted $${fmt$(e.quotedPrice)}`, true);
+<<<<<<< Updated upstream
     if (e.scheduledDate) {
       const endLabel = e.scheduledEndDate ? ` – ${fmtDate(e.scheduledEndDate)}` : '';
       set('schedule', `Scheduled ${fmtDate(e.scheduledDate)}${endLabel}`, true);
     }
+=======
+    // Schedule
+    if (e.scheduledDate) {
+      const endStr = e.scheduledEndDate ? ` – ${fmtDate(e.scheduledEndDate)}` : '';
+      set('schedule', `Scheduled ${fmtDate(e.scheduledDate)}${endStr}`, true);
+    }
+    // Start
+>>>>>>> Stashed changes
     if (e.startedDate) set('start', `Started ${fmtDate(e.startedDate)}`, true);
     if (e.percentComplete != null && e.percentComplete > 0) set('progress', `${e.percentComplete}% complete`, e.percentComplete >= 100);
     if (e.completedDate) set('complete', `Completed ${fmtDate(e.completedDate)}`, true);
@@ -1081,6 +1196,7 @@
   function fmtDate(s) { return new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
   function fmtDay(s)  { return new Date(s).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }); }
 
+<<<<<<< Updated upstream
   const SEND_EMAIL_URL = 'https://foodtruck-cymz.onrender.com/send-email';
   const FROM_ADDRESS   = 'Hunter Land Clearing <noreply@myserviceflows.com>';
 
@@ -1132,6 +1248,191 @@
       if (btnEl) { btnEl.textContent = origText; btnEl.disabled = false; }
       alert('Email failed to send: ' + err.message);
     }
+=======
+  const EMAIL_API = 'https://w6zmfgv2d1.execute-api.us-east-1.amazonaws.com/email';
+
+  // ── Send email to customer, fallback to SMS copy modal if no email on file ──
+  async function openSMS(phone, msg) {
+    const est = allEstimates.find(x => x.id === activeId);
+    if (est?.email) {
+      await sendCustomerEmail(est, msg);
+    } else {
+      // No email — show copy-paste modal for phone
+      if (!phone) { alert('No contact info on file for this customer.'); return; }
+      document.getElementById('sms-modal-phone').textContent = phone;
+      document.getElementById('sms-modal-msg').textContent   = msg;
+      document.getElementById('sms-copy-btn').textContent    = '📋 Copy Message';
+      document.getElementById('sms-modal-overlay').style.display = 'flex';
+    }
+  }
+
+  async function sendCustomerEmail(est, message) {
+    const subject = `Hunter Land Clearing — update for ${est.address ? est.address.split(',')[0] : 'your property'}`;
+    const btn = event?.target;
+    const origText = btn?.textContent;
+    if (btn) { btn.textContent = '⏳ Sending...'; btn.disabled = true; }
+    try {
+      const res = await fetch(EMAIL_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: est.email, subject, message, estimateId: est.id }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'Send failed');
+      flashSaved('✉️ Email sent');
+    } catch(e) {
+      alert('Email failed: ' + e.message);
+    } finally {
+      if (btn) { btn.textContent = origText; btn.disabled = false; }
+    }
+  }
+
+  function closeSMSModal() {
+    document.getElementById('sms-modal-overlay').style.display = 'none';
+  }
+
+  // ── CALENDAR ──────────────────────────────────────────────────────────────
+  let calYear  = new Date().getFullYear();
+  let calMonth = new Date().getMonth();
+  let calVisible = false;
+
+  function toggleCalendar(btn) {
+    calVisible = !calVisible;
+    btn.classList.toggle('active', calVisible);
+    document.getElementById('calendar-view').style.display = calVisible ? 'block' : 'none';
+    document.querySelector('.table-wrap').style.display    = calVisible ? 'none'  : 'block';
+    if (calVisible) renderCalendar();
+  }
+
+  function calNav(dir) {
+    calMonth += dir;
+    if (calMonth > 11) { calMonth = 0;  calYear++; }
+    if (calMonth < 0)  { calMonth = 11; calYear--; }
+    renderCalendar();
+  }
+
+  function getBookedDays() {
+    const map = {};
+    for (const e of allEstimates) {
+      if (!e.scheduledDate || e.jobStatus === 'Completed') continue;
+      const start = new Date(e.scheduledDate);
+      const end   = e.scheduledEndDate ? new Date(e.scheduledEndDate) : new Date(start);
+      for (let cur = new Date(start); cur <= end; cur.setDate(cur.getDate() + 1)) {
+        const key = `${cur.getFullYear()}-${cur.getMonth()}-${cur.getDate()}`;
+        if (!map[key]) map[key] = [];
+        if (!map[key].find(x => x.id === e.id)) map[key].push(e);
+      }
+    }
+    return map;
+  }
+
+  function renderCalendar() {
+    const booked = getBookedDays();
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('cal-month-label').textContent = `${months[calMonth]} ${calYear}`;
+
+    const today  = new Date();
+    const first  = new Date(calYear, calMonth, 1);
+    const last   = new Date(calYear, calMonth + 1, 0);
+    const grid   = document.getElementById('cal-days');
+    grid.innerHTML = '';
+
+    // Pad start
+    for (let i = 0; i < first.getDay(); i++) {
+      const el = document.createElement('div');
+      el.className = 'cal-day other-month';
+      const prev = new Date(calYear, calMonth, -first.getDay() + i + 1);
+      el.innerHTML = `<div class="cal-day-num">${prev.getDate()}</div>`;
+      grid.appendChild(el);
+    }
+
+    // Days in month
+    for (let d = 1; d <= last.getDate(); d++) {
+      const el  = document.createElement('div');
+      const key = `${calYear}-${calMonth}-${d}`;
+      const isToday = d === today.getDate() && calMonth === today.getMonth() && calYear === today.getFullYear();
+      el.className = 'cal-day' + (isToday ? ' today' : '');
+      let html = `<div class="cal-day-num">${d}</div>`;
+      if (booked[key]) {
+        for (const est of booked[key]) {
+          const label = (est.name || 'Unknown').split(' ')[0] + (est.acres ? ` · ${Number(est.acres).toFixed(1)}ac` : '');
+          const done  = est.jobStatus === 'Completed';
+          html += `<div class="cal-job${done ? ' completed' : ''}" onclick="openCalPopover('${est.id}',event)" title="${est.name} — ${est.address || ''}">${label}</div>`;
+        }
+      }
+      el.innerHTML = html;
+      grid.appendChild(el);
+    }
+
+    // Pad end
+    const endPad = 6 - last.getDay();
+    for (let i = 1; i <= endPad; i++) {
+      const el = document.createElement('div');
+      el.className = 'cal-day other-month';
+      el.innerHTML = `<div class="cal-day-num">${i}</div>`;
+      grid.appendChild(el);
+    }
+  }
+
+  // ── BOOKED DATES HINT in schedule card ────────────────────────────────────
+  function updateBookedHint() {
+    const hint    = document.getElementById('booked-hint');
+    const picked  = document.getElementById('f-scheduled').value;
+    const booked  = getBookedDays();
+
+    // Show all upcoming booked dates as context
+    const upcoming = Object.entries(booked)
+      .map(([key, ests]) => {
+        const [y, m, d] = key.split('-').map(Number);
+        return { date: new Date(y, m, d), ests };
+      })
+      .filter(x => x.date >= new Date())
+      .sort((a, b) => a.date - b.date)
+      .slice(0, 5);
+
+    if (upcoming.length === 0) { hint.textContent = ''; return; }
+
+    const parts = upcoming.map(x => {
+      const label = x.date.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+      const names = x.ests.map(e => e.name.split(' ')[0]).join(', ');
+      return `${label} (${names})`;
+    });
+
+    // Check if picked date conflicts
+    if (picked) {
+      const [py, pm, pd] = picked.split('-').map(Number);
+      const conflictKey  = `${py}-${pm - 1}-${pd}`;
+      if (booked[conflictKey]) {
+        const names = booked[conflictKey].map(e => e.name.split(' ')[0]).join(', ');
+        hint.textContent = `⚠️ Already booked: ${names}`;
+        hint.style.color = 'var(--red)';
+        return;
+      }
+    }
+
+    hint.style.color = 'var(--amber)';
+    hint.textContent = `📅 Booked: ${parts.join(' · ')}`;
+  }
+
+  // ── RESCHEDULE NOTIFY ──────────────────────────────────────────────────────
+  async function actionRescheduleNotify() {
+    const est = allEstimates.find(x => x.id === activeId); if (!est) return;
+    if (!est.email) { alert('No email on file — use the SMS copy button instead.'); return; }
+    const d   = document.getElementById('f-scheduled').value;
+    const day = d ? new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' }) : 'a new date';
+    const msg = `Hi ${firstName(est)}, I need to move your land clearing appointment. Your new scheduled date is ${day}. We'll arrive between 7–9am. Sorry for any inconvenience — call me at (830) 832-7065 with any questions. — Jason, Hunter Land Clearing`;
+    const subject = `Reschedule Notice — Hunter Land Clearing`;
+    try {
+      const res  = await fetch(EMAIL_API, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: est.email, subject, message: msg, estimateId: est.id }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'Send failed');
+      flashSaved('📧 Reschedule notice sent');
+      document.getElementById('btn-reschedule-notify').style.display = 'none';
+    } catch(e) { alert('Email failed: ' + e.message); }
+>>>>>>> Stashed changes
   }
 
   function flashSaved(text) {
@@ -1186,6 +1487,7 @@
   async function actionSchedule(event) {
     const est = allEstimates.find(x => x.id === activeId); if (!est) return;
     const d = document.getElementById('f-scheduled').value;
+<<<<<<< Updated upstream
     if (!d) { alert('Pick a scheduled start date first.'); return; }
     const iso    = new Date(d + 'T12:00:00').toISOString();
     const dEnd   = document.getElementById('f-scheduled-end').value;
@@ -1204,6 +1506,23 @@
         `Reply to this email if you have any questions before we get started. We're looking forward to it!`
       );
       sendEmail(est.email, subject, body, event.currentTarget, html);
+=======
+    if (!d) { alert('Pick a start date first.'); return; }
+    const endD   = document.getElementById('f-scheduled-end').value;
+    const iso    = new Date(d + 'T12:00:00').toISOString();
+    const endIso = endD && endD >= d ? new Date(endD + 'T12:00:00').toISOString() : null;
+    const wasAlready = !!est.scheduledDate;
+    try {
+      await applyAndRefresh({ id: activeId, jobStatus: 'Scheduled', scheduledDate: iso, scheduledEndDate: endIso }, '✓ Scheduled');
+      if (wasAlready) {
+        // Rescheduled — show notify button instead of auto-sending
+        document.getElementById('btn-reschedule-notify').style.display = 'inline-block';
+      } else {
+        const msg = `Hi ${firstName(est)}, we're scheduled to start clearing your property on ${fmtDay(iso)}. We'll arrive between 7-9am. — Jason, Hunter Land Clearing`;
+        openSMS(est.phone, msg);
+      }
+      if (calVisible) renderCalendar();
+>>>>>>> Stashed changes
     } catch(e) { alert('Save failed: ' + e.message); }
   }
 
@@ -1358,9 +1677,9 @@
           const parcel = typeof e.parcelGeoJSON === 'string' ? JSON.parse(e.parcelGeoJSON) : e.parcelGeoJSON;
           detailMap.addSource('parcel', { type: 'geojson', data: parcel });
           detailMap.addLayer({ id: 'parcel-fill', type: 'fill', source: 'parcel',
-            paint: { 'fill-color': '#2E5E12', 'fill-opacity': 0.12 } });
+            paint: { 'fill-color': '#ffffff', 'fill-opacity': 0.05 } });
           detailMap.addLayer({ id: 'parcel-outline', type: 'line', source: 'parcel',
-            paint: { 'line-color': '#2E5E12', 'line-width': 2.5, 'line-dasharray': [4,2] } });
+            paint: { 'line-color': '#ffffff', 'line-width': 2, 'line-dasharray': [4,2], 'line-opacity': 0.8 } });
           collectCoords(parcel, allCoords);
         } catch(err) { console.warn('Parcel parse failed', err); }
       }
@@ -1400,6 +1719,7 @@
     walk(geojson);
   }
 
+<<<<<<< Updated upstream
   // ── NEW LEAD MODAL ────────────────────────────────────────────────────────
   function openNewLead(dateStr) {
     ['nl-name','nl-phone','nl-email','nl-acres','nl-address','nl-county','nl-notes'].forEach(id => {
@@ -1464,11 +1784,220 @@
       alert('Failed to save: ' + e.message);
     } finally {
       btn.textContent = '➕ Add Lead'; btn.disabled = false;
+=======
+  // ── CALENDAR POPOVER ─────────────────────────────────────────────────────
+  let calPopoverEstId = null;
+
+  function openCalPopover(estId, event) {
+    event.stopPropagation();
+    const est = allEstimates.find(x => x.id === estId);
+    if (!est) return;
+    calPopoverEstId = estId;
+
+    document.getElementById('cp-title').textContent = est.name;
+    document.getElementById('cp-addr').textContent  = (est.address || '').split(',')[0];
+    document.getElementById('cp-start').value = est.scheduledDate    ? est.scheduledDate.slice(0,10)    : '';
+    document.getElementById('cp-end').value   = est.scheduledEndDate ? est.scheduledEndDate.slice(0,10) : '';
+
+    const pop = document.getElementById('cal-popover');
+    pop.style.display = 'block';
+    const x = Math.min(event.clientX, window.innerWidth  - 310);
+    const y = Math.min(event.clientY + 10, window.innerHeight - 240);
+    pop.style.left = x + 'px';
+    pop.style.top  = y + 'px';
+  }
+
+  function closeCalPopover() {
+    document.getElementById('cal-popover').style.display = 'none';
+    calPopoverEstId = null;
+  }
+
+  async function saveCalReschedule() {
+    const startVal = document.getElementById('cp-start').value;
+    const endVal   = document.getElementById('cp-end').value;
+    if (!startVal) { alert('Pick a start date.'); return; }
+    const iso    = new Date(startVal + 'T12:00:00').toISOString();
+    const endIso = endVal && endVal >= startVal ? new Date(endVal + 'T12:00:00').toISOString() : null;
+    const prevId = activeId;
+    activeId = calPopoverEstId;
+    try {
+      await applyAndRefresh({ id: calPopoverEstId, scheduledDate: iso, scheduledEndDate: endIso, jobStatus: 'Scheduled' }, '✓ Rescheduled');
+      closeCalPopover();
+      renderCalendar();
+    } catch(e) { alert('Save failed: ' + e.message); }
+    activeId = prevId;
+  }
+
+  document.addEventListener('click', e => {
+    const pop = document.getElementById('cal-popover');
+    if (pop.style.display !== 'none' && !pop.contains(e.target)) closeCalPopover();
+  });
+
+  // ── ADD LEAD ──────────────────────────────────────────────────────────────
+  function openAddLead() {
+    ['al-name','al-phone','al-email','al-address','al-acres','al-notes'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('al-service').value = 'Land Clearing';
+    document.getElementById('addlead-overlay').style.display = 'flex';
+  }
+
+  function closeAddLead() {
+    document.getElementById('addlead-overlay').style.display = 'none';
+  }
+
+  async function submitAddLead() {
+    const name    = document.getElementById('al-name').value.trim();
+    const phone   = document.getElementById('al-phone').value.trim();
+    const email   = document.getElementById('al-email').value.trim();
+    const address = document.getElementById('al-address').value.trim();
+    const service = document.getElementById('al-service').value;
+    const acres   = parseFloat(document.getElementById('al-acres').value) || null;
+    const notes   = document.getElementById('al-notes').value.trim();
+
+    if (!name || !phone) { alert('Name and phone are required.'); return; }
+
+    const btn = document.getElementById('al-submit-btn');
+    btn.textContent = '⏳ Saving...'; btn.disabled = true;
+
+    try {
+      const input = {
+        name, phone,
+        email:   email   || null,
+        address: address || 'To be confirmed',
+        status: 'New',
+        submittedAt: new Date().toISOString(),
+        notes: `[Phone Lead] Service: ${service}` + (notes ? `\n${notes}` : ''),
+        acres,
+      };
+      const data = await gql(`
+        mutation Create($input: CreateHunterEstimateInput!) {
+          createHunterEstimate(input: $input) {
+            id name phone email address acres status notes submittedAt createdAt
+            jobStatus quotedPrice finalPrice scheduledDate scheduledEndDate startedDate
+            completedDate percentComplete customerNotes photoUrls invoiceSent
+            parcelOwner parcelCounty parcelGeoJSON drawnGeoJSON lat lng
+          }
+        }`, { input });
+
+      const newEst = data.createHunterEstimate;
+      allEstimates.unshift(newEst);
+      closeAddLead();
+      updateStats();
+      renderTable();
+      openModal(newEst.id);
+    } catch(e) {
+      alert('Failed to add lead: ' + e.message);
+    } finally {
+      btn.textContent = '💾 Add Lead'; btn.disabled = false;
+>>>>>>> Stashed changes
     }
   }
 
   // ── UTIL ──────────────────────────────────────────────────────────────────
   function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 </script>
+<!-- ── CALENDAR RESCHEDULE POPOVER ──────────────────────────────────────── -->
+<div id="cal-popover">
+  <button class="cp-close" onclick="closeCalPopover()">✕</button>
+  <div class="cp-title" id="cp-title"></div>
+  <div class="cp-addr"  id="cp-addr"></div>
+  <div class="cp-row">
+    <div class="cp-field">
+      <label>Start Date</label>
+      <input type="date" id="cp-start" />
+    </div>
+    <div class="cp-field">
+      <label>End Date</label>
+      <input type="date" id="cp-end" />
+    </div>
+  </div>
+  <div class="cp-actions">
+    <button class="cp-btn-save" onclick="saveCalReschedule()">💾 Save</button>
+    <button class="cp-btn-open" onclick="closeCalPopover(); openModal(calPopoverEstId)">Open Details</button>
+  </div>
+</div>
+
+<!-- ── ADD LEAD MODAL ────────────────────────────────────────────────────── -->
+<div id="addlead-overlay" onclick="if(event.target===this)closeAddLead()">
+  <div class="addlead-card">
+    <div class="addlead-header">
+      <h3>➕ Add Phone Lead</h3>
+      <button onclick="closeAddLead()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:30px;height:30px;border-radius:50%;font-size:1rem;cursor:pointer;">✕</button>
+    </div>
+    <div class="addlead-body">
+      <div class="al-row">
+        <div class="al-field">
+          <label>Name *</label>
+          <input type="text" id="al-name" placeholder="John Smith" />
+        </div>
+        <div class="al-field">
+          <label>Phone *</label>
+          <input type="tel" id="al-phone" placeholder="(512) 555-0000" />
+        </div>
+      </div>
+      <div class="al-row">
+        <div class="al-field">
+          <label>Email</label>
+          <input type="email" id="al-email" placeholder="optional" />
+        </div>
+        <div class="al-field">
+          <label>Service</label>
+          <select id="al-service">
+            <option>Land Clearing</option>
+            <option>Brush Clearing</option>
+            <option>Tree Removal</option>
+            <option>Grading</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="al-field">
+        <label>Property Address</label>
+        <input type="text" id="al-address" placeholder="123 Ranch Rd, New Braunfels, TX" />
+      </div>
+      <div class="al-row">
+        <div class="al-field">
+          <label>Approx. Acres</label>
+          <input type="number" id="al-acres" placeholder="5" step="0.5" min="0" />
+        </div>
+        <div class="al-field" style="flex:2">
+          <label>Notes</label>
+          <input type="text" id="al-notes" placeholder="Any details from the call..." />
+        </div>
+      </div>
+      <div class="al-footer">
+        <button class="al-btn-cancel" onclick="closeAddLead()">Cancel</button>
+        <button class="al-btn-save" id="al-submit-btn" onclick="submitAddLead()">💾 Add Lead</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SMS Message Modal -->
+<div id="sms-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#fff;border-radius:14px;max-width:480px;width:100%;padding:28px;box-shadow:0 8px 40px rgba(0,0,0,.2);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="margin:0;font-size:1.1rem;color:#1a3a1a;">📱 Text Message</h3>
+      <button onclick="closeSMSModal()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888;line-height:1;">×</button>
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:.75rem;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Send to</div>
+      <div id="sms-modal-phone" style="font-size:1.1rem;font-weight:700;color:#1a3a1a;"></div>
+    </div>
+    <div style="margin-bottom:20px;">
+      <div style="font-size:.75rem;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Message</div>
+      <div id="sms-modal-msg" style="background:#f5f5f5;border-radius:8px;padding:12px 14px;font-size:.92rem;line-height:1.55;color:#222;white-space:pre-wrap;"></div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button id="sms-copy-btn" onclick="
+        navigator.clipboard.writeText(document.getElementById('sms-modal-msg').textContent);
+        this.textContent='✓ Copied!';
+        setTimeout(()=>this.textContent='📋 Copy Message',2000);
+      " style="flex:1;background:#2E5E12;color:#fff;border:none;border-radius:8px;padding:11px;font-size:.95rem;font-weight:600;cursor:pointer;">📋 Copy Message</button>
+      <button onclick="closeSMSModal()" style="background:#f0f0f0;color:#555;border:none;border-radius:8px;padding:11px 18px;font-size:.95rem;font-weight:600;cursor:pointer;">Close</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
