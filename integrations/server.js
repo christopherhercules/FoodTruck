@@ -64,6 +64,10 @@ async function start() {
   app.use(cabinetsApp);
   app.use(cabinetsAnalyzeApp);
 
+  // ── WSTN APARTMENT LOCATING ROUTES ────────────────────────────────────────
+  const wstnLeadApp = require('./wstn/lead');
+  app.use(wstnLeadApp);
+
   // ── OUTBOUND EMAIL (contractor dashboards) ────────────────────────────────
   const sendEmailApp = require('./send-email');
   app.use(sendEmailApp);
@@ -134,6 +138,7 @@ async function start() {
         'POST /hunter/estimate',
         'POST /hunter/social/caption',
         'POST /hunter/social/post',
+        'POST /wstn/lead',
         'POST /demo-request',
         'POST /aiagent/social/caption',
         'POST /aiagent/social/post',
