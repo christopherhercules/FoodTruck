@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WSTN Apartment Locating — The Best Place Is Right Here</title>
+  <meta name="description" content="Free apartment locating and home buying guidance across Texas. 1,000+ clients helped. Brokered by Wellstone Properties." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:      #0D1B2A;
+      --navy-mid:  #162336;
+      --navy-soft: #1E3050;
+      --gold:      #C8913A;
+      --gold-lt:   #E4B06A;
+      --gold-dim:  rgba(200,145,58,0.18);
+      --cream:     #FDF8F3;
+      --rose:      #F5EDE3;
+      --text:      #1C1C1C;
+      --text-mid:  #555;
+      --border:    rgba(0,0,0,0.08);
+      --white:     #FFFFFF;
+      --shadow:    0 4px 24px rgba(13,27,42,0.10);
+      --shadow-lg: 0 12px 48px rgba(13,27,42,0.18);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      background: var(--cream);
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
+
+    /* ── NAV ─────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      height: 72px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px;
+      background: rgba(13,27,42,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      transition: background 0.3s;
+    }
+
+    .nav-logo {
+      display: flex; flex-direction: column; line-height: 1; text-decoration: none;
+    }
+    .nav-logo-top {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem; font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+    }
+    .nav-logo-sub {
+      font-size: 0.6rem; font-weight: 500;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .nav-links {
+      display: flex; align-items: center; gap: 32px; list-style: none;
+    }
+    .nav-links a {
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      font-size: 0.82rem; font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--gold-lt); }
+
+    .nav-call {
+      display: flex; align-items: center; gap: 8px;
+      color: var(--gold) !important;
+      font-weight: 600 !important;
+    }
+    .nav-call:hover { color: var(--gold-lt) !important; }
+
+    .nav-cta-btn {
+      background: var(--gold);
+      color: var(--navy) !important;
+      padding: 9px 22px;
+      border-radius: 6px;
+      font-weight: 700 !important;
+      letter-spacing: 0.04em !important;
+      transition: background 0.2s, transform 0.15s !important;
+    }
+    .nav-cta-btn:hover {
+      background: var(--gold-lt) !important;
+      transform: translateY(-1px);
+    }
+
+    .nav-hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      cursor: pointer; background: none; border: none; padding: 4px;
+    }
+    .nav-hamburger span {
+      display: block; width: 24px; height: 2px;
+      background: white; border-radius: 2px;
+    }
+
+    .nav-mobile {
+      display: none; position: fixed;
+      top: 72px; left: 0; right: 0; bottom: 0;
+      background: var(--navy); z-index: 999;
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 36px;
+    }
+    .nav-mobile.open { display: flex; }
+    .nav-mobile a {
+      color: rgba(255,255,255,0.85);
+      text-decoration: none; font-size: 1.4rem;
+      font-family: 'Playfair Display', serif;
+      transition: color 0.2s;
+    }
+    .nav-mobile a:hover { color: var(--gold); }
+    .nav-mobile .mobile-cta {
+      background: var(--gold); color: var(--navy) !important;
+      padding: 14px 40px; border-radius: 8px; font-weight: 700;
+    }
+
+    /* ── HERO ────────────────────────────────────────── */
+    .hero {
+      position: relative; height: 100vh; min-height: 680px;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; overflow: hidden;
+    }
+
+    .hero-slides { position: absolute; inset: 0; }
+    .hero-slide {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      opacity: 0; transition: opacity 1.8s ease-in-out;
+      animation: heroZoom 18s ease-in-out infinite alternate;
+    }
+    .hero-slide.active { opacity: 1; }
+    @keyframes heroZoom {
+      from { transform: scale(1); }
+      to   { transform: scale(1.06); }
+    }
+
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        160deg,
+        rgba(8,16,28,0.88) 0%,
+        rgba(13,27,42,0.74) 45%,
+        rgba(30,18,10,0.70) 100%
+      );
+    }
+
+    .hero-content {
+      position: relative; z-index: 2;
+      max-width: 860px; padding: 0 28px;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(200,145,58,0.2);
+      border: 1px solid rgba(200,145,58,0.5);
+      color: var(--gold-lt);
+      font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      padding: 6px 18px; border-radius: 100px;
+      margin-bottom: 28px;
+    }
+    .hero-badge::before {
+      content: ''; width: 6px; height: 6px;
+      background: var(--gold-lt); border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(1.5); }
+    }
+
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4.4rem);
+      font-weight: 700; color: #fff; line-height: 1.12;
+      margin-bottom: 20px;
+      text-shadow: 0 2px 24px rgba(0,0,0,0.4);
+    }
+    .hero h1 em {
+      font-style: italic; color: var(--gold-lt);
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2.2vw, 1.22rem);
+      color: rgba(255,255,255,0.78);
+      font-weight: 300; line-height: 1.7;
+      margin-bottom: 40px; max-width: 560px; margin-left: auto; margin-right: auto;
+    }
+
+    .hero-btns {
+      display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 9px;
+      background: var(--gold); color: var(--navy);
+      font-weight: 700; font-size: 0.95rem;
+      padding: 16px 34px; border-radius: 8px;
+      text-decoration: none; border: none; cursor: pointer;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(200,145,58,0.4);
+      letter-spacing: 0.02em;
+    }
+    .btn-primary:hover {
+      background: var(--gold-lt);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(200,145,58,0.5);
+    }
+
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 9px;
+      background: transparent; color: #fff;
+      font-weight: 600; font-size: 0.95rem;
+      padding: 15px 32px; border-radius: 8px;
+      text-decoration: none; border: 2px solid rgba(255,255,255,0.5);
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, transform 0.15s;
+      letter-spacing: 0.02em;
+    }
+    .btn-outline:hover {
+      border-color: var(--gold-lt);
+      color: var(--gold-lt);
+      transform: translateY(-2px);
+    }
+
+    .hero-scroll {
+      position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      z-index: 2; color: rgba(255,255,255,0.45);
+      font-size: 0.68rem; font-weight: 500; letter-spacing: 0.14em;
+      text-transform: uppercase;
+      animation: bounce 2.4s infinite;
+    }
+    .hero-scroll i { font-size: 1.1rem; }
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50%       { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* ── TRUST BAR ───────────────────────────────────── */
+    .trust-bar {
+      background: var(--navy);
+      padding: 20px 48px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 48px; flex-wrap: wrap;
+    }
+    .trust-item {
+      display: flex; align-items: center; gap: 10px;
+      color: rgba(255,255,255,0.75);
+      font-size: 0.82rem; font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+    .trust-item i { color: var(--gold); font-size: 1rem; }
+    .trust-divider {
+      width: 1px; height: 24px;
+      background: rgba(255,255,255,0.12);
+    }
+
+    /* ── SECTION SHARED ──────────────────────────────── */
+    .section { padding: 100px 48px; }
+    .section-alt { background: var(--rose); }
+
+    .section-label {
+      display: inline-block;
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 14px;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 600; color: var(--navy);
+      line-height: 1.25; margin-bottom: 18px;
+    }
+    .section-sub {
+      font-size: 1.05rem; color: var(--text-mid);
+      line-height: 1.8; max-width: 560px;
+    }
+    .text-center { text-align: center; }
+    .text-center .section-sub { margin: 0 auto; }
+
+    .container { max-width: 1180px; margin: 0 auto; }
+
+    /* ── ABOUT ───────────────────────────────────────── */
+    .about-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 80px; align-items: center;
+      max-width: 1100px; margin: 0 auto;
+    }
+    .about-img-wrap {
+      position: relative; border-radius: 16px; overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      aspect-ratio: 4/5;
+    }
+    .about-img-wrap img {
+      width: 100%; height: 100%; object-fit: cover;
+      display: block;
+    }
+    .about-img-badge {
+      position: absolute; bottom: 28px; left: 28px;
+      background: var(--white);
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: var(--shadow);
+      display: flex; align-items: center; gap: 14px;
+    }
+    .about-img-badge i {
+      font-size: 1.6rem; color: var(--gold);
+    }
+    .about-img-badge-text strong {
+      display: block; font-size: 1.4rem; font-weight: 700;
+      color: var(--navy); font-family: 'Playfair Display', serif;
+    }
+    .about-img-badge-text span {
+      font-size: 0.78rem; color: var(--text-mid); font-weight: 500;
+    }
+    .about-text .section-sub { margin-bottom: 28px; max-width: 100%; }
+    .about-detail {
+      display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px;
+    }
+    .about-detail-icon {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--gold-dim);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .about-detail-icon i { color: var(--gold); font-size: 0.9rem; }
+    .about-detail-body strong { display: block; font-size: 0.9rem; font-weight: 600; color: var(--navy); margin-bottom: 2px; }
+    .about-detail-body span { font-size: 0.85rem; color: var(--text-mid); line-height: 1.6; }
+
+    /* ── HOW IT WORKS ────────────────────────────────── */
+    .steps-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 32px; margin-top: 60px;
+      max-width: 960px; margin-left: auto; margin-right: auto;
+    }
+    .step-card {
+      background: var(--white);
+      border-radius: 16px; padding: 40px 32px;
+      box-shadow: var(--shadow);
+      text-align: center;
+      position: relative;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .step-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-lg);
+    }
+    .step-num {
+      position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--gold); color: var(--navy);
+      font-weight: 800; font-size: 0.9rem;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Inter', sans-serif;
+      box-shadow: 0 4px 12px rgba(200,145,58,0.4);
+    }
+    .step-icon {
+      width: 68px; height: 68px; border-radius: 50%;
+      background: var(--cream);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 22px;
+    }
+    .step-icon i { font-size: 1.6rem; color: var(--gold); }
+    .step-card h3 {
+      font-size: 1.18rem; font-weight: 600;
+      color: var(--navy); margin-bottom: 12px;
+    }
+    .step-card p {
+      font-size: 0.9rem; color: var(--text-mid); line-height: 1.75;
+    }
+    .steps-connector {
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+
+    /* ── WHY WSTN ────────────────────────────────────── */
+    .perks-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 24px; margin-top: 56px;
+      max-width: 900px; margin-left: auto; margin-right: auto;
+    }
+    .perk-card {
+      background: var(--white);
+      border-radius: 14px; padding: 32px 28px;
+      display: flex; gap: 20px; align-items: flex-start;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s;
+    }
+    .perk-card:hover { transform: translateY(-4px); }
+    .perk-icon {
+      width: 52px; height: 52px; border-radius: 12px;
+      background: var(--gold-dim);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .perk-icon i { font-size: 1.3rem; color: var(--gold); }
+    .perk-body h4 {
+      font-size: 1.05rem; font-weight: 600;
+      color: var(--navy); margin-bottom: 8px;
+    }
+    .perk-body p {
+      font-size: 0.88rem; color: var(--text-mid); line-height: 1.7;
+    }
+
+    /* ── TESTIMONIALS ────────────────────────────────── */
+    .testimonials-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 28px; margin-top: 60px;
+    }
+    .testimonial-card {
+      background: var(--white);
+      border-radius: 16px; padding: 36px 30px;
+      box-shadow: var(--shadow);
+      display: flex; flex-direction: column; gap: 20px;
+      transition: transform 0.25s;
+    }
+    .testimonial-card:hover { transform: translateY(-5px); }
+    .testimonial-stars { color: var(--gold); font-size: 0.9rem; letter-spacing: 2px; }
+    .testimonial-text {
+      font-size: 0.95rem; color: var(--text-mid);
+      line-height: 1.8; font-style: italic; flex: 1;
+    }
+    .testimonial-text::before { content: '\201C'; }
+    .testimonial-text::after  { content: '\201D'; }
+    .testimonial-author {
+      display: flex; align-items: center; gap: 14px;
+    }
+    .testimonial-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--navy-soft);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gold); font-size: 1rem; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .testimonial-name strong {
+      display: block; font-size: 0.9rem; font-weight: 600; color: var(--navy);
+    }
+    .testimonial-name span {
+      font-size: 0.78rem; color: var(--text-mid);
+    }
+
+    /* ── LEAD FORM ───────────────────────────────────── */
+    .lead-section {
+      background: var(--navy);
+      padding: 100px 48px;
+    }
+    .lead-section .section-title { color: var(--white); }
+    .lead-section .section-label { color: var(--gold-lt); }
+    .lead-section .section-sub { color: rgba(255,255,255,0.6); }
+
+    .lead-tabs {
+      display: flex; gap: 0;
+      background: rgba(255,255,255,0.08);
+      border-radius: 10px; padding: 4px;
+      margin: 40px auto 32px; max-width: 400px;
+    }
+    .lead-tab {
+      flex: 1; padding: 11px 20px;
+      border: none; background: transparent;
+      color: rgba(255,255,255,0.55);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem; font-weight: 600;
+      border-radius: 8px; cursor: pointer;
+      transition: all 0.25s;
+    }
+    .lead-tab.active {
+      background: var(--gold); color: var(--navy);
+    }
+
+    .lead-form-wrap {
+      background: var(--white); border-radius: 20px;
+      padding: 44px; max-width: 700px; margin: 0 auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .form-panel { display: none; }
+    .form-panel.active { display: block; }
+
+    .form-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 7px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label {
+      font-size: 0.8rem; font-weight: 600;
+      color: var(--navy); letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 13px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.92rem; color: var(--text);
+      background: #fff;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(200,145,58,0.12);
+    }
+    .form-group textarea { resize: vertical; min-height: 90px; }
+
+    .form-submit {
+      width: 100%; margin-top: 24px;
+      background: var(--gold); color: var(--navy);
+      border: none; border-radius: 8px;
+      padding: 16px; font-family: 'Inter', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      cursor: pointer; letter-spacing: 0.02em;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 16px rgba(200,145,58,0.35);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .form-submit:hover {
+      background: var(--gold-lt);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(200,145,58,0.45);
+    }
+
+    .form-note {
+      text-align: center; margin-top: 16px;
+      font-size: 0.8rem; color: var(--text-mid);
+    }
+    .form-note i { color: var(--gold); margin-right: 4px; }
+
+    .form-success {
+      display: none; text-align: center; padding: 20px 0;
+    }
+    .form-success i {
+      font-size: 3.5rem; color: var(--gold);
+      margin-bottom: 20px; display: block;
+    }
+    .form-success h3 {
+      font-size: 1.6rem; color: var(--navy); margin-bottom: 12px;
+    }
+    .form-success p {
+      font-size: 0.95rem; color: var(--text-mid); line-height: 1.7;
+    }
+
+    /* ── CTA BAND ────────────────────────────────────── */
+    .cta-band {
+      background: linear-gradient(135deg, var(--gold) 0%, #a06e20 100%);
+      padding: 72px 48px; text-align: center;
+    }
+    .cta-band h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      color: var(--navy); margin-bottom: 16px; font-weight: 700;
+    }
+    .cta-band p {
+      font-size: 1.05rem; color: rgba(13,27,42,0.75);
+      margin-bottom: 36px; max-width: 480px; margin-left: auto; margin-right: auto;
+    }
+    .cta-band .btn-primary {
+      background: var(--navy); color: var(--white);
+      box-shadow: 0 4px 20px rgba(13,27,42,0.4);
+    }
+    .cta-band .btn-primary:hover { background: var(--navy-soft); }
+
+    /* ── FOOTER ──────────────────────────────────────── */
+    footer {
+      background: var(--navy);
+      padding: 64px 48px 36px;
+      color: rgba(255,255,255,0.65);
+    }
+    .footer-grid {
+      display: grid; grid-template-columns: 2fr 1fr 1fr;
+      gap: 48px; max-width: 1000px; margin: 0 auto 48px;
+    }
+    .footer-brand .nav-logo { display: inline-flex; margin-bottom: 16px; }
+    .footer-brand p {
+      font-size: 0.87rem; line-height: 1.8; max-width: 280px;
+    }
+    .footer-social {
+      display: flex; gap: 12px; margin-top: 20px;
+    }
+    .footer-social a {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.6);
+      font-size: 0.9rem; text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+    }
+    .footer-social a:hover { background: var(--gold); color: var(--navy); }
+
+    .footer-col h5 {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: rgba(255,255,255,0.4); margin-bottom: 18px;
+    }
+    .footer-col a, .footer-col span {
+      display: block; font-size: 0.88rem;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none; margin-bottom: 12px;
+      transition: color 0.2s;
+    }
+    .footer-col a:hover { color: var(--gold-lt); }
+    .footer-col .contact-item {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    }
+    .footer-col .contact-item i { color: var(--gold); width: 16px; text-align: center; }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 28px; max-width: 1000px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px;
+      font-size: 0.78rem; color: rgba(255,255,255,0.35);
+    }
+    .footer-bottom a {
+      color: rgba(255,255,255,0.35);
+      text-decoration: underline; transition: color 0.2s;
+    }
+    .footer-bottom a:hover { color: var(--gold-lt); }
+
+    /* ── AI CHAT ─────────────────────────────────────── */
+    .ai-chat-btn {
+      position: fixed; bottom: 28px; right: 28px; z-index: 900;
+      background: var(--navy); color: var(--white);
+      border: 2px solid var(--gold);
+      border-radius: 50px; padding: 14px 22px;
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer; box-shadow: var(--shadow-lg);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem; font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .ai-chat-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 40px rgba(13,27,42,0.35);
+    }
+    .ai-chat-btn i { color: var(--gold); font-size: 1rem; }
+    .ai-chat-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #4CAF50; animation: pulse 2s infinite;
+    }
+
+    /* Chat panel */
+    .chat-panel {
+      position: fixed; bottom: 0; right: 28px; z-index: 1100;
+      width: 370px; height: 580px; max-height: 90vh;
+      background: var(--white); border-radius: 20px 20px 0 0;
+      box-shadow: 0 -8px 48px rgba(13,27,42,0.22);
+      display: flex; flex-direction: column;
+      transform: translateY(110%); transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+      overflow: hidden;
+    }
+    .chat-panel.open { transform: translateY(0); }
+
+    .chat-header {
+      background: var(--navy); padding: 16px 20px;
+      display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    }
+    .chat-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--gold); color: var(--navy);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 700; flex-shrink: 0;
+    }
+    .chat-header-info { flex: 1; }
+    .chat-header-info strong { display: block; color: #fff; font-size: 0.92rem; font-weight: 600; }
+    .chat-header-info .online { color: #4CAF50; font-size: 0.7rem; font-weight: 500; }
+    .chat-close {
+      background: none; border: none; cursor: pointer;
+      color: rgba(255,255,255,0.5); font-size: 1.2rem;
+      transition: color 0.2s; padding: 4px;
+    }
+    .chat-close:hover { color: #fff; }
+
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 20px 16px;
+      display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth;
+    }
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .chat-msg { display: flex; gap: 8px; align-items: flex-end; animation: msgIn 0.25s ease; }
+    @keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; } }
+    .chat-msg.user { flex-direction: row-reverse; }
+    .chat-msg-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--gold); color: var(--navy);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
+    }
+    .chat-msg.user .chat-msg-avatar { background: var(--navy); color: #fff; }
+    .chat-bubble {
+      max-width: 80%; padding: 10px 14px;
+      border-radius: 16px 16px 16px 4px;
+      background: var(--cream); color: var(--text);
+      font-size: 0.87rem; line-height: 1.55;
+    }
+    .chat-msg.user .chat-bubble {
+      background: var(--navy); color: #fff;
+      border-radius: 16px 16px 4px 16px;
+    }
+    .chat-typing {
+      display: flex; gap: 4px; align-items: center;
+      padding: 12px 14px; background: var(--cream);
+      border-radius: 16px 16px 16px 4px; width: fit-content;
+    }
+    .chat-typing span {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--text-mid); animation: typingDot 1.2s infinite;
+    }
+    .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+    .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingDot {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30%            { transform: translateY(-5px); opacity: 1; }
+    }
+    .chat-options { display: flex; flex-wrap: wrap; gap: 7px; padding: 0 16px 12px; }
+    .chat-opt {
+      background: var(--cream); border: 1.5px solid var(--border);
+      color: var(--navy); border-radius: 20px; padding: 7px 14px;
+      font-size: 0.82rem; font-weight: 600; cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: all 0.18s;
+    }
+    .chat-opt:hover { background: var(--gold); border-color: var(--gold); }
+    .chat-input-row {
+      padding: 12px 16px; border-top: 1px solid var(--border);
+      display: flex; gap: 10px; flex-shrink: 0; display: none;
+    }
+    .chat-input-row.visible { display: flex; }
+    .chat-input-row input {
+      flex: 1; border: 1.5px solid var(--border); border-radius: 20px;
+      padding: 10px 16px; font-family: 'Inter', sans-serif;
+      font-size: 0.88rem; outline: none; transition: border-color 0.2s;
+    }
+    .chat-input-row input:focus { border-color: var(--gold); }
+    .chat-send {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--gold); color: var(--navy); border: none;
+      cursor: pointer; font-size: 0.9rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s; flex-shrink: 0;
+    }
+    .chat-send:hover { background: var(--gold-lt); }
+
+    /* ── RESPONSIVE ──────────────────────────────────── */
+    @media (max-width: 900px) {
+      nav { padding: 0 24px; }
+      .nav-links { display: none; }
+      .nav-hamburger { display: flex; }
+
+      .section { padding: 72px 24px; }
+      .trust-bar { padding: 20px 24px; gap: 24px; }
+      .trust-divider { display: none; }
+
+      .about-grid { grid-template-columns: 1fr; gap: 40px; }
+      .about-img-wrap { max-width: 480px; margin: 0 auto; aspect-ratio: 16/10; }
+
+      .steps-grid { grid-template-columns: 1fr; max-width: 420px; margin-top: 48px; }
+      .perks-grid { grid-template-columns: 1fr; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+
+      .lead-section { padding: 72px 24px; }
+      .lead-form-wrap { padding: 28px 20px; }
+      .form-grid { grid-template-columns: 1fr; }
+
+      .cta-band { padding: 60px 24px; }
+
+      footer { padding: 48px 24px 28px; }
+      .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+
+      .ai-chat-btn span { display: none; }
+      .ai-chat-btn { padding: 14px; border-radius: 50%; width: 54px; height: 54px; justify-content: center; }
+      .ai-chat-dot { display: none; }
+      .chat-panel { right: 0; left: 0; width: 100%; border-radius: 20px 20px 0 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ──────────────────────────────────────────────────── -->
+<nav>
+  <a href="#" class="nav-logo">
+    <span class="nav-logo-top">WSTN</span>
+    <span class="nav-logo-sub">Apartment Locating</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#find-your-place" onclick="switchTab('sell')">Sell Your Home</a></li>
+    <li><a href="#testimonials">Reviews</a></li>
+    <li><a href="tel:2103940238" class="nav-call"><i class="fas fa-phone"></i>(210) 394-0238</a></li>
+    <li><a href="#find-your-place" class="nav-cta-btn">Get Started</a></li>
+  </ul>
+  <button class="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile nav -->
+<div class="nav-mobile" id="mobileNav">
+  <a href="#about" onclick="toggleMobileNav()">About</a>
+  <a href="#how-it-works" onclick="toggleMobileNav()">How It Works</a>
+  <a href="#find-your-place" onclick="switchTab('sell');toggleMobileNav()">Sell Your Home</a>
+  <a href="#testimonials" onclick="toggleMobileNav()">Reviews</a>
+  <a href="tel:2103940238"><i class="fas fa-phone" style="margin-right:8px;color:var(--gold)"></i>(210) 394-0238</a>
+  <a href="#find-your-place" class="mobile-cta" onclick="toggleMobileNav()">Get Started — It's Free</a>
+</div>
+
+<!-- ── HERO ──────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-slides">
+    <div class="hero-slide active" style="background-image:url('https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1920&q=80')"></div>
+    <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1920&q=80')"></div>
+    <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1920&q=80')"></div>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-badge">Texas Licensed &nbsp;·&nbsp; Brokered by Wellstone Properties &nbsp;·&nbsp; 100% Free</div>
+    <h1>The best place<br>is <em>right here.</em></h1>
+    <p class="hero-sub">
+      Skip the endless scrolling. We find apartments and homes that fit your life — and help sellers get top dollar. All across Texas, all handled for you.
+    </p>
+    <div class="hero-btns">
+      <a href="#find-your-place" class="btn-primary">
+        <i class="fas fa-search"></i> Find an Apartment
+      </a>
+      <a href="#find-your-place" class="btn-outline" onclick="switchTab('buy')">
+        <i class="fas fa-home"></i> Buy a Home
+      </a>
+      <a href="#find-your-place" class="btn-outline" onclick="switchTab('sell')" style="border-color:rgba(200,145,58,0.6);color:var(--gold-lt);">
+        <i class="fas fa-sign"></i> Sell Your Home
+      </a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <i class="fas fa-chevron-down"></i>
+  </div>
+</section>
+
+<!-- ── TRUST BAR ──────────────────────────────────────────────── -->
+<div class="trust-bar">
+  <div class="trust-item"><i class="fas fa-check-circle"></i> 100% Free for Renters</div>
+  <div class="trust-divider"></div>
+  <div class="trust-item"><i class="fas fa-users"></i> 1,000+ Clients Helped</div>
+  <div class="trust-divider"></div>
+  <div class="trust-item"><i class="fas fa-map-marker-alt"></i> Serving All of Texas</div>
+  <div class="trust-divider"></div>
+  <div class="trust-item"><i class="fas fa-shield-alt"></i> TREC Licensed</div>
+  <div class="trust-divider"></div>
+  <div class="trust-item"><i class="fas fa-star"></i> Brokered by Wellstone Properties</div>
+</div>
+
+<!-- ── ABOUT ──────────────────────────────────────────────────── -->
+<section class="section" id="about">
+  <div class="about-grid">
+    <div class="about-img-wrap">
+      <img
+        src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80"
+        alt="Beautiful modern apartment interior"
+        loading="lazy"
+      />
+      <div class="about-img-badge">
+        <i class="fas fa-heart"></i>
+        <div class="about-img-badge-text">
+          <strong>1,000+</strong>
+          <span>Happy clients placed</span>
+        </div>
+      </div>
+    </div>
+    <div class="about-text">
+      <span class="section-label">About WSTN</span>
+      <h2 class="section-title">Finding — and selling — homes shouldn't feel complicated.</h2>
+      <p class="section-sub">
+        WSTN was built on one simple idea — your time matters. Whether you're hunting for an apartment, buying your first home, or ready to list your property, we take a hands-on approach and guide you toward the best outcome.
+      </p>
+      <p class="section-sub" style="margin-bottom:32px">
+        We handle the research, tours, negotiations, and paperwork so you can focus on what matters most — your move, your life, your next chapter.
+      </p>
+      <div class="about-detail">
+        <div class="about-detail-icon"><i class="fas fa-map-marked-alt"></i></div>
+        <div class="about-detail-body">
+          <strong>Local Texas Expertise</strong>
+          <span>We know the neighborhoods, the buildings, and the deals you won't find on Zillow.</span>
+        </div>
+      </div>
+      <div class="about-detail">
+        <div class="about-detail-icon"><i class="fas fa-hand-holding-heart"></i></div>
+        <div class="about-detail-body">
+          <strong>We Work for You</strong>
+          <span>Free for renters and buyers. Sellers get expert pricing, marketing, and negotiation to maximize what they walk away with.</span>
+        </div>
+      </div>
+      <div class="about-detail">
+        <div class="about-detail-icon"><i class="fas fa-bolt"></i></div>
+        <div class="about-detail-body">
+          <strong>Fast &amp; Responsive</strong>
+          <span>Real estate moves fast. We respond quickly and keep you ahead of the competition.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ───────────────────────────────────────────── -->
+<section class="section section-alt" id="how-it-works">
+  <div class="container text-center">
+    <span class="section-label">The Process</span>
+    <h2 class="section-title">Simple process. Real results.</h2>
+    <p class="section-sub">No stress. No guesswork. Just someone in your corner from start to finish.</p>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <div class="step-icon"><i class="fas fa-clipboard-list"></i></div>
+      <h3>Tell us what you need</h3>
+      <p>Renting, buying, or selling — share your situation, budget, and timeline. Takes two minutes and we'll take it from there.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <div class="step-icon"><i class="fas fa-handshake"></i></div>
+      <h3>We get to work for you</h3>
+      <p>We search listings, run market analyses, and line up the right opportunities — including deals that never hit Zillow or Apartments.com.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <div class="step-icon"><i class="fas fa-key"></i></div>
+      <h3>You close with confidence</h3>
+      <p>Whether you're signing a lease, closing on a home, or handing over the keys — we guide every step and fight for the best outcome.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── WHY WSTN ───────────────────────────────────────────────── -->
+<section class="section">
+  <div class="container text-center">
+    <span class="section-label">Why Choose Us</span>
+    <h2 class="section-title">We make the hard stuff easy</h2>
+    <p class="section-sub">From credit challenges to exclusive listings, we've seen it all — and helped through it all.</p>
+  </div>
+  <div class="perks-grid">
+    <div class="perk-card">
+      <div class="perk-icon"><i class="fas fa-dollar-sign"></i></div>
+      <div class="perk-body">
+        <h4>Free for Renters &amp; Buyers</h4>
+        <p>No hidden fees, no surprise charges. Our locating and buyer's agent service costs you nothing — we're paid by the property or seller's side.</p>
+      </div>
+    </div>
+    <div class="perk-card">
+      <div class="perk-icon"><i class="fas fa-file-alt"></i></div>
+      <div class="perk-body">
+        <h4>Help With Approval</h4>
+        <p>Low credit, a broken lease, or a record? We've helped 1,000+ clients in exactly your situation find a place they love.</p>
+      </div>
+    </div>
+    <div class="perk-card">
+      <div class="perk-icon"><i class="fas fa-lock-open"></i></div>
+      <div class="perk-body">
+        <h4>Exclusive Listings &amp; Deals</h4>
+        <p>Access special listings and promotions that never hit Zillow or Apartments.com. We know the properties before they go public.</p>
+      </div>
+    </div>
+    <div class="perk-card">
+      <div class="perk-icon"><i class="fas fa-user-tie"></i></div>
+      <div class="perk-body">
+        <h4>Personalized &amp; Hands-On</h4>
+        <p>This isn't a faceless app. You'll work with a real person who gets to know your lifestyle and finds the places that actually fit.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIALS ───────────────────────────────────────────── -->
+<section class="section section-alt" id="testimonials">
+  <div class="container text-center">
+    <span class="section-label">Client Stories</span>
+    <h2 class="section-title">Real people, real results</h2>
+    <p class="section-sub">Don't take our word for it — here's what our clients say.</p>
+  </div>
+  <div class="testimonials-grid container" style="margin-top:60px">
+    <div class="testimonial-card">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">
+        Professional, friendly, and super helpful. They understood my needs, scheduled tours around my availability, and made the whole moving process simple. I couldn't believe it was free!
+      </p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">SR</div>
+        <div class="testimonial-name">
+          <strong>Savannah R.</strong>
+          <span>Austin, TX</span>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">
+        Finding the perfect apartment felt impossible — until I found WSTN. They listened to exactly what I wanted and found multiple options within my budget. Touring and signing was a breeze. Highly recommend!
+      </p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">AO</div>
+        <div class="testimonial-name">
+          <strong>Aidan O.</strong>
+          <span>New Braunfels, TX</span>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">
+        Westin listed our home and we had three offers within a week — one above asking price. He handled everything from staging advice to the final walkthrough. We couldn't have done it without him.
+      </p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">MK</div>
+        <div class="testimonial-name">
+          <strong>Marcus &amp; Kelly T.</strong>
+          <span>San Antonio, TX — Home Seller</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── LEAD FORM ──────────────────────────────────────────────── -->
+<section class="lead-section" id="find-your-place">
+  <div class="container text-center">
+    <span class="section-label">Get Started — It's Free</span>
+    <h2 class="section-title">Tell us what you need</h2>
+    <p class="section-sub">Fill out the form and Westin will reach out within the hour.</p>
+  </div>
+
+  <div class="lead-tabs" style="max-width:560px">
+    <button class="lead-tab active" id="tab-rent" onclick="switchTab('rent')">
+      <i class="fas fa-building" style="margin-right:6px"></i> Find an Apartment
+    </button>
+    <button class="lead-tab" id="tab-buy" onclick="switchTab('buy')">
+      <i class="fas fa-home" style="margin-right:6px"></i> Buy a Home
+    </button>
+    <button class="lead-tab" id="tab-sell" onclick="switchTab('sell')">
+      <i class="fas fa-sign" style="margin-right:6px"></i> Sell My Home
+    </button>
+  </div>
+
+  <div class="lead-form-wrap">
+
+    <!-- Renter form -->
+    <div class="form-panel active" id="panel-rent">
+      <div id="success-rent" class="form-success">
+        <i class="fas fa-check-circle"></i>
+        <h3>You're all set!</h3>
+        <p>Westin will call or text you at the number you provided — usually within the hour. Get ready to find your perfect place.</p>
+        <p style="margin-top:16px">Questions? Call or text <a href="tel:2103940238" style="color:var(--gold);font-weight:600">(210) 394-0238</a></p>
+      </div>
+      <form id="form-rent" onsubmit="submitForm(event, 'rent')">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="r-name">Your Name</label>
+            <input type="text" id="r-name" placeholder="First &amp; Last Name" required />
+          </div>
+          <div class="form-group">
+            <label for="r-phone">Best Phone Number</label>
+            <input type="tel" id="r-phone" placeholder="(555) 000-0000" required />
+          </div>
+          <div class="form-group">
+            <label for="r-email">Email Address</label>
+            <input type="email" id="r-email" placeholder="you@email.com" />
+          </div>
+          <div class="form-group">
+            <label for="r-budget">Monthly Budget</label>
+            <select id="r-budget" required>
+              <option value="">Select a range</option>
+              <option>Under $900/mo</option>
+              <option>$900 – $1,200/mo</option>
+              <option>$1,200 – $1,600/mo</option>
+              <option>$1,600 – $2,200/mo</option>
+              <option>$2,200/mo+</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="r-beds">Bedrooms Needed</label>
+            <select id="r-beds" required>
+              <option value="">Select</option>
+              <option>Studio</option>
+              <option>1 Bedroom</option>
+              <option>2 Bedrooms</option>
+              <option>3+ Bedrooms</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="r-movedate">Move-In Date</label>
+            <input type="month" id="r-movedate" required />
+          </div>
+          <div class="form-group full">
+            <label for="r-area">Preferred Area / City</label>
+            <input type="text" id="r-area" placeholder="e.g. Austin, San Antonio, North Austin…" required />
+          </div>
+          <div class="form-group full">
+            <label for="r-notes">Anything else? (pets, parking, credit issues, etc.)</label>
+            <textarea id="r-notes" placeholder="Tell us anything that will help us find the right place for you…"></textarea>
+          </div>
+        </div>
+        <button type="submit" class="form-submit">
+          <i class="fas fa-paper-plane"></i> Send My Request — It's Free
+        </button>
+        <p class="form-note"><i class="fas fa-lock"></i> Your info is private. We'll never spam or sell your details.</p>
+      </form>
+    </div>
+
+    <!-- Buyer form -->
+    <div class="form-panel" id="panel-buy">
+      <div id="success-buy" class="form-success">
+        <i class="fas fa-check-circle"></i>
+        <h3>Request received!</h3>
+        <p>Westin will be in touch shortly to start your home search. We're excited to help you find the right home.</p>
+        <p style="margin-top:16px">Questions? Call or text <a href="tel:2103940238" style="color:var(--gold);font-weight:600">(210) 394-0238</a></p>
+      </div>
+      <form id="form-buy" onsubmit="submitForm(event, 'buy')">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="b-name">Your Name</label>
+            <input type="text" id="b-name" placeholder="First &amp; Last Name" required />
+          </div>
+          <div class="form-group">
+            <label for="b-phone">Best Phone Number</label>
+            <input type="tel" id="b-phone" placeholder="(555) 000-0000" required />
+          </div>
+          <div class="form-group">
+            <label for="b-email">Email Address</label>
+            <input type="email" id="b-email" placeholder="you@email.com" />
+          </div>
+          <div class="form-group">
+            <label for="b-budget">Home Budget</label>
+            <select id="b-budget" required>
+              <option value="">Select a range</option>
+              <option>Under $200k</option>
+              <option>$200k – $350k</option>
+              <option>$350k – $500k</option>
+              <option>$500k – $750k</option>
+              <option>$750k+</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="b-timeline">Purchase Timeline</label>
+            <select id="b-timeline" required>
+              <option value="">Select</option>
+              <option>ASAP (within 30 days)</option>
+              <option>1 – 3 months</option>
+              <option>3 – 6 months</option>
+              <option>6+ months / Just exploring</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="b-preapproved">Pre-approved for a mortgage?</label>
+            <select id="b-preapproved">
+              <option value="">Select</option>
+              <option>Yes, I'm pre-approved</option>
+              <option>No, but I'm ready to start</option>
+              <option>Not sure — need guidance</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label for="b-area">Preferred City / Area</label>
+            <input type="text" id="b-area" placeholder="e.g. New Braunfels, San Marcos, Kyle…" required />
+          </div>
+          <div class="form-group full">
+            <label for="b-notes">Anything else about what you're looking for?</label>
+            <textarea id="b-notes" placeholder="Style of home, school district, must-haves, deal-breakers…"></textarea>
+          </div>
+        </div>
+        <button type="submit" class="form-submit">
+          <i class="fas fa-paper-plane"></i> Start My Home Search
+        </button>
+        <p class="form-note"><i class="fas fa-lock"></i> Your info is private. We'll never spam or sell your details.</p>
+      </form>
+    </div>
+
+    <!-- Seller form -->
+    <div class="form-panel" id="panel-sell">
+      <div id="success-sell" class="form-success">
+        <i class="fas fa-check-circle"></i>
+        <h3>We'll be in touch!</h3>
+        <p>Westin will call or text you within the hour to discuss listing your home and what it could sell for in today's market.</p>
+        <p style="margin-top:16px">Questions? Call or text <a href="tel:2103940238" style="color:var(--gold);font-weight:600">(210) 394-0238</a></p>
+      </div>
+      <form id="form-sell" onsubmit="submitForm(event, 'sell')">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="s-name">Your Name</label>
+            <input type="text" id="s-name" placeholder="First &amp; Last Name" required />
+          </div>
+          <div class="form-group">
+            <label for="s-phone">Best Phone Number</label>
+            <input type="tel" id="s-phone" placeholder="(555) 000-0000" required />
+          </div>
+          <div class="form-group">
+            <label for="s-email">Email Address</label>
+            <input type="email" id="s-email" placeholder="you@email.com" />
+          </div>
+          <div class="form-group">
+            <label for="s-askingprice">Estimated Home Value</label>
+            <select id="s-askingprice" required>
+              <option value="">What do you think it's worth?</option>
+              <option>Under $200k</option>
+              <option>$200k – $350k</option>
+              <option>$350k – $500k</option>
+              <option>$500k – $750k</option>
+              <option>$750k+</option>
+              <option>Not sure — need a market analysis</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="s-timeline">When do you want to sell?</label>
+            <select id="s-timeline" required>
+              <option value="">Select</option>
+              <option>ASAP</option>
+              <option>1 – 3 months</option>
+              <option>3 – 6 months</option>
+              <option>6+ months / Just exploring</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="s-condition">Property Condition</label>
+            <select id="s-condition">
+              <option value="">Select</option>
+              <option>Move-in ready</option>
+              <option>Needs some updates</option>
+              <option>As-is / fixer-upper</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label for="s-address">Property Address</label>
+            <input type="text" id="s-address" placeholder="123 Main St, San Antonio, TX…" required />
+          </div>
+          <div class="form-group full">
+            <label for="s-notes">Anything else we should know?</label>
+            <textarea id="s-notes" placeholder="Still have a mortgage? Inherited property? Upgrading or downsizing? Share any details that help…"></textarea>
+          </div>
+        </div>
+        <button type="submit" class="form-submit">
+          <i class="fas fa-paper-plane"></i> Get My Free Home Valuation
+        </button>
+        <p class="form-note"><i class="fas fa-lock"></i> Your info is private. No obligation — just a conversation.</p>
+      </form>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── CTA BAND ───────────────────────────────────────────────── -->
+<div class="cta-band">
+  <h2>Ready to find, buy, or sell your next home?</h2>
+  <p>Call or text us right now — we respond fast and we work around your schedule.</p>
+  <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+    <a href="tel:2103940238" class="btn-primary">
+      <i class="fas fa-phone"></i> Call (210) 394-0238
+    </a>
+    <a href="sms:2103940238?body=Hi! I found WSTN online and I need help." class="btn-primary" style="background:var(--navy-soft)">
+      <i class="fas fa-comment"></i> Text Us
+    </a>
+  </div>
+</div>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo">
+        <span class="nav-logo-top">WSTN</span>
+        <span class="nav-logo-sub">Apartment Locating</span>
+      </a>
+      <p>Free apartment locating, home buying, and home selling guidance across Texas. Brokered by Wellstone Properties. TREC Licensed.</p>
+      <div class="footer-social">
+        <a href="https://instagram.com/wstnapartmentlocating" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="https://facebook.com" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="mailto:wstnapartmentlocating@gmail.com" aria-label="Email"><i class="fas fa-envelope"></i></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h5>Services</h5>
+      <a href="#find-your-place" onclick="switchTab('rent')">Find an Apartment</a>
+      <a href="#find-your-place" onclick="switchTab('buy')">Buy a Home</a>
+      <a href="#find-your-place" onclick="switchTab('sell')">Sell Your Home</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#about">About Us</a>
+    </div>
+    <div class="footer-col">
+      <h5>Contact</h5>
+      <div class="contact-item">
+        <i class="fas fa-phone"></i>
+        <a href="tel:2103940238">(210) 394-0238</a>
+      </div>
+      <div class="contact-item">
+        <i class="fas fa-envelope"></i>
+        <a href="mailto:wstnapartmentlocating@gmail.com">wstnapartmentlocating@gmail.com</a>
+      </div>
+      <div class="contact-item">
+        <i class="fab fa-instagram"></i>
+        <a href="https://instagram.com/wstnapartmentlocating" target="_blank" rel="noopener">@wstnapartmentlocating</a>
+      </div>
+      <div class="contact-item">
+        <i class="fas fa-map-marker-alt"></i>
+        <span>Serving All of Texas</span>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 WSTN Apartment Locating. Brokered by Wellstone Properties.</span>
+    <span>
+      <a href="https://www.trec.texas.gov/forms/consumer-protection-notice" target="_blank" rel="noopener">TREC Consumer Protection Notice</a>
+      &nbsp;·&nbsp;
+      <a href="https://www.trec.texas.gov/forms/information-about-brokerage-services" target="_blank" rel="noopener">Information About Brokerage Services</a>
+    </span>
+  </div>
+</footer>
+
+<!-- ── AI CHAT BUTTON + PANEL ─────────────────────────────────── -->
+<button class="ai-chat-btn" onclick="toggleChat()" id="chatToggleBtn">
+  <i class="fas fa-comment-dots"></i>
+  <span>Ask us anything</span>
+  <div class="ai-chat-dot"></div>
+</button>
+
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-header">
+    <div class="chat-avatar">W</div>
+    <div class="chat-header-info">
+      <strong>WSTN AI Assistant</strong>
+      <span class="online">● Online — here to help</span>
+    </div>
+    <button class="chat-close" onclick="toggleChat()"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-options" id="chatOptions"></div>
+  <div class="chat-input-row" id="chatInputRow">
+    <input type="text" id="chatInput" placeholder="Type your answer…" />
+    <button class="chat-send" onclick="handleUserInput()"><i class="fas fa-paper-plane"></i></button>
+  </div>
+</div>
+
+<script>
+  /* ── Hero slideshow ── */
+  const slides = document.querySelectorAll('.hero-slide');
+  let slideCurrent = 0;
+  setInterval(() => {
+    slides[slideCurrent].classList.remove('active');
+    slideCurrent = (slideCurrent + 1) % slides.length;
+    slides[slideCurrent].classList.add('active');
+  }, 6000);
+
+  /* ── Mobile nav ── */
+  function toggleMobileNav() {
+    document.getElementById('mobileNav').classList.toggle('open');
+  }
+
+  /* ── Tab switcher ── */
+  function switchTab(type) {
+    document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.lead-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + type).classList.add('active');
+    document.getElementById('tab-' + type).classList.add('active');
+  }
+
+  /* ── Form submission → localStorage ── */
+  function submitForm(e, type) {
+    e.preventDefault();
+    const btn = e.target.querySelector('.form-submit');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…';
+    btn.disabled = true;
+
+    const lead = { id: 'wstn_' + Date.now(), type, status: 'New', source: 'form', submittedAt: new Date().toISOString() };
+    e.target.querySelectorAll('input, select, textarea').forEach(el => {
+      if (el.id) lead[el.id.replace(/^[rbs]-/, '')] = el.value;
+    });
+    saveLead(lead);
+
+    setTimeout(() => {
+      e.target.style.display = 'none';
+      document.getElementById('success-' + type).style.display = 'block';
+    }, 1200);
+  }
+
+  const WEBHOOK = 'https://foodtruck-cymz.onrender.com/wstn/lead';
+
+  function saveLead(lead) {
+    const leads = JSON.parse(localStorage.getItem('wstn_leads') || '[]');
+    leads.unshift(lead);
+    localStorage.setItem('wstn_leads', JSON.stringify(leads));
+    // Fire-and-forget notification to webhook server
+    fetch(WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(lead),
+    }).catch(() => {}); // silent fail — localStorage is the source of truth
+  }
+
+  /* ── Scroll-aware nav ── */
+  window.addEventListener('scroll', () => {
+    document.querySelector('nav').style.background = window.scrollY > 60
+      ? 'rgba(13,27,42,0.98)' : 'rgba(13,27,42,0.92)';
+  });
+
+  /* ══════════════════════════════════════════════════
+     AI CHAT ENGINE
+     Scripted qualifier → saves lead to localStorage
+  ══════════════════════════════════════════════════ */
+  const NEIGHBORHOODS = {
+    austin:          ['South Congress (SoCo)', 'East Austin', 'Hyde Park', 'The Domain', 'Mueller', 'Round Rock', 'Cedar Park'],
+    'san antonio':   ['Stone Oak', 'Alamo Heights', 'The Pearl District', 'NW San Antonio', 'Schertz', 'Helotes'],
+    houston:         ['Midtown', 'The Heights', 'Montrose', 'Katy', 'Sugar Land', 'The Woodlands', 'Clear Lake'],
+    dallas:          ['Uptown', 'Deep Ellum', 'Plano', 'Frisco', 'McKinney', 'Oak Cliff', 'Richardson'],
+    'new braunfels': ['Downtown NB', 'Gruene', 'Canyon Lake Area', 'Hunter Road Corridor'],
+    'san marcos':    ['Downtown San Marcos', 'Texas State Area', 'Wimberley Road'],
+  };
+
+  const FAQS = {
+    'free':     'Yes — 100% free for renters and buyers! We\'re paid by the property or listing, never by you. No hidden fees, ever.',
+    'credit':   'No worries! We\'ve helped 1,000+ clients with low credit, broken leases, or records. We know which properties work with tough situations.',
+    'how long': 'Most clients are touring within 2–3 days and moved in within 2–4 weeks. We move fast so you don\'t miss out.',
+    'pets':     'Absolutely. We know which communities are pet-friendly and which allow large breeds. Just tell us what you have!',
+    'cost':     'Nothing. Zero. Our service is completely free for renters. Properties pay us a referral fee — you pay nothing.',
+  };
+
+  let chatState = {};
+  let chatOpen = false;
+  let chatStarted = false;
+
+  function toggleChat() {
+    chatOpen = !chatOpen;
+    document.getElementById('chatPanel').classList.toggle('open', chatOpen);
+    if (chatOpen && !chatStarted) { chatStarted = true; setTimeout(startChat, 400); }
+  }
+
+  function startChat() {
+    showBotMessage("Hi! I'm Westin's AI assistant 👋 I can help you find a place, buy a home, sell your property, or answer any questions.\n\nWhat brings you here today?", [
+      { label: '🏢 Find an Apartment', action: () => startRentFlow() },
+      { label: '🏡 Buy a Home',        action: () => startBuyFlow() },
+      { label: '🏠 Sell My Home',      action: () => startSellFlow() },
+      { label: '💬 I have a question', action: () => askFAQ() },
+    ]);
+  }
+
+  /* ── RENT FLOW ── */
+  function startRentFlow() {
+    chatState = { type: 'rent' };
+    showUserMessage('Find an Apartment');
+    askWithInput("Great! What city or area of Texas are you looking in?", 'area', val => {
+      chatState.area = val;
+      suggestNeighborhoods(val);
+      askBudget();
+    });
+  }
+
+  function suggestNeighborhoods(area) {
+    const key = Object.keys(NEIGHBORHOODS).find(k => area.toLowerCase().includes(k));
+    if (key) {
+      const hoods = NEIGHBORHOODS[key].slice(0, 4).join(', ');
+      setTimeout(() => showBotMessage(`Popular spots in that area: ${hoods} — all worth exploring! 🏙️`), 600);
+    }
+  }
+
+  function askBudget() {
+    setTimeout(() => {
+      showBotMessage("What's your monthly budget?", [
+        { label: 'Under $900',       action: () => setBudget('Under $900') },
+        { label: '$900 – $1,200',    action: () => setBudget('$900–$1,200') },
+        { label: '$1,200 – $1,600',  action: () => setBudget('$1,200–$1,600') },
+        { label: '$1,600 – $2,200',  action: () => setBudget('$1,600–$2,200') },
+        { label: '$2,200+',          action: () => setBudget('$2,200+') },
+      ]);
+    }, 1000);
+  }
+
+  function setBudget(val) {
+    chatState.budget = val;
+    showUserMessage(val);
+    setTimeout(() => {
+      showBotMessage('How many bedrooms do you need?', [
+        { label: 'Studio',     action: () => setBeds('Studio') },
+        { label: '1 Bedroom',  action: () => setBeds('1 Bedroom') },
+        { label: '2 Bedrooms', action: () => setBeds('2 Bedrooms') },
+        { label: '3+ Bedrooms',action: () => setBeds('3+ Bedrooms') },
+      ]);
+    }, 600);
+  }
+
+  function setBeds(val) {
+    chatState.beds = val;
+    showUserMessage(val);
+    askWithInput("When are you hoping to move in? (e.g. ASAP, July, next month)", 'movedate', val => {
+      chatState.movedate = val;
+      if (val.toLowerCase().includes('asap') || val.toLowerCase().includes('now')) {
+        setTimeout(() => showBotMessage("Got it — the market moves fast, so we'll prioritize your search right away! ⚡"), 400);
+      }
+      askNotes();
+    });
+  }
+
+  function askNotes() {
+    askWithInput("Anything Westin should know upfront? Pets, credit concerns, broken lease… no judgment here — we handle it all.", 'notes', val => {
+      chatState.notes = val;
+      if (val.toLowerCase().match(/credit|score|bad|low|broken|record/)) {
+        setTimeout(() => showBotMessage("No worries at all — we specialize in exactly this. We've helped 1,000+ clients in similar situations get approved. ✅"), 400);
+      }
+      collectContact();
+    }, true);
+  }
+
+  /* ── SELL FLOW ── */
+  function startSellFlow() {
+    chatState = { type: 'sell' };
+    showUserMessage('Sell My Home');
+    askWithInput("Great — let's get your home sold! What's the property address or city?", 'address', val => {
+      chatState.address = val;
+      setTimeout(() => {
+        showBotMessage("What's your ballpark on what it's worth? (No worries if you're not sure — we'll do a free market analysis.)", [
+          { label: 'Under $200k',              action: () => setSellPrice('Under $200k') },
+          { label: '$200k – $350k',            action: () => setSellPrice('$200k–$350k') },
+          { label: '$350k – $500k',            action: () => setSellPrice('$350k–$500k') },
+          { label: '$500k+',                   action: () => setSellPrice('$500k+') },
+          { label: "Not sure — need analysis", action: () => setSellPrice('Need market analysis') },
+        ]);
+      }, 800);
+    });
+  }
+
+  function setSellPrice(val) {
+    chatState.askingprice = val;
+    showUserMessage(val);
+    if (val === 'Need market analysis') {
+      setTimeout(() => showBotMessage("No problem — Westin will pull comps and give you a free valuation. 📊"), 400);
+    }
+    setTimeout(() => {
+      showBotMessage("When are you hoping to sell?", [
+        { label: 'ASAP',              action: () => setSellTimeline('ASAP') },
+        { label: '1 – 3 months',      action: () => setSellTimeline('1–3 months') },
+        { label: '3 – 6 months',      action: () => setSellTimeline('3–6 months') },
+        { label: 'Just exploring',    action: () => setSellTimeline('Just exploring') },
+      ]);
+    }, 800);
+  }
+
+  function setSellTimeline(val) {
+    chatState.timeline = val;
+    showUserMessage(val);
+    setTimeout(() => {
+      showBotMessage("What's the condition of the property?", [
+        { label: '✅ Move-in ready',       action: () => setSellCondition('Move-in ready') },
+        { label: '🔧 Needs some updates',  action: () => setSellCondition('Needs updates') },
+        { label: '🏚 As-is / fixer-upper', action: () => setSellCondition('As-is') },
+      ]);
+    }, 600);
+  }
+
+  function setSellCondition(val) {
+    chatState.condition = val;
+    showUserMessage(val);
+    askWithInput("Anything else — mortgage still owed, inherited property, upgrading, downsizing?", 'notes', val => {
+      chatState.notes = val;
+      collectContact();
+    }, true);
+  }
+
+  /* ── BUY FLOW ── */
+  function startBuyFlow() {
+    chatState = { type: 'buy' };
+    showUserMessage('Buy a Home');
+    askWithInput("Exciting! What city or area of Texas are you looking to buy in?", 'area', val => {
+      chatState.area = val;
+      suggestNeighborhoods(val);
+      setTimeout(() => {
+        showBotMessage("What's your home buying budget?", [
+          { label: 'Under $200k',   action: () => setBuyBudget('Under $200k') },
+          { label: '$200k – $350k', action: () => setBuyBudget('$200k–$350k') },
+          { label: '$350k – $500k', action: () => setBuyBudget('$350k–$500k') },
+          { label: '$500k – $750k', action: () => setBuyBudget('$500k–$750k') },
+          { label: '$750k+',        action: () => setBuyBudget('$750k+') },
+        ]);
+      }, 800);
+    });
+  }
+
+  function setBuyBudget(val) {
+    chatState.budget = val;
+    showUserMessage(val);
+    setTimeout(() => {
+      showBotMessage("Are you already pre-approved for a mortgage?", [
+        { label: '✅ Yes, pre-approved',        action: () => setPreapproved('Yes') },
+        { label: '🔜 Not yet, but ready to start', action: () => setPreapproved('Not yet') },
+        { label: '❓ Need guidance',             action: () => setPreapproved('Need guidance') },
+      ]);
+    }, 600);
+  }
+
+  function setPreapproved(val) {
+    chatState.preapproved = val;
+    showUserMessage(val);
+    if (val === 'Not yet' || val === 'Need guidance') {
+      setTimeout(() => showBotMessage("No problem — Westin can connect you with trusted lenders who get deals done fast. 🏦"), 400);
+    }
+    askWithInput("What's your ideal move-in timeline?", 'timeline', val => {
+      chatState.timeline = val;
+      collectContact();
+    });
+  }
+
+  /* ── FAQ FLOW ── */
+  function askFAQ() {
+    showUserMessage('I have a question');
+    showBotMessage("Of course! What would you like to know?", [
+      { label: 'Is it really free?',        action: () => answerFAQ('free') },
+      { label: 'I have bad credit…',        action: () => answerFAQ('credit') },
+      { label: 'How long does it take?',    action: () => answerFAQ('how long') },
+      { label: 'Do you work with pets?',    action: () => answerFAQ('pets') },
+      { label: 'What does this cost me?',   action: () => answerFAQ('cost') },
+    ]);
+  }
+
+  function answerFAQ(key) {
+    showUserMessage(key === 'free' ? 'Is it really free?' : key === 'credit' ? 'I have bad credit…' : key === 'how long' ? 'How long does it take?' : key === 'pets' ? 'Do you work with pets?' : 'What does this cost me?');
+    setTimeout(() => {
+      showBotMessage(FAQS[key]);
+      setTimeout(() => {
+        showBotMessage("Anything else, or ready to get started?", [
+          { label: '🏢 Find an Apartment', action: () => startRentFlow() },
+          { label: '🏡 Buy a Home',        action: () => startBuyFlow() },
+          { label: '🏠 Sell My Home',      action: () => startSellFlow() },
+          { label: '📞 Just call me',      action: () => { showUserMessage('Just call me'); showBotMessage('Of course! Call or text Westin directly at (210) 394-0238 — available 7 days a week. 📞'); } },
+        ]);
+      }, 1200);
+    }, 700);
+  }
+
+  /* ── CONTACT COLLECTION ── */
+  function collectContact() {
+    askWithInput("Almost done! What's your name?", 'name', val => {
+      chatState.name = val;
+      askWithInput(`Nice to meet you, ${val.split(' ')[0]}! 😊 What's the best phone number for Westin to reach you?`, 'phone', val => {
+        chatState.phone = val;
+        submitChatLead();
+      });
+    });
+  }
+
+  function submitChatLead() {
+    const lead = {
+      id: 'wstn_' + Date.now(),
+      ...chatState,
+      status: 'New',
+      source: 'chat',
+      submittedAt: new Date().toISOString(),
+    };
+    saveLead(lead);
+
+    clearOptions();
+    hideInput();
+    setTimeout(() => {
+      showBotMessage(`You're all set, ${chatState.name ? chatState.name.split(' ')[0] : 'friend'}! 🎉\n\nWestin will call or text you at ${chatState.phone || 'the number you provided'} — usually within the hour.\n\nIn the meantime, feel free to browse the site or text (210) 394-0238 directly!`);
+    }, 600);
+  }
+
+  /* ── CHAT UI HELPERS ── */
+  function showBotMessage(text, options) {
+    const msgs = document.getElementById('chatMessages');
+
+    // Typing indicator
+    const typing = document.createElement('div');
+    typing.className = 'chat-msg';
+    typing.innerHTML = `<div class="chat-msg-avatar">W</div><div class="chat-typing"><span></span><span></span><span></span></div>`;
+    msgs.appendChild(typing);
+    msgs.scrollTop = msgs.scrollHeight;
+
+    setTimeout(() => {
+      typing.remove();
+      const el = document.createElement('div');
+      el.className = 'chat-msg';
+      el.innerHTML = `<div class="chat-msg-avatar">W</div><div class="chat-bubble">${text.replace(/\n/g, '<br>')}</div>`;
+      msgs.appendChild(el);
+      msgs.scrollTop = msgs.scrollHeight;
+
+      if (options) showOptions(options);
+    }, 900);
+  }
+
+  function showUserMessage(text) {
+    clearOptions();
+    hideInput();
+    const msgs = document.getElementById('chatMessages');
+    const el = document.createElement('div');
+    el.className = 'chat-msg user';
+    el.innerHTML = `<div class="chat-msg-avatar"><i class="fas fa-user" style="font-size:0.7rem"></i></div><div class="chat-bubble">${text}</div>`;
+    msgs.appendChild(el);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function showOptions(options) {
+    const container = document.getElementById('chatOptions');
+    container.innerHTML = '';
+    options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'chat-opt';
+      btn.textContent = opt.label;
+      btn.onclick = () => { showUserMessage(opt.label); setTimeout(opt.action, 300); };
+      container.appendChild(btn);
+    });
+  }
+
+  function clearOptions() {
+    document.getElementById('chatOptions').innerHTML = '';
+  }
+
+  function askWithInput(prompt, field, callback, optional = false) {
+    setTimeout(() => {
+      showBotMessage(optional ? prompt + (optional ? ' (or type "skip")' : '') : prompt);
+      setTimeout(() => {
+        const row = document.getElementById('chatInputRow');
+        const input = document.getElementById('chatInput');
+        row.classList.add('visible');
+        input.value = '';
+        input.placeholder = optional ? 'Type or say "skip"…' : 'Type your answer…';
+        input.focus();
+        input.onkeydown = (e) => { if (e.key === 'Enter') handleUserInput(); };
+        window._chatCallback = (val) => {
+          if (optional && val.toLowerCase() === 'skip') val = '';
+          callback(val);
+        };
+      }, 950);
+    }, 600);
+  }
+
+  function hideInput() {
+    document.getElementById('chatInputRow').classList.remove('visible');
+  }
+
+  function handleUserInput() {
+    const input = document.getElementById('chatInput');
+    const val = input.value.trim();
+    if (!val) return;
+    showUserMessage(val);
+    hideInput();
+    if (window._chatCallback) { const cb = window._chatCallback; window._chatCallback = null; setTimeout(() => cb(val), 400); }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WSTN Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:    #0D1B2A; --navy-mid: #162336; --navy-soft: #1E3050;
+      --gold:    #C8913A; --gold-lt:  #E4B06A; --gold-dim: rgba(200,145,58,0.15);
+      --cream:   #FDF8F3; --rose: #F5EDE3;
+      --text:    #1C1C1C; --text-mid: #555;
+      --border:  #E8E4DE; --white: #FFFFFF;
+      --shadow:  0 2px 16px rgba(13,27,42,0.09);
+      --shadow-lg: 0 8px 40px rgba(13,27,42,0.18);
+      --green: #2E7D32; --blue: #1565C0; --purple: #6A1B9A;
+      --teal: #00695C; --red: #B71C1C;
+    }
+    body { font-family: 'Inter', sans-serif; background: #F0EDE8; color: var(--text); min-height: 100vh; }
+    h1,h2,h3 { font-family: 'Playfair Display', serif; }
+
+    /* ── AUTH GATE ── */
+    #authGate {
+      position: fixed; inset: 0; background: var(--navy);
+      display: flex; align-items: center; justify-content: center; z-index: 9999;
+    }
+    .auth-box {
+      background: white; border-radius: 20px; padding: 48px 40px;
+      width: 380px; text-align: center; box-shadow: var(--shadow-lg);
+    }
+    .auth-logo { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--gold); letter-spacing: 0.1em; margin-bottom: 4px; }
+    .auth-sub { font-size: 0.78rem; color: var(--text-mid); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 32px; }
+    .auth-box h2 { font-size: 1.4rem; color: var(--navy); margin-bottom: 24px; }
+    .auth-input {
+      width: 100%; padding: 14px 16px; border: 1.5px solid var(--border);
+      border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 1rem;
+      outline: none; transition: border-color 0.2s; margin-bottom: 16px;
+    }
+    .auth-input:focus { border-color: var(--gold); }
+    .auth-btn {
+      width: 100%; padding: 14px; background: var(--navy); color: white;
+      border: none; border-radius: 8px; font-family: 'Inter', sans-serif;
+      font-size: 1rem; font-weight: 700; cursor: pointer; transition: background 0.2s;
+    }
+    .auth-btn:hover { background: var(--navy-soft); }
+    .auth-error { color: #c0392b; font-size: 0.85rem; margin-top: 10px; display: none; }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--navy); padding: 0 32px; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+    .header-logo { display: flex; flex-direction: column; line-height: 1; }
+    .header-logo span:first-child { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: var(--gold); letter-spacing: 0.08em; }
+    .header-logo span:last-child { font-size: 0.6rem; color: rgba(255,255,255,0.4); letter-spacing: 0.16em; text-transform: uppercase; margin-top: 2px; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .header-right a { color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.82rem; font-weight: 500; transition: color 0.2s; }
+    .header-right a:hover { color: var(--gold-lt); }
+    .header-date { font-size: 0.78rem; color: rgba(255,255,255,0.4); }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      padding: 0 32px; display: flex; gap: 0; overflow-x: auto;
+    }
+    .stat-card {
+      padding: 20px 28px; border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 4px; min-width: 120px;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .stat-card:hover { background: var(--cream); }
+    .stat-card:last-child { border-right: none; }
+    .stat-num { font-size: 1.9rem; font-weight: 700; font-family: 'Playfair Display', serif; color: var(--navy); line-height: 1; }
+    .stat-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-mid); }
+    .stat-card.new .stat-num { color: var(--gold); }
+    .stat-card.rent .stat-num { color: var(--blue); }
+    .stat-card.buy .stat-num { color: var(--purple); }
+    .stat-card.closed .stat-num { color: var(--green); }
+
+    /* ── AI DIGEST ── */
+    .digest-bar {
+      background: linear-gradient(135deg, var(--navy-soft), var(--navy));
+      padding: 14px 32px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .digest-icon { color: var(--gold); font-size: 1.1rem; flex-shrink: 0; }
+    .digest-text { font-size: 0.85rem; color: rgba(255,255,255,0.85); line-height: 1.5; flex: 1; }
+    .digest-text strong { color: var(--gold-lt); }
+
+    /* ── CONTROLS ── */
+    .controls {
+      padding: 20px 32px; background: var(--white);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    }
+    .filter-tabs { display: flex; gap: 6px; }
+    .filter-tab {
+      padding: 7px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+      border: 1.5px solid var(--border); background: transparent; cursor: pointer;
+      font-family: 'Inter', sans-serif; color: var(--text-mid); transition: all 0.18s;
+    }
+    .filter-tab.active { background: var(--navy); border-color: var(--navy); color: white; }
+    .filter-tab:hover:not(.active) { border-color: var(--gold); color: var(--gold); }
+    .search-wrap { margin-left: auto; position: relative; }
+    .search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-mid); font-size: 0.85rem; }
+    .search-input {
+      padding: 9px 16px 9px 34px; border: 1.5px solid var(--border);
+      border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.85rem;
+      width: 240px; outline: none; transition: border-color 0.2s;
+    }
+    .search-input:focus { border-color: var(--gold); }
+    .add-sample-btn {
+      padding: 8px 16px; border-radius: 8px; border: 1.5px dashed var(--border);
+      background: transparent; color: var(--text-mid); font-family: 'Inter', sans-serif;
+      font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .add-sample-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ── TABLE ── */
+    .table-wrap { padding: 24px 32px; }
+    .leads-table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
+    .leads-table th {
+      padding: 12px 16px; text-align: left; font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-mid);
+      background: #FAFAF8; border-bottom: 1px solid var(--border);
+    }
+    .leads-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 0.88rem; vertical-align: middle; }
+    .leads-table tr:last-child td { border-bottom: none; }
+    .leads-table tbody tr { cursor: pointer; transition: background 0.15s; }
+    .leads-table tbody tr:hover { background: var(--cream); }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 100px; font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .badge-rent  { background: #E3F2FD; color: var(--blue); }
+    .badge-buy   { background: #F3E5F5; color: var(--purple); }
+    .badge-sell  { background: #FFF8E1; color: #E65100; }
+    .badge-new   { background: #FFF8E1; color: #E65100; }
+    .badge-called  { background: #E3F2FD; color: var(--blue); }
+    .badge-showing { background: #F3E5F5; color: var(--purple); }
+    .badge-active  { background: #E8F5E9; color: #2E7D32; }
+    .badge-closed  { background: #E8F5E9; color: var(--green); }
+    .badge-lost    { background: #F5F5F5; color: #757575; }
+
+    .score-pip { display: inline-flex; gap: 2px; align-items: center; }
+    .score-pip span { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+    .score-pip.hot span:nth-child(-n+5)   { background: #E65100; }
+    .score-pip.warm span:nth-child(-n+3)  { background: var(--gold); }
+    .score-pip.cool span:nth-child(-n+1)  { background: #78909C; }
+    .score-label { font-size: 0.7rem; font-weight: 700; margin-left: 4px; }
+    .score-label.hot  { color: #E65100; }
+    .score-label.warm { color: var(--gold); }
+    .score-label.cool { color: #78909C; }
+
+    .phone-link { color: var(--navy); text-decoration: none; font-weight: 600; }
+    .phone-link:hover { color: var(--gold); }
+    .empty-state { padding: 64px; text-align: center; color: var(--text-mid); background: var(--white); border-radius: 12px; box-shadow: var(--shadow); }
+    .empty-state i { font-size: 2.5rem; color: var(--border); margin-bottom: 16px; display: block; }
+    .empty-state h3 { color: var(--navy); margin-bottom: 8px; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(13,27,42,0.65);
+      backdrop-filter: blur(4px); z-index: 500;
+      display: none; align-items: flex-start; justify-content: center;
+      padding: 24px; overflow-y: auto;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--white); border-radius: 20px; width: 100%; max-width: 780px;
+      box-shadow: var(--shadow-lg); overflow: hidden; margin: auto;
+    }
+    .modal-header {
+      background: var(--navy); padding: 22px 28px;
+      display: flex; align-items: flex-start; gap: 16px;
+    }
+    .modal-header-info { flex: 1; }
+    .modal-header h3 { font-size: 1.4rem; color: white; margin-bottom: 6px; }
+    .modal-header-meta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .modal-close {
+      background: none; border: none; color: rgba(255,255,255,0.5);
+      font-size: 1.3rem; cursor: pointer; transition: color 0.2s; padding: 2px;
+    }
+    .modal-close:hover { color: white; }
+
+    .modal-body { padding: 28px; }
+
+    /* AI Brief */
+    .ai-brief {
+      background: linear-gradient(135deg, #0D1B2A, #1E3050);
+      border-radius: 12px; padding: 20px 22px; margin-bottom: 24px;
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .ai-brief-icon { color: var(--gold); font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+    .ai-brief-content { flex: 1; }
+    .ai-brief-content label { display: block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-lt); margin-bottom: 6px; }
+    .ai-brief-content p { font-size: 0.88rem; color: rgba(255,255,255,0.85); line-height: 1.65; }
+
+    /* Lead details grid */
+    .details-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 12px; margin-bottom: 24px;
+    }
+    .detail-item { background: var(--cream); border-radius: 10px; padding: 14px 16px; }
+    .detail-item label { display: block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mid); margin-bottom: 5px; }
+    .detail-item span { font-size: 0.9rem; font-weight: 600; color: var(--navy); }
+
+    /* Status & Notes */
+    .modal-section { margin-bottom: 24px; }
+    .modal-section h4 { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mid); margin-bottom: 12px; }
+    .status-select {
+      padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600;
+      color: var(--navy); background: white; outline: none; cursor: pointer; width: 220px;
+    }
+    .status-select:focus { border-color: var(--gold); }
+    .notes-textarea {
+      width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
+      border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.88rem;
+      resize: vertical; min-height: 80px; outline: none; transition: border-color 0.2s;
+    }
+    .notes-textarea:focus { border-color: var(--gold); }
+    .save-btn {
+      margin-top: 10px; padding: 9px 22px; background: var(--navy); color: white;
+      border: none; border-radius: 8px; font-family: 'Inter', sans-serif;
+      font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: background 0.2s;
+    }
+    .save-btn:hover { background: var(--navy-soft); }
+
+    /* SMS Templates */
+    .sms-cards { display: flex; flex-direction: column; gap: 10px; }
+    .sms-card {
+      border: 1.5px solid var(--border); border-radius: 10px; padding: 16px 18px;
+      display: flex; align-items: flex-start; gap: 14px; transition: border-color 0.2s;
+    }
+    .sms-card:hover { border-color: var(--gold); }
+    .sms-card-icon { color: var(--gold); font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
+    .sms-card-body { flex: 1; }
+    .sms-card-body strong { display: block; font-size: 0.85rem; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+    .sms-card-body p { font-size: 0.8rem; color: var(--text-mid); line-height: 1.55; }
+    .sms-card-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .sms-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 6px; font-size: 0.78rem; font-weight: 700;
+      font-family: 'Inter', sans-serif; cursor: pointer; text-decoration: none;
+      border: none; transition: all 0.18s;
+    }
+    .sms-btn-primary { background: var(--navy); color: white; }
+    .sms-btn-primary:hover { background: var(--navy-soft); }
+    .sms-btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text-mid); }
+    .sms-btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* Action row */
+    .modal-actions { display: flex; gap: 10px; padding-top: 20px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+    .action-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.85rem; font-weight: 700;
+      font-family: 'Inter', sans-serif; cursor: pointer; text-decoration: none; border: none;
+      transition: all 0.18s;
+    }
+    .action-call  { background: var(--green); color: white; }
+    .action-call:hover { opacity: 0.85; }
+    .action-email { background: var(--blue); color: white; }
+    .action-email:hover { opacity: 0.85; }
+    .action-delete { background: #FBE9E7; color: #B71C1C; margin-left: auto; }
+    .action-delete:hover { background: #FFCCBC; }
+  </style>
+</head>
+<body>
+
+<!-- ── AUTH GATE ── -->
+<div id="authGate">
+  <div class="auth-box">
+    <div class="auth-logo">WSTN</div>
+    <div class="auth-sub">Apartment Locating</div>
+    <h2>Agent Dashboard</h2>
+    <input type="password" id="pwInput" class="auth-input" placeholder="Password" onkeydown="if(event.key==='Enter')checkAuth()" />
+    <button class="auth-btn" onclick="checkAuth()">Sign In</button>
+    <div class="auth-error" id="authError">Incorrect password — try again.</div>
+  </div>
+</div>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="header-logo">
+    <span>WSTN</span>
+    <span>Agent Dashboard</span>
+  </div>
+  <div class="header-right">
+    <span class="header-date" id="headerDate"></span>
+    <a href="index.html" target="_blank"><i class="fas fa-external-link-alt"></i> View Site</a>
+    <a href="tel:2103940238"><i class="fas fa-phone"></i> (210) 394-0238</a>
+  </div>
+</header>
+
+<!-- ── STATS BAR ── -->
+<div class="stats-bar" id="statsBar">
+  <div class="stat-card" onclick="setFilter('All')">
+    <div class="stat-num" id="stat-total">0</div>
+    <div class="stat-label">Total Leads</div>
+  </div>
+  <div class="stat-card new" onclick="setFilter('New')">
+    <div class="stat-num" id="stat-new">0</div>
+    <div class="stat-label">New</div>
+  </div>
+  <div class="stat-card rent" onclick="setFilter('rent')">
+    <div class="stat-num" id="stat-rent">0</div>
+    <div class="stat-label">Renters</div>
+  </div>
+  <div class="stat-card buy" onclick="setFilter('buy')">
+    <div class="stat-num" id="stat-buy">0</div>
+    <div class="stat-label">Buyers</div>
+  </div>
+  <div class="stat-card new" onclick="setFilter('sell')" style="--accent:#E65100">
+    <div class="stat-num" id="stat-sell" style="color:#E65100">0</div>
+    <div class="stat-label">Sellers</div>
+  </div>
+  <div class="stat-card closed" onclick="setFilter('Closed')">
+    <div class="stat-num" id="stat-closed">0</div>
+    <div class="stat-label">Closed</div>
+  </div>
+</div>
+
+<!-- ── AI DAILY DIGEST ── -->
+<div class="digest-bar" id="digestBar"></div>
+
+<!-- ── CONTROLS ── -->
+<div class="controls">
+  <div class="filter-tabs" id="filterTabs">
+    <button class="filter-tab active" onclick="setFilter('All')">All</button>
+    <button class="filter-tab" onclick="setFilter('New')">New</button>
+    <button class="filter-tab" onclick="setFilter('Called')">Called</button>
+    <button class="filter-tab" onclick="setFilter('Showing')">Showing</button>
+    <button class="filter-tab" onclick="setFilter('Active')">Active</button>
+    <button class="filter-tab" onclick="setFilter('Closed')">Closed</button>
+    <button class="filter-tab" onclick="setFilter('Lost')">Lost</button>
+    <button class="filter-tab" onclick="setFilter('sell')" style="border-color:#E65100;color:#E65100">🏠 Sellers</button>
+  </div>
+  <button class="add-sample-btn" onclick="addSampleLeads()">
+    <i class="fas fa-plus"></i> Add Sample Data
+  </button>
+  <div class="search-wrap">
+    <i class="fas fa-search"></i>
+    <input class="search-input" type="text" placeholder="Search leads…" oninput="renderTable()" id="searchInput" />
+  </div>
+</div>
+
+<!-- ── TABLE ── -->
+<div class="table-wrap" id="tableWrap"></div>
+
+<!-- ── DETAIL MODAL ── -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnBg(event)">
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+      <div class="modal-header-info">
+        <h3 id="mName">—</h3>
+        <div class="modal-header-meta" id="mMeta"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+
+      <!-- AI Brief -->
+      <div class="ai-brief">
+        <div class="ai-brief-icon"><i class="fas fa-robot"></i></div>
+        <div class="ai-brief-content">
+          <label>AI Lead Summary</label>
+          <p id="mBrief">—</p>
+        </div>
+      </div>
+
+      <!-- Details grid -->
+      <div class="details-grid" id="mDetails"></div>
+
+      <!-- Status -->
+      <div class="modal-section">
+        <h4>Lead Status</h4>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <select class="status-select" id="mStatus" onchange="saveStatus()">
+            <option>New</option>
+            <option>Called</option>
+            <option>Showing</option>
+            <option>Active</option>
+            <option>Closed</option>
+            <option>Lost</option>
+          </select>
+          <span id="statusSaved" style="font-size:0.78rem;color:var(--green);display:none">
+            <i class="fas fa-check"></i> Saved
+          </span>
+        </div>
+      </div>
+
+      <!-- Internal Notes -->
+      <div class="modal-section">
+        <h4>Internal Notes</h4>
+        <textarea class="notes-textarea" id="mNotes" placeholder="Add your notes about this lead…"></textarea>
+        <button class="save-btn" onclick="saveNotes()"><i class="fas fa-save"></i> Save Notes</button>
+      </div>
+
+      <!-- SMS Templates -->
+      <div class="modal-section">
+        <h4>Quick Outreach Templates</h4>
+        <div class="sms-cards" id="mSmsCards"></div>
+      </div>
+
+      <!-- Action row -->
+      <div class="modal-actions" id="mActions"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const PASSWORD = 'WSTN2025!';
+  let allLeads = [];
+  let currentFilter = 'All';
+  let activeLead = null;
+
+  /* ── AUTH ── */
+  function checkAuth() {
+    if (document.getElementById('pwInput').value === PASSWORD) {
+      document.getElementById('authGate').style.display = 'none';
+      init();
+    } else {
+      document.getElementById('authError').style.display = 'block';
+      document.getElementById('pwInput').value = '';
+    }
+  }
+
+  /* ── INIT ── */
+  function init() {
+    document.getElementById('headerDate').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+    loadLeads();
+    updateStats();
+    renderDigest();
+    renderTable();
+  }
+
+  function loadLeads() {
+    allLeads = JSON.parse(localStorage.getItem('wstn_leads') || '[]');
+  }
+
+  function saveLead(lead) {
+    const idx = allLeads.findIndex(l => l.id === lead.id);
+    if (idx >= 0) allLeads[idx] = lead;
+    else allLeads.unshift(lead);
+    localStorage.setItem('wstn_leads', JSON.stringify(allLeads));
+  }
+
+  /* ── SAMPLE DATA ── */
+  function addSampleLeads() {
+    const samples = [
+      { id:'wstn_s1', type:'rent', name:'Sarah Mitchell', phone:'(512) 889-4421', email:'sarah.m@gmail.com', budget:'$1,200–$1,600', beds:'2 Bedrooms', movedate:'ASAP', area:'Austin (East Side)', notes:'Has a small dog, Goldendoodle. Credit score around 640.', status:'New', source:'website', submittedAt: new Date(Date.now()-3600000).toISOString() },
+      { id:'wstn_s2', type:'rent', name:'Marcus & Destiny Johnson', phone:'(210) 773-9102', email:'mjohnson@outlook.com', budget:'$900–$1,200', beds:'3+ Bedrooms', movedate:'July 2025', area:'San Antonio NW', notes:'Family of 4, need good school district. Broken lease from 2023.', status:'Called', source:'chat', submittedAt: new Date(Date.now()-86400000).toISOString() },
+      { id:'wstn_s3', type:'buy', name:'Priya Ramachandran', phone:'(737) 440-5508', email:'priya.r@icloud.com', budget:'$350k–$500k', timeline:'1–3 months', preapproved:'Yes', area:'Cedar Park / Leander', notes:'First-time buyer. Preapproved at $450k. Wants 3BR, 2BA, good commute to Domain.', status:'Showing', source:'referral', submittedAt: new Date(Date.now()-172800000).toISOString() },
+      { id:'wstn_s4', type:'rent', name:'Jake Torres', phone:'(830) 519-2244', email:'', budget:'Under $900', beds:'Studio', movedate:'Next month', area:'New Braunfels', notes:'Just moved from Houston. No credit history yet.', status:'Active', source:'chat', submittedAt: new Date(Date.now()-259200000).toISOString() },
+      { id:'wstn_s5', type:'buy', name:'Linda & Greg Okafor', phone:'(214) 652-1188', email:'gregokafor@gmail.com', budget:'$500k–$750k', timeline:'3–6 months', preapproved:'Not yet', area:'Frisco / Prosper', notes:'Upsizing — selling current home in March. Need good school district for 2 kids.', status:'New', source:'form', submittedAt: new Date(Date.now()-7200000).toISOString() },
+      { id:'wstn_s6', type:'sell', name:'Diana Reyes', phone:'(512) 304-7761', email:'diana.reyes@gmail.com', address:'4412 Shoal Creek Blvd, Austin TX', askingprice:'$480,000', timeline:'ASAP', condition:'Move-in ready', notes:'Relocating to Denver for work. Needs to sell fast — open to negotiation.', status:'New', source:'website', submittedAt: new Date(Date.now()-1800000).toISOString() },
+    ];
+    const existing = JSON.parse(localStorage.getItem('wstn_leads') || '[]');
+    const existingIds = new Set(existing.map(l => l.id));
+    const toAdd = samples.filter(s => !existingIds.has(s.id));
+    const merged = [...toAdd, ...existing];
+    localStorage.setItem('wstn_leads', JSON.stringify(merged));
+    loadLeads(); updateStats(); renderDigest(); renderTable();
+  }
+
+  /* ── SCORING ── */
+  function scoreLead(lead) {
+    let score = 0;
+    const move = (lead.movedate || lead.timeline || '').toLowerCase();
+    if (move.includes('asap') || move.includes('now') || move.includes('immediately')) score += 3;
+    else if (move.includes('next') || move.includes('1') || move.includes('month')) score += 2;
+    else if (move.includes('2') || move.includes('3')) score += 1;
+    if (lead.source === 'chat') score += 1;
+    if (lead.notes) score += 1;
+    if (lead.preapproved === 'Yes') score += 2;
+    const budget = lead.budget || '';
+    if (budget.includes('1,600') || budget.includes('2,200') || budget.includes('350k') || budget.includes('500k') || budget.includes('750k') || budget.includes('+')) score += 1;
+    return Math.min(score, 5);
+  }
+
+  function scoreLabel(score) {
+    if (score >= 4) return { cls: 'hot',  label: '🔥 Hot'  };
+    if (score >= 2) return { cls: 'warm', label: '⚡ Warm' };
+    return                 { cls: 'cool', label: '🧊 Cool' };
+  }
+
+  /* ── AI BRIEF ── */
+  function generateBrief(lead) {
+    const isSell = lead.type === 'sell';
+    const type   = lead.type === 'rent' ? 'renter' : isSell ? 'home seller' : 'home buyer';
+    let line;
+    if (isSell) {
+      line = `${lead.name || 'Client'} wants to sell their property`;
+      if (lead.address) line += ` at ${lead.address}`;
+      if (lead.askingprice) line += `. Estimated value: ${lead.askingprice}`;
+      if (lead.timeline) line += `. Timeline: ${lead.timeline}`;
+      if (lead.condition) line += `. Condition: ${lead.condition}`;
+      if (lead.notes) line += `. Notes: ${lead.notes}`;
+    } else {
+      const area = lead.area ? `in ${lead.area}` : 'in Texas';
+      line = `${lead.name || 'Client'} is a ${type} looking ${area}`;
+      if (lead.budget) line += ` with a budget of ${lead.budget}`;
+      if (lead.beds) line += `, seeking a ${lead.beds.toLowerCase()}`;
+      if (lead.movedate) line += `. Move-in: ${lead.movedate}`;
+      if (lead.timeline) line += `. Timeline: ${lead.timeline}`;
+      if (lead.preapproved === 'Yes') line += '. Pre-approved ✅';
+      if (lead.notes) {
+        const notes = lead.notes.toLowerCase();
+        if (notes.includes('dog') || notes.includes('cat') || notes.includes('pet')) line += '. Has pets — filter pet-friendly only.';
+        if (notes.includes('credit') || notes.includes('score') || notes.includes('bad')) line += '. Credit concerns — prioritize lenient properties.';
+        if (notes.includes('broken lease')) line += '. Has a broken lease — needs landlord with flexible screening.';
+        if (notes.includes('school')) line += '. School district is a priority.';
+      }
+    }
+    const score = scoreLead(lead);
+    const { label } = scoreLabel(score);
+    line += `. Lead score: ${label}`;
+    return line + '.';
+  }
+
+  /* ── DAILY DIGEST ── */
+  function renderDigest() {
+    const newCount = allLeads.filter(l => l.status === 'New').length;
+    const showingCount = allLeads.filter(l => l.status === 'Showing').length;
+    const hotLeads = allLeads.filter(l => scoreLead(l) >= 4 && l.status === 'New');
+    let text = `<strong>Today's snapshot:</strong> `;
+    const parts = [];
+    if (newCount > 0) parts.push(`<strong>${newCount} new lead${newCount > 1 ? 's' : ''}</strong> waiting for a call`);
+    if (showingCount > 0) parts.push(`<strong>${showingCount} showing${showingCount > 1 ? 's' : ''}</strong> in progress`);
+    if (hotLeads.length > 0) parts.push(`<strong>${hotLeads[0].name ? hotLeads[0].name.split(' ')[0] : 'A lead'}</strong> is 🔥 hot — call first`);
+    if (parts.length === 0) parts.push('No new leads yet — share the site link to start getting inquiries!');
+    text += parts.join(' · ');
+    document.getElementById('digestBar').innerHTML = `<i class="fas fa-robot digest-icon" style="color:var(--gold)"></i><div class="digest-text">${text}</div>`;
+  }
+
+  /* ── STATS ── */
+  function updateStats() {
+    document.getElementById('stat-total').textContent  = allLeads.length;
+    document.getElementById('stat-new').textContent    = allLeads.filter(l => l.status === 'New').length;
+    document.getElementById('stat-rent').textContent   = allLeads.filter(l => l.type === 'rent').length;
+    document.getElementById('stat-buy').textContent    = allLeads.filter(l => l.type === 'buy').length;
+    document.getElementById('stat-sell').textContent   = allLeads.filter(l => l.type === 'sell').length;
+    document.getElementById('stat-closed').textContent = allLeads.filter(l => l.status === 'Closed').length;
+  }
+
+  /* ── FILTER ── */
+  function setFilter(f) {
+    currentFilter = f;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.toggle('active', t.textContent.trim() === f));
+    renderTable();
+  }
+
+  /* ── TABLE ── */
+  function renderTable() {
+    const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
+    let leads = allLeads.filter(l => {
+      if (currentFilter === 'All') return true;
+      if (currentFilter === 'rent' || currentFilter === 'buy' || currentFilter === 'sell') return l.type === currentFilter;
+      return l.status === currentFilter;
+    }).filter(l => {
+      if (!q) return true;
+      return (l.name + l.phone + l.area + l.budget + l.email).toLowerCase().includes(q);
+    });
+
+    const wrap = document.getElementById('tableWrap');
+    if (leads.length === 0) {
+      wrap.innerHTML = `<div class="empty-state"><i class="fas fa-inbox"></i><h3>No leads yet</h3><p>Share the site link or click "Add Sample Data" to see how this works.</p></div>`;
+      return;
+    }
+
+    wrap.innerHTML = `<table class="leads-table">
+      <thead><tr>
+        <th>Date</th><th>Name</th><th>Phone</th><th>Type</th>
+        <th>Area</th><th>Budget</th><th>Lead Score</th><th>Status</th>
+      </tr></thead>
+      <tbody>${leads.map(l => tableRow(l)).join('')}</tbody>
+    </table>`;
+  }
+
+  function tableRow(l) {
+    const score = scoreLead(l);
+    const { cls, label } = scoreLabel(score);
+    const date = new Date(l.submittedAt).toLocaleDateString('en-US', { month:'short', day:'numeric' });
+    const statusBadge = `<span class="badge badge-${(l.status||'new').toLowerCase()}">${l.status || 'New'}</span>`;
+    const typeBadge   = `<span class="badge badge-${l.type}">${l.type === 'rent' ? '🏢 Rent' : l.type === 'sell' ? '🏠 Sell' : '🏡 Buy'}</span>`;
+    const pipHtml = [1,2,3,4,5].map(i => `<span style="${i <= score ? `background:${cls==='hot'?'#E65100':cls==='warm'?'var(--gold)':'#78909C'}` : ''}"></span>`).join('');
+    return `<tr onclick="openModal('${l.id}')">
+      <td style="color:var(--text-mid);font-size:0.82rem">${date}</td>
+      <td><strong>${l.name || '—'}</strong>${l.source === 'chat' ? ' <span title="Came via AI chat" style="color:var(--gold);font-size:0.7rem">●AI</span>' : ''}</td>
+      <td><a class="phone-link" href="tel:${(l.phone||'').replace(/\D/g,'')}" onclick="event.stopPropagation()">${l.phone || '—'}</a></td>
+      <td>${typeBadge}</td>
+      <td style="font-size:0.85rem">${l.area || '—'}</td>
+      <td style="font-size:0.85rem;font-weight:600">${l.budget || '—'}</td>
+      <td><div class="score-pip ${cls}">${pipHtml}</div> <span class="score-label ${cls}">${label}</span></td>
+      <td>${statusBadge}</td>
+    </tr>`;
+  }
+
+  /* ── MODAL ── */
+  function openModal(id) {
+    activeLead = allLeads.find(l => l.id === id);
+    if (!activeLead) return;
+    const l = activeLead;
+    const score = scoreLead(l);
+    const { label: slabel, cls } = scoreLabel(score);
+
+    document.getElementById('mName').textContent = l.name || 'Unknown';
+    document.getElementById('mMeta').innerHTML = `
+      <span class="badge badge-${l.type}">${l.type === 'rent' ? '🏢 Renter' : l.type === 'sell' ? '🏠 Seller' : '🏡 Buyer'}</span>
+      <span class="badge badge-${(l.status||'new').toLowerCase()}">${l.status || 'New'}</span>
+      <span class="score-label ${cls}" style="font-size:0.8rem">${slabel}</span>
+      ${l.source === 'chat' ? '<span style="font-size:0.75rem;color:rgba(255,255,255,0.5)">📱 via AI Chat</span>' : ''}
+    `;
+
+    document.getElementById('mBrief').textContent = generateBrief(l);
+    document.getElementById('mStatus').value = l.status || 'New';
+    document.getElementById('mNotes').value = l.internalNotes || '';
+
+    // Details grid
+    const detailFields = l.type === 'rent'
+      ? [['Phone', l.phone], ['Email', l.email || '—'], ['Area', l.area], ['Budget', l.budget], ['Bedrooms', l.beds], ['Move Date', l.movedate]]
+      : l.type === 'sell'
+      ? [['Phone', l.phone], ['Email', l.email || '—'], ['Address', l.address], ['Est. Value', l.askingprice], ['Timeline', l.timeline], ['Condition', l.condition]]
+      : [['Phone', l.phone], ['Email', l.email || '—'], ['Area', l.area], ['Budget', l.budget], ['Timeline', l.timeline], ['Pre-approved', l.preapproved]];
+    document.getElementById('mDetails').innerHTML = detailFields.map(([k,v]) =>
+      `<div class="detail-item"><label>${k}</label><span>${v || '—'}</span></div>`
+    ).join('');
+    if (l.notes) {
+      document.getElementById('mDetails').innerHTML += `<div class="detail-item" style="grid-column:1/-1"><label>Client Notes</label><span style="font-weight:400;font-size:0.85rem;color:var(--text-mid)">${l.notes}</span></div>`;
+    }
+
+    // SMS templates
+    const firstName = (l.name || 'there').split(' ')[0];
+    const typeStr = l.type === 'rent' ? `a ${l.beds || ''} apartment`.trim() : 'a home';
+    const smsTemplates = l.type === 'sell' ? [
+      {
+        icon: 'fa-hand-wave', title: 'Initial Outreach',
+        body: `Hi ${firstName}! This is Westin from WSTN — I saw you're thinking about selling${l.address ? ` at ${l.address}` : ''}. I'd love to run a free market analysis and show you what your home could sell for. When's a good time to connect? 🏠`,
+      },
+      {
+        icon: 'fa-chart-line', title: 'Free Market Analysis',
+        body: `Hey ${firstName}! Based on recent sales in your area, I think your home could be worth more than you expect. I can have a free CMA report ready for you within 24 hours — want me to run the numbers? 📊`,
+      },
+      {
+        icon: 'fa-sign', title: 'Listing Consultation',
+        body: `${firstName}, homes like yours are selling fast right now! I'd love to do a quick walkthrough and put together a no-obligation listing plan. Takes about 30 minutes — interested? Let's get you top dollar! 💰`,
+      },
+    ] : [
+      {
+        icon: 'fa-hand-wave', title: 'Initial Outreach',
+        body: `Hi ${firstName}! This is Westin from WSTN Apartment Locating 👋 I saw your request for ${typeStr} in ${l.area || 'Texas'} around ${l.budget || 'your budget'}. I have some great options — when's a good time to chat? 🏠`,
+      },
+      {
+        icon: 'fa-calendar-check', title: 'Schedule a Tour',
+        body: `Hey ${firstName}! Great news — I found a few places that match exactly what you're looking for. Want to schedule some tours this week? I can do mornings or afternoons, just let me know! 🗓️`,
+      },
+      {
+        icon: 'fa-star', title: 'Exclusive Listing Alert',
+        body: `${firstName}, just got access to an exclusive listing in ${l.area || 'your area'} that's NOT on Zillow yet — fits your budget and everything you mentioned. Want me to send over the details? 🔑`,
+      },
+    ];
+    document.getElementById('mSmsCards').innerHTML = smsTemplates.map((t, i) => `
+      <div class="sms-card">
+        <div class="sms-card-icon"><i class="fas ${t.icon}"></i></div>
+        <div class="sms-card-body">
+          <strong>${t.title}</strong>
+          <p>${t.body}</p>
+          <div class="sms-card-actions">
+            <a class="sms-btn sms-btn-primary" href="sms:${(l.phone||'').replace(/\D/g,'')}?body=${encodeURIComponent(t.body)}" target="_blank">
+              <i class="fas fa-comment"></i> Send SMS
+            </a>
+            <button class="sms-btn sms-btn-outline" onclick="copyText(${i})">
+              <i class="fas fa-copy"></i> Copy
+            </button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+    window._smsTexts = smsTemplates.map(t => t.body);
+
+    // Actions
+    document.getElementById('mActions').innerHTML = `
+      <a class="action-btn action-call" href="tel:${(l.phone||'').replace(/\D/g,'')}">
+        <i class="fas fa-phone"></i> Call ${firstName}
+      </a>
+      ${l.email ? `<a class="action-btn action-email" href="mailto:${l.email}?subject=WSTN — Your ${l.type === 'rent' ? 'Apartment' : 'Home'} Search&body=Hi ${firstName},%0A%0AThanks for reaching out to WSTN!%0A%0AWestin">
+        <i class="fas fa-envelope"></i> Email
+      </a>` : ''}
+      <button class="action-btn action-delete" onclick="deleteLead()">
+        <i class="fas fa-trash"></i> Delete Lead
+      </button>
+    `;
+
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    activeLead = null;
+  }
+
+  function closeModalOnBg(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  }
+
+  function saveStatus() {
+    if (!activeLead) return;
+    activeLead.status = document.getElementById('mStatus').value;
+    saveLead(activeLead);
+    const saved = document.getElementById('statusSaved');
+    saved.style.display = 'inline';
+    setTimeout(() => { saved.style.display = 'none'; }, 2000);
+    updateStats(); renderDigest(); renderTable();
+  }
+
+  function saveNotes() {
+    if (!activeLead) return;
+    activeLead.internalNotes = document.getElementById('mNotes').value;
+    saveLead(activeLead);
+  }
+
+  function deleteLead() {
+    if (!activeLead) return;
+    if (!confirm(`Delete lead for ${activeLead.name}? This can't be undone.`)) return;
+    allLeads = allLeads.filter(l => l.id !== activeLead.id);
+    localStorage.setItem('wstn_leads', JSON.stringify(allLeads));
+    closeModal(); updateStats(); renderDigest(); renderTable();
+  }
+
+  function copyText(i) {
+    navigator.clipboard.writeText(window._smsTexts[i]).then(() => alert('Copied to clipboard!'));
+  }
+</script>
+</body>
+</html>
