@@ -33,32 +33,45 @@ router.post('/wstn/lead', express.json(), async (req, res) => {
     name, phone, email, type,
     budget, beds, movedate, timeline, preapproved,
     area, notes, source,
+    address, askingprice, condition,
   } = req.body || {};
 
   if (!name || !phone) {
     return res.status(400).json({ error: 'Missing required fields: name, phone' });
   }
 
-  const isRent    = type !== 'buy';
-  const typeLabel = isRent ? 'Apartment Seeker' : 'Home Buyer';
-  const emoji     = isRent ? '🏢' : '🏡';
+  const isSell    = type === 'sell';
+  const isRent    = !isSell && type !== 'buy';
+  const typeLabel = isSell ? 'Home Seller' : isRent ? 'Apartment Seeker' : 'Home Buyer';
+  const emoji     = isSell ? '🏠' : isRent ? '🏢' : '🏡';
   const firstName = name.split(' ')[0];
 
   // ── SMS to Westin ──────────────────────────────────────────────────────────
-  const smsBody =
-    `${emoji} NEW LEAD — WSTN Apartment Locating\n\n` +
-    `👤 ${name} (${typeLabel})\n` +
-    `📞 ${phone}\n` +
-    (email ? `📧 ${email}\n` : '') +
-    `\n📍 Area: ${area || 'not specified'}\n` +
-    `💰 Budget: ${budget || 'not specified'}\n` +
-    (isRent && beds     ? `🛏  Beds: ${beds}\n`        : '') +
-    (isRent && movedate ? `📅 Move: ${movedate}\n`     : '') +
-    (!isRent && timeline    ? `⏱  Timeline: ${timeline}\n`        : '') +
-    (!isRent && preapproved ? `🏦 Pre-approved: ${preapproved}\n` : '') +
-    (notes ? `\n💬 Notes: ${notes}\n` : '') +
-    (source === 'chat' ? `\n📱 Via AI chat widget\n` : '') +
-    `\nDashboard: ${DASH_URL}`;
+  const smsBody = isSell
+    ? `${emoji} NEW SELLER LEAD — WSTN\n\n` +
+      `👤 ${name}\n` +
+      `📞 ${phone}\n` +
+      (email ? `📧 ${email}\n` : '') +
+      `\n🏠 Address: ${address || 'not specified'}\n` +
+      `💰 Est. Value: ${askingprice || 'not specified'}\n` +
+      (timeline  ? `⏱  Timeline: ${timeline}\n`  : '') +
+      (condition ? `🔧 Condition: ${condition}\n` : '') +
+      (notes ? `\n💬 Notes: ${notes}\n` : '') +
+      (source === 'chat' ? `\n📱 Via AI chat widget\n` : '') +
+      `\nDashboard: ${DASH_URL}`
+    : `${emoji} NEW LEAD — WSTN Apartment Locating\n\n` +
+      `👤 ${name} (${typeLabel})\n` +
+      `📞 ${phone}\n` +
+      (email ? `📧 ${email}\n` : '') +
+      `\n📍 Area: ${area || 'not specified'}\n` +
+      `💰 Budget: ${budget || 'not specified'}\n` +
+      (isRent && beds     ? `🛏  Beds: ${beds}\n`        : '') +
+      (isRent && movedate ? `📅 Move: ${movedate}\n`     : '') +
+      (!isRent && timeline    ? `⏱  Timeline: ${timeline}\n`        : '') +
+      (!isRent && preapproved ? `🏦 Pre-approved: ${preapproved}\n` : '') +
+      (notes ? `\n💬 Notes: ${notes}\n` : '') +
+      (source === 'chat' ? `\n📱 Via AI chat widget\n` : '') +
+      `\nDashboard: ${DASH_URL}`;
 
   try {
     const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
@@ -73,9 +86,28 @@ router.post('/wstn/lead', express.json(), async (req, res) => {
   }
 
   // ── Email to Westin via SES ────────────────────────────────────────────────
-  const subject = `${emoji} New ${typeLabel}: ${name} — ${area || 'Texas'}`;
+  const subject = isSell
+    ? `${emoji} New Home Seller: ${name} — ${address || 'Texas'}`
+    : `${emoji} New ${typeLabel}: ${name} — ${area || 'Texas'}`;
 
-  const textBody = [
+  const textBody = isSell ? [
+    `New seller lead from WSTN website.`,
+    `Source: ${source === 'chat' ? 'AI Chat Widget' : 'Contact Form'}`,
+    '',
+    'CONTACT',
+    `  Name:  ${name}`,
+    `  Phone: ${phone}`,
+    `  Email: ${email || 'not provided'}`,
+    '',
+    'PROPERTY',
+    `  Address:   ${address || 'not specified'}`,
+    `  Est. Value: ${askingprice || 'not specified'}`,
+    timeline  ? `  Timeline:  ${timeline}`  : '',
+    condition ? `  Condition: ${condition}` : '',
+    notes ? `\nNOTES\n  ${notes}` : '',
+    '',
+    `Open dashboard: ${DASH_URL}`,
+  ].filter(l => l !== '').join('\n') : [
     `New lead from WSTN Apartment Locating website.`,
     `Source: ${source === 'chat' ? 'AI Chat Widget' : 'Contact Form'}`,
     '',
@@ -97,7 +129,13 @@ router.post('/wstn/lead', express.json(), async (req, res) => {
     `Open dashboard: ${DASH_URL}`,
   ].filter(l => l !== '').join('\n');
 
-  const detailRows = [
+  const detailRows = isSell ? [
+    ['Type',      typeLabel],
+    ['Address',   address    || '—'],
+    ['Est. Value', askingprice || '—'],
+    ['Timeline',  timeline   || '—'],
+    ['Condition', condition  || '—'],
+  ] : [
     ['Type',   typeLabel],
     ['Area',   area   || '—'],
     ['Budget', budget || '—'],
