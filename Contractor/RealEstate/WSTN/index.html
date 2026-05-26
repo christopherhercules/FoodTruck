@@ -909,7 +909,7 @@
         <div class="about-detail-icon"><i class="fas fa-hand-holding-heart"></i></div>
         <div class="about-detail-body">
           <strong>We Work for You</strong>
-          <span>Our service is completely free for renters — we're paid by the property, not by you.</span>
+          <span>Free for renters and buyers. Sellers get expert pricing, marketing, and negotiation to maximize what they walk away with.</span>
         </div>
       </div>
       <div class="about-detail">
@@ -927,27 +927,27 @@
 <section class="section section-alt" id="how-it-works">
   <div class="container text-center">
     <span class="section-label">The Process</span>
-    <h2 class="section-title">Your dream place in 3 easy steps</h2>
-    <p class="section-sub">No stress. No fees. Just results.</p>
+    <h2 class="section-title">Simple process. Real results.</h2>
+    <p class="section-sub">No stress. No guesswork. Just someone in your corner from start to finish.</p>
   </div>
   <div class="steps-grid">
     <div class="step-card">
       <div class="step-num">1</div>
       <div class="step-icon"><i class="fas fa-clipboard-list"></i></div>
-      <h3>Tell us your non-negotiables</h3>
-      <p>Budget, bedrooms, neighborhood, pets, parking, move date — share what matters most and we'll take it from there.</p>
+      <h3>Tell us what you need</h3>
+      <p>Renting, buying, or selling — share your situation, budget, and timeline. Takes two minutes and we'll take it from there.</p>
     </div>
     <div class="step-card">
       <div class="step-num">2</div>
-      <div class="step-icon"><i class="fas fa-calendar-check"></i></div>
-      <h3>We find options &amp; book your tours</h3>
-      <p>We send curated listings including exclusive deals not on public sites, then schedule tours that work around your availability.</p>
+      <div class="step-icon"><i class="fas fa-handshake"></i></div>
+      <h3>We get to work for you</h3>
+      <p>We search listings, run market analyses, and line up the right opportunities — including deals that never hit Zillow or Apartments.com.</p>
     </div>
     <div class="step-card">
       <div class="step-num">3</div>
       <div class="step-icon"><i class="fas fa-key"></i></div>
-      <h3>You apply &amp; move in — 100% free</h3>
-      <p>We guide you through the application and help you get approved. Our service costs you nothing. Zero. Zip. Free.</p>
+      <h3>You close with confidence</h3>
+      <p>Whether you're signing a lease, closing on a home, or handing over the keys — we guide every step and fight for the best outcome.</p>
     </div>
   </div>
 </section>
@@ -963,8 +963,8 @@
     <div class="perk-card">
       <div class="perk-icon"><i class="fas fa-dollar-sign"></i></div>
       <div class="perk-body">
-        <h4>100% Free for Renters</h4>
-        <p>No hidden fees, no surprise charges. Our service is completely free for apartment seekers — always has been, always will be.</p>
+        <h4>Free for Renters &amp; Buyers</h4>
+        <p>No hidden fees, no surprise charges. Our locating and buyer's agent service costs you nothing — we're paid by the property or seller's side.</p>
       </div>
     </div>
     <div class="perk-card">
@@ -1028,13 +1028,13 @@
     <div class="testimonial-card">
       <div class="testimonial-stars">★★★★★</div>
       <p class="testimonial-text">
-        Saved so much time and stress. They provided insider tips on neighborhoods and even helped me get a great deal. Best part? It was completely free — I thought there had to be a catch. There wasn't.
+        Westin listed our home and we had three offers within a week — one above asking price. He handled everything from staging advice to the final walkthrough. We couldn't have done it without him.
       </p>
       <div class="testimonial-author">
-        <div class="testimonial-avatar"><i class="fas fa-user"></i></div>
+        <div class="testimonial-avatar">MK</div>
         <div class="testimonial-name">
-          <strong>Verified Client</strong>
-          <span>Texas</span>
+          <strong>Marcus &amp; Kelly T.</strong>
+          <span>San Antonio, TX — Home Seller</span>
         </div>
       </div>
     </div>
@@ -1268,13 +1268,13 @@
 
 <!-- ── CTA BAND ───────────────────────────────────────────────── -->
 <div class="cta-band">
-  <h2>Ready to stop searching and start living?</h2>
+  <h2>Ready to find, buy, or sell your next home?</h2>
   <p>Call or text us right now — we respond fast and we work around your schedule.</p>
   <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
     <a href="tel:2103940238" class="btn-primary">
       <i class="fas fa-phone"></i> Call (210) 394-0238
     </a>
-    <a href="sms:2103940238?body=Hi! I found WSTN online and I'm looking for help finding a place." class="btn-primary" style="background:var(--navy-soft)">
+    <a href="sms:2103940238?body=Hi! I found WSTN online and I need help." class="btn-primary" style="background:var(--navy-soft)">
       <i class="fas fa-comment"></i> Text Us
     </a>
   </div>
@@ -1288,7 +1288,7 @@
         <span class="nav-logo-top">WSTN</span>
         <span class="nav-logo-sub">Apartment Locating</span>
       </a>
-      <p>Free apartment locating and home buying guidance across Texas. Brokered by Wellstone Properties. TREC Licensed.</p>
+      <p>Free apartment locating, home buying, and home selling guidance across Texas. Brokered by Wellstone Properties. TREC Licensed.</p>
       <div class="footer-social">
         <a href="https://instagram.com/wstnapartmentlocating" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
         <a href="https://facebook.com" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
@@ -1389,7 +1389,7 @@
 
     const lead = { id: 'wstn_' + Date.now(), type, status: 'New', source: 'form', submittedAt: new Date().toISOString() };
     e.target.querySelectorAll('input, select, textarea').forEach(el => {
-      if (el.id) lead[el.id.replace(/^[rb]-/, '')] = el.value;
+      if (el.id) lead[el.id.replace(/^[rbs]-/, '')] = el.value;
     });
     saveLead(lead);
 
