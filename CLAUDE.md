@@ -4,6 +4,20 @@
 
 ---
 
+## KarpKnows — Personal Knowledge Base
+
+Self-improving KB lives at `Knowledge/`. Inspired by Karpathy's LLM-managed wiki workflow.
+
+**Trigger:** when Chris says "KarpKnows" (or "load Knowledge/CLAUDE.md"), load `Knowledge/CLAUDE.md` and follow the librarian protocol.
+
+**Once loaded, quick verbs:**
+- "ingest" — file new items from `Knowledge/RAW/` into the Wiki
+- "synthesize X" / "what do I know about X?" — cross-Wiki distillation
+- "brief me on X" / "generate Y" — Wiki → Outputs deliverable
+- "clean up the KB" / "maintain" — housekeeping sweep
+
+---
+
 ## Coding Behavioral Guidelines
 
 **These guidelines reduce common LLM coding mistakes. Tradeoff: they bias toward caution over speed. For trivial tasks, use judgment.**
@@ -96,11 +110,53 @@ Inbound SMS
 
 ---
 
-## Active Sites (15 food trucks)
+## Platform reality (as of 2026-05-26)
 
-maschingonrestaurant, maschingonfoodtruck, bar1859, sylviastacos, donjuliostacos,
-hechoenqueso, happypizza, sacredsandwich, thatgreentrailer, bigtonys, potatowagon,
-ribtips, simplyporkfection, bobbyque, sodafusion
+Multi-vertical POC platform. No paying customers yet. Focus narrowed to **6 active
+sites** Chris wants to perfect. The other 12 food sites are dormant — kept around
+as redeploy-able demo material, not under active improvement.
+
+### Active — to perfect (6)
+
+| # | Site | Vertical | Domain | Status |
+|---|---|---|---|---|
+| 1 | Mas Chingon Restaurant | Food / hospitality | `maschingonrestaurant.aiagentassistance.com` | POC, active |
+| 2 | Mas Chingon Food Truck | Food / hospitality | `maschingonfoodtruck.aiagentassistance.com` | POC, active |
+| 3 | Bar 1859 | Food / hospitality | `bar1859.aiagentassistance.com` | POC, active |
+| 4 | Hunter (Land Clearing) | Contractor | `hunter.myserviceflows.com` | POC, active |
+| 5 | Cabinet | Contractor | TBD on `myserviceflows.com` | Scaffolded — to be approached/built |
+| 6 | WSTN (apartment locating) | Real estate | TBD | Built, not yet tested or deployed |
+
+### Dormant — redeploy-able demos (12)
+
+Removed from live or in process of removal. Code retained for future demos / sales pitches.
+
+sylviastacos, donjuliostacos, hechoenqueso, happypizza, sacredsandwich,
+thatgreentrailer, bigtonys, potatowagon, ribtips, simplyporkfection, bobbyque,
+sodafusion
+
+> **Open question Chris flagged:** as Mas Chingon improves, do these 12 demo sites
+> share enough code to auto-benefit, or are they forks that will drift? Drift risk
+> means demos shown to prospects feel year-stale relative to the real product.
+> Needs a focused session to inspect the relationship before deciding whether to
+> (a) wipe and template-regenerate on demand, (b) keep frozen as-is, or (c) do
+> incremental sync.
+
+### Domains and Terraform stacks
+
+- **`aiagentassistance.com`** — food vertical. Terraform stack: `terraform/`. All 15 food sites (active + dormant) currently in `variable "sites"`.
+- **`myserviceflows.com`** — contractor and real-estate verticals. Terraform stack: `Contractor/terraform/` (independent from the food stack). Currently only `hunter` in `variable "contractors"`. Cabinet and WSTN not yet wired in.
+
+### Backends
+
+- **Food backend:** `Food/platform-backend/` — Amplify Gen2 backend (AppSync + DynamoDB) for food vertical only. Models: Order, MenuItem, TableAssignment, Customer. Stack: `amplify-maschingonordering-chris-sandbox-344c629bf8`. Endpoint: `https://d2zlzofjerf4hd6gltypy2rnlm.appsync-api.us-east-1.amazonaws.com/graphql`.
+- **Contractor backend:** `Contractor/platform-backend/` — Amplify Gen2 backend for contractor vertical. Models: HunterEstimate, CabinetsEstimate. Stack: `amplify-contractorplatform-chris-sandbox-6c197c7d8a`. Endpoint: `https://hri5vhqwvjd3flmcdxk6rzvi4e.appsync-api.us-east-1.amazonaws.com/graphql`. AWS account: `082569478855` (profile: `contractor`).
+
+## Known fragments — to be triaged into Knowledge/
+
+- `SecondBrain/` (empty) — Chris's earlier KB attempt before `Knowledge/` was set up. Decision pending after he watches more of the YouTube guide.
+- `AI_PLATFORM_ARCHITECTURE.md`, `EXECUTION_CHECKLIST.md`, `HUNTER_SOCIAL_AUTOPOST_CONTEXT.md`, `INSTRUCTIONS_FOR_HUNTER_DAUGHTER.md`, `SOCIAL_AUTOPOSTING_CONTEXT.md` — top-level context docs that probably belong as Wiki pages or in `Knowledge/RAW/`. Not yet filed.
+- `Dashboards/` — contains the AWS cost dashboard (used by the `/costs` skill). Keep where it is, just noting it.
 
 ---
 
@@ -144,19 +200,26 @@ AiagentAssistance/                     ← local folder name (GitLab repo: FoodT
 │   └── toast/
 │       └── webhook.js                 ← Toast POS event handler
 ├── Food/
-│   ├── MasChingon/                    ← shared Amplify backend for all food sites
-│   │   └── backend/amplify/data/resource.ts  ← AppSync schema
+│   ├── platform-backend/              ← Amplify Gen2 backend — food vertical only
+│   │   └── amplify/data/resource.ts   ← AppSync schema (Order, MenuItem, TableAssignment, Customer)
+│   ├── MasChingon/                    ← legacy folder — Website/ subfolder only, no backend
 │   ├── 1859Bar/
 │   ├── BigTonys/ BobbyQue/ DonJuliosTacos/ HappyPizza/ HechoEnQueso/
 │   ├── MasChingonFoodTruck/ MasChingonRestaurant/
 │   └── PotatoWagon/ RibTips/ SacredSandwich/ SimplyPorkFection/
 │       SodaFusion/ SylviasTacos/ ThatGreenTrailer/
 └── Contractor/
-    └── LandClearing/
-        └── Hunter/                    ← hunter.aiagentassistance.com
-            ├── CLAUDE.md              ← Hunter-specific context
-            ├── index.html / estimate.html / dashboard.html / job.html
-            └── assets/
+    ├── platform-backend/              ← Amplify Gen2 backend — contractor vertical
+    │   └── amplify/data/resource.ts   ← AppSync schema (HunterEstimate, CabinetsEstimate)
+    ├── LandClearing/
+    │   └── Hunter/                    ← hunter.myserviceflows.com
+    │       ├── CLAUDE.md              ← Hunter-specific context
+    │       ├── index.html / estimate.html / dashboard.html / job.html
+    │       └── assets/
+    ├── Cabinets/
+    │   └── estimate.html / dashboard.html / job.html
+    └── RealEstate/
+        └── WSTN/                      ← livewstn.myserviceflows.com
 ```
 
 ---
@@ -170,7 +233,7 @@ AiagentAssistance/                     ← local folder name (GitLab repo: FoodT
 | From number | `+18443214664` (toll-free) |
 | Render URL | `https://foodtruck-cymz.onrender.com` |
 | Signature validation | `SKIP_TWILIO_VALIDATION=true` on Render (toll-free pending) |
-| Verification status | **In progress** as of 2026-05-08 — outbound SMS blocked until approved |
+| Verification status | **In progress** as of 2026-05-26 — outbound SMS blocked until approved |
 
 ---
 
