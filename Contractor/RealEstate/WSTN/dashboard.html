@@ -767,12 +767,25 @@
 </div>
 
 <script>
-  const PASSWORD = 'WSTN2025!';
-  const SOC_SERVER = 'https://foodtruck-cymz.onrender.com';
+  const PASSWORD    = 'WSTN2025!';
+  const SOC_SERVER  = 'https://foodtruck-cymz.onrender.com';
+  const GQL_URL     = 'https://fatiu5musjes5clnyalazphytu.appsync-api.us-east-1.amazonaws.com/graphql';
+  const GQL_KEY     = 'da2-k2xaghsoq5ggjdsgta4tzf2zha';
 
   let allLeads = [];
   let currentFilter = 'All';
   let activeLead = null;
+
+  async function gql(query, variables = {}) {
+    const res = await fetch(GQL_URL, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': GQL_KEY },
+      body:    JSON.stringify({ query, variables }),
+    });
+    const data = await res.json();
+    if (data.errors) throw new Error(data.errors[0].message);
+    return data.data;
+  }
 
   /* ── AUTH ── */
   function checkAuth() {
@@ -786,24 +799,66 @@
   }
 
   /* ── INIT ── */
-  function init() {
+  async function init() {
     document.getElementById('headerDate').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
-    loadLeads();
+    document.getElementById('tableWrap').innerHTML = '<div class="empty-state"><div class="soc-spinner" style="margin:0 auto 14px"></div><p style="color:var(--text-mid)">Loading leads…</p></div>';
+    initSocial();
+    await loadLeads();
     updateStats();
     renderDigest();
     renderTable();
-    initSocial();
   }
 
-  function loadLeads() {
-    allLeads = JSON.parse(localStorage.getItem('wstn_leads') || '[]');
+  async function loadLeads() {
+    try {
+      const data = await gql(`query List {
+        listWSTNLeads(limit: 500) {
+          items {
+            id type name phone email budget beds movedate area
+            timeline preapproved address askingprice condition
+            notes internalNotes status source submittedAt
+          }
+        }
+      }`);
+      allLeads = (data.listWSTNLeads.items || [])
+        .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+    } catch (err) {
+      console.error('loadLeads failed:', err.message);
+      allLeads = [];
+    }
   }
 
-  function saveLead(lead) {
-    const idx = allLeads.findIndex(l => l.id === lead.id);
-    if (idx >= 0) allLeads[idx] = lead;
-    else allLeads.unshift(lead);
-    localStorage.setItem('wstn_leads', JSON.stringify(allLeads));
+  async function createLead(lead) {
+    const input = {
+      type: lead.type, status: lead.status || 'New', source: lead.source || 'chat',
+      submittedAt: lead.submittedAt || new Date().toISOString(),
+      name: lead.name || null, phone: lead.phone || null, email: lead.email || null,
+      budget: lead.budget || null, beds: lead.beds || null,
+      movedate: lead.movedate || null, area: lead.area || null,
+      timeline: lead.timeline || null, preapproved: lead.preapproved || null,
+      address: lead.address || null, askingprice: lead.askingprice || null,
+      condition: lead.condition || null,
+      notes: lead.notes || null, internalNotes: lead.internalNotes || null,
+    };
+    const data = await gql(`mutation Create($input: CreateWSTNLeadInput!) {
+      createWSTNLead(input: $input) { id }
+    }`, { input });
+    return data.createWSTNLead.id;
+  }
+
+  async function updateLead(id, fields) {
+    await gql(`mutation Update($input: UpdateWSTNLeadInput!) {
+      updateWSTNLead(input: $input) { id }
+    }`, { input: { id, ...fields } });
+    const idx = allLeads.findIndex(l => l.id === id);
+    if (idx >= 0) Object.assign(allLeads[idx], fields);
+  }
+
+  async function deleteLeadById(id) {
+    await gql(`mutation Delete($input: DeleteWSTNLeadInput!) {
+      deleteWSTNLead(input: $input) { id }
+    }`, { input: { id } });
+    allLeads = allLeads.filter(l => l.id !== id);
   }
 
   /* ── TAB SWITCHING ── */
@@ -1139,20 +1194,25 @@
      LEADS — sample data, scoring, AI brief, digest, stats, filter, table, modal
   ══════════════════════════════════════════════════════════════════════════ */
 
-  function addSampleLeads() {
+  async function addSampleLeads() {
+    const btn = document.querySelector('.add-sample-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Adding…'; }
     const samples = [
-      { id:'wstn_s1', type:'rent', name:'Sarah Mitchell', phone:'(512) 889-4421', email:'sarah.m@gmail.com', budget:'$1,200–$1,600', beds:'2 Bedrooms', movedate:'ASAP', area:'Austin (East Side)', notes:'Has a small dog, Goldendoodle. Credit score around 640.', status:'New', source:'website', submittedAt: new Date(Date.now()-3600000).toISOString() },
-      { id:'wstn_s2', type:'rent', name:'Marcus & Destiny Johnson', phone:'(210) 773-9102', email:'mjohnson@outlook.com', budget:'$900–$1,200', beds:'3+ Bedrooms', movedate:'July 2025', area:'San Antonio NW', notes:'Family of 4, need good school district. Broken lease from 2023.', status:'Called', source:'chat', submittedAt: new Date(Date.now()-86400000).toISOString() },
-      { id:'wstn_s3', type:'buy', name:'Priya Ramachandran', phone:'(737) 440-5508', email:'priya.r@icloud.com', budget:'$350k–$500k', timeline:'1–3 months', preapproved:'Yes', area:'Cedar Park / Leander', notes:'First-time buyer. Preapproved at $450k. Wants 3BR, 2BA, good commute to Domain.', status:'Showing', source:'referral', submittedAt: new Date(Date.now()-172800000).toISOString() },
-      { id:'wstn_s4', type:'rent', name:'Jake Torres', phone:'(830) 519-2244', email:'', budget:'Under $900', beds:'Studio', movedate:'Next month', area:'New Braunfels', notes:'Just moved from Houston. No credit history yet.', status:'Active', source:'chat', submittedAt: new Date(Date.now()-259200000).toISOString() },
-      { id:'wstn_s5', type:'buy', name:'Linda & Greg Okafor', phone:'(214) 652-1188', email:'gregokafor@gmail.com', budget:'$500k–$750k', timeline:'3–6 months', preapproved:'Not yet', area:'Frisco / Prosper', notes:'Upsizing — selling current home in March. Need good school district for 2 kids.', status:'New', source:'form', submittedAt: new Date(Date.now()-7200000).toISOString() },
-      { id:'wstn_s6', type:'sell', name:'Diana Reyes', phone:'(512) 304-7761', email:'diana.reyes@gmail.com', address:'4412 Shoal Creek Blvd, Austin TX', askingprice:'$480,000', timeline:'ASAP', condition:'Move-in ready', notes:'Relocating to Denver for work. Needs to sell fast — open to negotiation.', status:'New', source:'website', submittedAt: new Date(Date.now()-1800000).toISOString() },
+      { type:'rent', name:'Sarah Mitchell', phone:'(512) 889-4421', email:'sarah.m@gmail.com', budget:'$1,200–$1,600', beds:'2 Bedrooms', movedate:'ASAP', area:'Austin (East Side)', notes:'Has a small dog, Goldendoodle. Credit score around 640.', status:'New', source:'website', submittedAt: new Date(Date.now()-3600000).toISOString() },
+      { type:'rent', name:'Marcus & Destiny Johnson', phone:'(210) 773-9102', email:'mjohnson@outlook.com', budget:'$900–$1,200', beds:'3+ Bedrooms', movedate:'July 2025', area:'San Antonio NW', notes:'Family of 4, need good school district. Broken lease from 2023.', status:'Called', source:'chat', submittedAt: new Date(Date.now()-86400000).toISOString() },
+      { type:'buy', name:'Priya Ramachandran', phone:'(737) 440-5508', email:'priya.r@icloud.com', budget:'$350k–$500k', timeline:'1–3 months', preapproved:'Yes', area:'Cedar Park / Leander', notes:'First-time buyer. Preapproved at $450k. Wants 3BR, 2BA, good commute to Domain.', status:'Showing', source:'referral', submittedAt: new Date(Date.now()-172800000).toISOString() },
+      { type:'rent', name:'Jake Torres', phone:'(830) 519-2244', email:'', budget:'Under $900', beds:'Studio', movedate:'Next month', area:'New Braunfels', notes:'Just moved from Houston. No credit history yet.', status:'Active', source:'chat', submittedAt: new Date(Date.now()-259200000).toISOString() },
+      { type:'buy', name:'Linda & Greg Okafor', phone:'(214) 652-1188', email:'gregokafor@gmail.com', budget:'$500k–$750k', timeline:'3–6 months', preapproved:'Not yet', area:'Frisco / Prosper', notes:'Upsizing — selling current home in March. Need good school district for 2 kids.', status:'New', source:'form', submittedAt: new Date(Date.now()-7200000).toISOString() },
+      { type:'sell', name:'Diana Reyes', phone:'(512) 304-7761', email:'diana.reyes@gmail.com', address:'4412 Shoal Creek Blvd, Austin TX', askingprice:'$480,000', timeline:'ASAP', condition:'Move-in ready', notes:'Relocating to Denver for work. Needs to sell fast — open to negotiation.', status:'New', source:'website', submittedAt: new Date(Date.now()-1800000).toISOString() },
     ];
-    const existing = JSON.parse(localStorage.getItem('wstn_leads') || '[]');
-    const existingIds = new Set(existing.map(l => l.id));
-    const merged = [...samples.filter(s => !existingIds.has(s.id)), ...existing];
-    localStorage.setItem('wstn_leads', JSON.stringify(merged));
-    loadLeads(); updateStats(); renderDigest(); renderTable();
+    try {
+      await Promise.all(samples.map(s => createLead(s)));
+      await loadLeads(); updateStats(); renderDigest(); renderTable();
+    } catch (err) {
+      alert('Sample data failed: ' + err.message);
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-plus"></i> Add Sample Data'; }
+    }
   }
 
   function scoreLead(lead) {
@@ -1367,28 +1427,35 @@
     if (e.target === document.getElementById('modalOverlay')) closeModal();
   }
 
-  function saveStatus() {
+  async function saveStatus() {
     if (!activeLead) return;
-    activeLead.status = document.getElementById('mStatus').value;
-    saveLead(activeLead);
-    const saved = document.getElementById('statusSaved');
-    saved.style.display = 'inline';
-    setTimeout(() => { saved.style.display = 'none'; }, 2000);
-    updateStats(); renderDigest(); renderTable();
+    const newStatus = document.getElementById('mStatus').value;
+    try {
+      await updateLead(activeLead.id, { status: newStatus });
+      activeLead.status = newStatus;
+      const saved = document.getElementById('statusSaved');
+      saved.style.display = 'inline';
+      setTimeout(() => { saved.style.display = 'none'; }, 2000);
+      updateStats(); renderDigest(); renderTable();
+    } catch (err) { alert('Save failed: ' + err.message); }
   }
 
-  function saveNotes() {
+  async function saveNotes() {
     if (!activeLead) return;
-    activeLead.internalNotes = document.getElementById('mNotes').value;
-    saveLead(activeLead);
+    const notes = document.getElementById('mNotes').value;
+    try {
+      await updateLead(activeLead.id, { internalNotes: notes });
+      activeLead.internalNotes = notes;
+    } catch (err) { alert('Save failed: ' + err.message); }
   }
 
-  function deleteLead() {
+  async function deleteLead() {
     if (!activeLead) return;
     if (!confirm(`Delete lead for ${activeLead.name}? This can't be undone.`)) return;
-    allLeads = allLeads.filter(l => l.id !== activeLead.id);
-    localStorage.setItem('wstn_leads', JSON.stringify(allLeads));
-    closeModal(); updateStats(); renderDigest(); renderTable();
+    try {
+      await deleteLeadById(activeLead.id);
+      closeModal(); updateStats(); renderDigest(); renderTable();
+    } catch (err) { alert('Delete failed: ' + err.message); }
   }
 
   function copyText(i) {

@@ -1440,6 +1440,9 @@
     'cost':     'Nothing. Zero. Our service is completely free for renters. Properties pay us a referral fee — you pay nothing.',
   };
 
+  const GQL_URL = 'https://fatiu5musjes5clnyalazphytu.appsync-api.us-east-1.amazonaws.com/graphql';
+  const GQL_KEY = 'da2-k2xaghsoq5ggjdsgta4tzf2zha';
+
   let chatState = {};
   let chatOpen = false;
   let chatStarted = false;
@@ -1660,7 +1663,8 @@
       source: 'chat',
       submittedAt: new Date().toISOString(),
     };
-    saveLead(lead);
+    saveLead(lead);        // localStorage backup
+    appsyncSaveLead(lead); // persistent — fire-and-forget
 
     clearOptions();
     hideInput();
@@ -1668,6 +1672,27 @@
       showBotMessage(`You're all set, ${chatState.name ? chatState.name.split(' ')[0] : 'friend'}! 🎉\n\nBrogan will contact you at ${chatState.phone || 'the number you provided'} — usually within the hour.\n\nIn the meantime, feel free to browse the site or text (210) 394-0238 directly!`);
     }, 600);
     if (chatState.type === 'rent') setTimeout(showPreferredProperties, 2800);
+  }
+
+  function appsyncSaveLead(lead) {
+    const input = {
+      type: lead.type, status: lead.status, source: lead.source,
+      submittedAt: lead.submittedAt,
+      name: lead.name || null, phone: lead.phone || null, email: lead.email || null,
+      budget: lead.budget || null, beds: lead.beds || null,
+      movedate: lead.movedate || null, area: lead.area || null,
+      timeline: lead.timeline || null, preapproved: lead.preapproved || null,
+      address: lead.address || null, askingprice: lead.askingprice || null,
+      condition: lead.condition || null, notes: lead.notes || null,
+    };
+    fetch(GQL_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': GQL_KEY },
+      body: JSON.stringify({
+        query: `mutation C($input: CreateWSTNLeadInput!) { createWSTNLead(input: $input) { id } }`,
+        variables: { input },
+      }),
+    }).catch(err => console.warn('[WSTN] AppSync write failed:', err.message));
   }
 
   function showPreferredProperties() {
