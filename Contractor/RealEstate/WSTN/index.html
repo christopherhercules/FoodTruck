@@ -1352,7 +1352,7 @@
   <div class="chat-messages" id="chatMessages"></div>
   <div class="chat-options" id="chatOptions"></div>
   <div class="chat-input-row" id="chatInputRow">
-    <input type="text" id="chatInput" placeholder="Type your answer…" />
+    <input type="text" id="chatInput" placeholder="Type your answer…" autocomplete="off" autocorrect="off" autocapitalize="off" />
     <button class="chat-send" onclick="handleUserInput()"><i class="fas fa-paper-plane"></i></button>
   </div>
 </div>
@@ -1443,6 +1443,7 @@
   let chatState = {};
   let chatOpen = false;
   let chatStarted = false;
+  let chatSubmitted = false;
 
   function toggleChat() {
     chatOpen = !chatOpen;
@@ -1462,7 +1463,6 @@
   /* ── RENT FLOW ── */
   function startRentFlow() {
     chatState = { type: 'rent' };
-    showUserMessage('Find an Apartment');
     askWithInput("Great! What city or area of Texas are you looking in?", 'area', val => {
       chatState.area = val;
       suggestNeighborhoods(val);
@@ -1492,7 +1492,6 @@
 
   function setBudget(val) {
     chatState.budget = val;
-    showUserMessage(val);
     setTimeout(() => {
       showBotMessage('How many bedrooms do you need?', [
         { label: 'Studio',     action: () => setBeds('Studio') },
@@ -1505,7 +1504,6 @@
 
   function setBeds(val) {
     chatState.beds = val;
-    showUserMessage(val);
     askWithInput("When are you hoping to move in? (e.g. ASAP, July, next month)", 'movedate', val => {
       chatState.movedate = val;
       if (val.toLowerCase().includes('asap') || val.toLowerCase().includes('now')) {
@@ -1528,7 +1526,6 @@
   /* ── SELL FLOW ── */
   function startSellFlow() {
     chatState = { type: 'sell' };
-    showUserMessage('Sell My Home');
     askWithInput("Great — let's get your home sold! What's the property address or city?", 'address', val => {
       chatState.address = val;
       setTimeout(() => {
@@ -1545,7 +1542,6 @@
 
   function setSellPrice(val) {
     chatState.askingprice = val;
-    showUserMessage(val);
     if (val === 'Need market analysis') {
       setTimeout(() => showBotMessage("No problem — Westin will pull comps and give you a free valuation. 📊"), 400);
     }
@@ -1561,7 +1557,6 @@
 
   function setSellTimeline(val) {
     chatState.timeline = val;
-    showUserMessage(val);
     setTimeout(() => {
       showBotMessage("What's the condition of the property?", [
         { label: '✅ Move-in ready',       action: () => setSellCondition('Move-in ready') },
@@ -1573,7 +1568,6 @@
 
   function setSellCondition(val) {
     chatState.condition = val;
-    showUserMessage(val);
     askWithInput("Anything else — mortgage still owed, inherited property, upgrading, downsizing?", 'notes', val => {
       chatState.notes = val;
       collectContact();
@@ -1583,7 +1577,6 @@
   /* ── BUY FLOW ── */
   function startBuyFlow() {
     chatState = { type: 'buy' };
-    showUserMessage('Buy a Home');
     askWithInput("Exciting! What city or area of Texas are you looking to buy in?", 'area', val => {
       chatState.area = val;
       suggestNeighborhoods(val);
@@ -1601,7 +1594,6 @@
 
   function setBuyBudget(val) {
     chatState.budget = val;
-    showUserMessage(val);
     setTimeout(() => {
       showBotMessage("Are you already pre-approved for a mortgage?", [
         { label: '✅ Yes, pre-approved',        action: () => setPreapproved('Yes') },
@@ -1613,7 +1605,6 @@
 
   function setPreapproved(val) {
     chatState.preapproved = val;
-    showUserMessage(val);
     if (val === 'Not yet' || val === 'Need guidance') {
       setTimeout(() => showBotMessage("No problem — Westin can connect you with trusted lenders who get deals done fast. 🏦"), 400);
     }
@@ -1625,7 +1616,6 @@
 
   /* ── FAQ FLOW ── */
   function askFAQ() {
-    showUserMessage('I have a question');
     showBotMessage("Of course! What would you like to know?", [
       { label: 'Is it really free?',        action: () => answerFAQ('free') },
       { label: 'I have bad credit…',        action: () => answerFAQ('credit') },
@@ -1636,7 +1626,6 @@
   }
 
   function answerFAQ(key) {
-    showUserMessage(key === 'free' ? 'Is it really free?' : key === 'credit' ? 'I have bad credit…' : key === 'how long' ? 'How long does it take?' : key === 'pets' ? 'Do you work with pets?' : 'What does this cost me?');
     setTimeout(() => {
       showBotMessage(FAQS[key]);
       setTimeout(() => {
@@ -1644,7 +1633,7 @@
           { label: '🏢 Find an Apartment', action: () => startRentFlow() },
           { label: '🏡 Buy a Home',        action: () => startBuyFlow() },
           { label: '🏠 Sell My Home',      action: () => startSellFlow() },
-          { label: '📞 Just call me',      action: () => { showUserMessage('Just call me'); showBotMessage('Of course! Call or text Westin directly at (210) 394-0238 — available 7 days a week. 📞'); } },
+          { label: '📞 Just call me',      action: () => { showBotMessage('Of course! Call or text Brogan directly at (210) 394-0238 — available 7 days a week. 📞'); } },
         ]);
       }, 1200);
     }, 700);
@@ -1662,6 +1651,8 @@
   }
 
   function submitChatLead() {
+    if (chatSubmitted) return;
+    chatSubmitted = true;
     const lead = {
       id: 'wstn_' + Date.now(),
       ...chatState,
@@ -1674,8 +1665,52 @@
     clearOptions();
     hideInput();
     setTimeout(() => {
-      showBotMessage(`You're all set, ${chatState.name ? chatState.name.split(' ')[0] : 'friend'}! 🎉\n\nWestin will call or text you at ${chatState.phone || 'the number you provided'} — usually within the hour.\n\nIn the meantime, feel free to browse the site or text (210) 394-0238 directly!`);
+      showBotMessage(`You're all set, ${chatState.name ? chatState.name.split(' ')[0] : 'friend'}! 🎉\n\nBrogan will contact you at ${chatState.phone || 'the number you provided'} — usually within the hour.\n\nIn the meantime, feel free to browse the site or text (210) 394-0238 directly!`);
     }, 600);
+    if (chatState.type === 'rent') setTimeout(showPreferredProperties, 2800);
+  }
+
+  function showPreferredProperties() {
+    const all = JSON.parse(localStorage.getItem('wstn_properties') || '[]');
+    const active = all.filter(p => p.active !== false);
+    if (!active.length) return;
+
+    // Parse user budget string into [min, max] numbers
+    function parseBudget(str) {
+      if (!str) return [0, 99999];
+      if (str.toLowerCase().includes('under')) return [0, parseInt(str.replace(/\D/g, '')) || 99999];
+      if (str.includes('+')) return [parseInt(str.replace(/[^0-9]/g, '')) || 0, 99999];
+      const nums = str.match(/\d[\d,]*/g)?.map(n => parseInt(n.replace(/,/g, '')));
+      return nums?.length >= 2 ? [nums[0], nums[1]] : [0, 99999];
+    }
+
+    const [uMin, uMax] = parseBudget(chatState.budget);
+    const uBeds = chatState.beds || '';
+
+    const matches = active.filter(p => {
+      const priceOk = (!p.minPrice && !p.maxPrice) ||
+                      (p.minPrice <= uMax && (!p.maxPrice || p.maxPrice >= uMin));
+      const bedsOk  = !p.beds?.length || !uBeds || p.beds.includes(uBeds);
+      return priceOk && bedsOk;
+    }).slice(0, 3);
+
+    if (!matches.length) return;
+
+    const lines = matches.map(p => {
+      const details = [];
+      if (p.address || p.city) details.push(`📍 ${[p.address, p.city].filter(Boolean).join(', ')}`);
+      if (p.minPrice || p.maxPrice) {
+        const price = (p.minPrice && p.maxPrice) ? `$${p.minPrice.toLocaleString()}–$${p.maxPrice.toLocaleString()}/mo`
+                    : p.minPrice ? `From $${p.minPrice.toLocaleString()}/mo`
+                    : `Up to $${p.maxPrice.toLocaleString()}/mo`;
+        details.push(`💰 ${price}`);
+      }
+      if (p.beds?.length) details.push(`🛏 ${p.beds.join(', ')}`);
+      if (p.amenities)    details.push(`✅ ${p.amenities}`);
+      return `• ${p.name}\n  ${details.join('  ·  ')}`;
+    }).join('\n\n');
+
+    showBotMessage(`💡 Properties Brogan recommends based on your search:\n\n${lines}\n\nShe'll walk you through all your options when she calls!`);
   }
 
   /* ── CHAT UI HELPERS ── */
@@ -1719,7 +1754,12 @@
       const btn = document.createElement('button');
       btn.className = 'chat-opt';
       btn.textContent = opt.label;
-      btn.onclick = () => { showUserMessage(opt.label); setTimeout(opt.action, 300); };
+      btn.onclick = () => {
+        if (btn.disabled) return;
+        btn.disabled = true;
+        showUserMessage(opt.label);
+        setTimeout(opt.action, 300);
+      };
       container.appendChild(btn);
     });
   }
@@ -1748,7 +1788,9 @@
   }
 
   function hideInput() {
+    const input = document.getElementById('chatInput');
     document.getElementById('chatInputRow').classList.remove('visible');
+    input.value = '';
   }
 
   function handleUserInput() {

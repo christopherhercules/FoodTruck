@@ -65,6 +65,24 @@
     .header-right a:hover { color: var(--gold-lt); }
     .header-date { font-size: 0.78rem; color: rgba(255,255,255,0.4); }
 
+    /* ── TAB NAV ── */
+    .tab-nav {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      padding: 0 32px; display: flex; gap: 0;
+      position: sticky; top: 64px; z-index: 90;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+    }
+    .tab-btn {
+      padding: 16px 22px; background: none; border: none;
+      border-bottom: 3px solid transparent;
+      font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600;
+      color: var(--text-mid); cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+      transition: all 0.18s; white-space: nowrap;
+    }
+    .tab-btn.active { color: var(--navy); border-bottom-color: var(--gold); }
+    .tab-btn:hover:not(.active) { color: var(--navy); background: var(--cream); }
+
     /* ── STATS BAR ── */
     .stats-bar {
       background: var(--white); border-bottom: 1px solid var(--border);
@@ -191,10 +209,8 @@
       font-size: 1.3rem; cursor: pointer; transition: color 0.2s; padding: 2px;
     }
     .modal-close:hover { color: white; }
-
     .modal-body { padding: 28px; }
 
-    /* AI Brief */
     .ai-brief {
       background: linear-gradient(135deg, #0D1B2A, #1E3050);
       border-radius: 12px; padding: 20px 22px; margin-bottom: 24px;
@@ -205,7 +221,6 @@
     .ai-brief-content label { display: block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-lt); margin-bottom: 6px; }
     .ai-brief-content p { font-size: 0.88rem; color: rgba(255,255,255,0.85); line-height: 1.65; }
 
-    /* Lead details grid */
     .details-grid {
       display: grid; grid-template-columns: repeat(3, 1fr);
       gap: 12px; margin-bottom: 24px;
@@ -214,7 +229,6 @@
     .detail-item label { display: block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mid); margin-bottom: 5px; }
     .detail-item span { font-size: 0.9rem; font-weight: 600; color: var(--navy); }
 
-    /* Status & Notes */
     .modal-section { margin-bottom: 24px; }
     .modal-section h4 { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mid); margin-bottom: 12px; }
     .status-select {
@@ -236,7 +250,6 @@
     }
     .save-btn:hover { background: var(--navy-soft); }
 
-    /* SMS Templates */
     .sms-cards { display: flex; flex-direction: column; gap: 10px; }
     .sms-card {
       border: 1.5px solid var(--border); border-radius: 10px; padding: 16px 18px;
@@ -259,7 +272,6 @@
     .sms-btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text-mid); }
     .sms-btn-outline:hover { border-color: var(--gold); color: var(--gold); }
 
-    /* Action row */
     .modal-actions { display: flex; gap: 10px; padding-top: 20px; border-top: 1px solid var(--border); flex-wrap: wrap; }
     .action-btn {
       display: inline-flex; align-items: center; gap: 8px;
@@ -273,6 +285,158 @@
     .action-email:hover { opacity: 0.85; }
     .action-delete { background: #FBE9E7; color: #B71C1C; margin-left: auto; }
     .action-delete:hover { background: #FFCCBC; }
+
+    /* ── SECTION WRAPPER ── */
+    .section-wrap { padding: 28px 32px; max-width: 1100px; }
+    .section-hd { margin-bottom: 24px; }
+    .section-hd h2 { font-size: 1.5rem; color: var(--navy); margin-bottom: 6px; }
+    .section-hd p { font-size: 0.88rem; color: var(--text-mid); line-height: 1.6; max-width: 640px; }
+
+    /* ── PROPERTY FORM ── */
+    .prop-add-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 22px; background: var(--navy); color: white;
+      border: none; border-radius: 8px; font-family: 'Inter', sans-serif;
+      font-size: 0.88rem; font-weight: 700; cursor: pointer; margin-bottom: 20px;
+      transition: background 0.2s;
+    }
+    .prop-add-btn:hover { background: var(--navy-soft); }
+    .prop-form-card {
+      background: var(--white); border-radius: 14px;
+      padding: 24px 28px; margin-bottom: 28px;
+      box-shadow: var(--shadow); border-top: 3px solid var(--gold);
+      display: none;
+    }
+    .prop-form-card.open { display: block; }
+    .prop-form-card h3 { font-size: 1.1rem; color: var(--navy); margin-bottom: 20px; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-mid); }
+    .form-input, .form-select, .form-textarea {
+      padding: 10px 12px; border: 1.5px solid var(--border);
+      border-radius: 8px; font-family: 'Inter', sans-serif;
+      font-size: 0.9rem; color: var(--text); outline: none;
+      transition: border-color 0.2s; background: white;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--gold); }
+    .form-textarea { resize: vertical; min-height: 72px; }
+    .bed-checks { display: flex; gap: 8px; flex-wrap: wrap; }
+    .bed-label {
+      display: flex; align-items: center; gap: 5px;
+      padding: 7px 14px; border: 1.5px solid var(--border);
+      border-radius: 20px; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; user-select: none;
+    }
+    .bed-label input { display: none; }
+    .bed-label.checked { border-color: var(--navy); background: var(--navy); color: white; }
+    .active-toggle { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; font-weight: 600; color: var(--text); cursor: pointer; }
+    .active-toggle input[type="checkbox"] { accent-color: var(--navy); width: 16px; height: 16px; }
+    .form-actions { display: flex; gap: 10px; padding-top: 16px; border-top: 1px solid var(--border); margin-top: 4px; }
+    .btn-save { padding: 10px 24px; background: var(--navy); color: white; border: none; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    .btn-save:hover { background: var(--navy-soft); }
+    .btn-cancel { padding: 10px 20px; background: none; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; color: var(--text-mid); }
+    .btn-cancel:hover { border-color: var(--text-mid); color: var(--text); }
+
+    /* ── PROPERTY CARDS ── */
+    .prop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .prop-card { background: var(--white); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); border-left: 4px solid var(--gold); }
+    .prop-card.inactive { border-left-color: var(--border); opacity: 0.65; }
+    .prop-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
+    .prop-card-name { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; color: var(--navy); }
+    .prop-card-addr { font-size: 0.8rem; color: var(--text-mid); margin-bottom: 12px; }
+    .prop-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+    .prop-tag { padding: 3px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; background: var(--gold-dim); color: var(--navy); }
+    .prop-tag.type-tag { background: var(--navy); color: white; }
+    .prop-tag.on-tag { background: #E8F5E9; color: #2E7D32; }
+    .prop-tag.off-tag { background: #F5F5F5; color: #757575; }
+    .prop-price { font-size: 0.88rem; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+    .prop-amenities { font-size: 0.8rem; color: var(--text-mid); margin-bottom: 6px; }
+    .prop-notes { font-size: 0.79rem; color: var(--text-mid); font-style: italic; border-top: 1px solid var(--border); padding-top: 8px; margin-top: 8px; }
+    .prop-actions { display: flex; gap: 6px; margin-top: 14px; }
+    .prop-btn { padding: 6px 14px; border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 700; cursor: pointer; border: none; }
+    .prop-btn-edit { background: var(--cream); color: var(--navy); }
+    .prop-btn-edit:hover { background: var(--gold-dim); }
+    .prop-btn-del { background: #FBE9E7; color: #B71C1C; }
+    .prop-btn-del:hover { background: #FFCCBC; }
+    .prop-empty { text-align: center; padding: 60px 32px; color: var(--text-mid); background: var(--white); border-radius: 12px; box-shadow: var(--shadow); }
+    .prop-empty i { font-size: 2.5rem; color: var(--border); display: block; margin-bottom: 16px; }
+    .prop-empty h3 { color: var(--navy); font-size: 1.2rem; margin-bottom: 8px; }
+
+    /* ── SOCIAL SECTION ── */
+    .social-notice {
+      background: linear-gradient(135deg, var(--navy-soft), var(--navy));
+      border-radius: 12px; padding: 16px 20px;
+      display: flex; align-items: flex-start; gap: 14px;
+      margin-bottom: 24px;
+    }
+    .social-notice i { color: var(--gold); flex-shrink: 0; margin-top: 2px; }
+    .social-notice p { font-size: 0.85rem; color: rgba(255,255,255,0.8); line-height: 1.6; }
+    .social-notice strong { color: var(--gold-lt); }
+
+    .soc-upload-zone {
+      background: var(--white); border: 2.5px dashed var(--border);
+      border-radius: 16px; padding: 40px 20px; text-align: center;
+      cursor: pointer; transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+    .soc-upload-zone.drag-over { border-color: var(--gold); background: var(--rose); }
+    .soc-upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; z-index: 2; }
+    .soc-upload-icon { font-size: 3rem; margin-bottom: 14px; }
+    .soc-upload-zone h2 { font-size: 1.1rem; color: var(--navy); margin-bottom: 6px; }
+    .soc-upload-zone p { font-size: 0.88rem; color: var(--text-mid); margin-bottom: 18px; }
+    .soc-upload-btn { display: inline-block; padding: 12px 28px; background: var(--navy); color: white; border-radius: 10px; font-size: 0.9rem; font-weight: 700; pointer-events: none; }
+    .soc-camera-row { display: flex; gap: 10px; margin-top: 14px; }
+    .soc-camera-btn { flex: 1; padding: 13px; border-radius: 10px; border: 1.5px solid var(--border); background: white; font-size: 0.88rem; font-weight: 600; color: var(--text-mid); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; position: relative; }
+    .soc-camera-btn input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .soc-camera-btn:active { background: var(--cream); }
+
+    .soc-preview-wrap { display: none; margin-bottom: 4px; }
+    .soc-preview-img-wrap { border-radius: 12px; overflow: hidden; border: 1px solid var(--border); background: #000; max-height: 300px; }
+    .soc-preview-img-wrap img { width: 100%; max-height: 300px; object-fit: contain; display: block; }
+    .soc-preview-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+    .soc-preview-filename { font-size: 0.82rem; color: var(--text-mid); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%; }
+    .soc-btn-ghost { background: none; border: 1.5px solid var(--border); padding: 7px 14px; border-radius: 7px; font-size: 0.85rem; cursor: pointer; color: var(--text-mid); font-family: 'Inter', sans-serif; }
+    .soc-btn-ghost:hover { border-color: var(--navy); color: var(--navy); }
+
+    .soc-loading-wrap { display: none; text-align: center; padding: 40px 20px; }
+    .soc-spinner { display: inline-block; width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .soc-loading-wrap p { margin-top: 14px; color: var(--text-mid); font-size: 0.92rem; line-height: 1.5; }
+
+    .soc-gap { height: 18px; }
+
+    .soc-captions-wrap { display: none; margin-top: 20px; }
+    .soc-captions-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .soc-captions-header h2 { font-size: 1rem; font-weight: 700; color: var(--navy); }
+    .soc-btn-again { background: none; border: 1.5px solid var(--gold); color: var(--gold); padding: 7px 14px; border-radius: 7px; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; }
+    .soc-caption-card { background: var(--white); border: 2px solid var(--border); border-radius: 12px; margin-bottom: 10px; cursor: pointer; transition: border-color 0.15s; overflow: hidden; }
+    .soc-caption-card.selected { border-color: var(--gold); background: var(--rose); }
+    .soc-caption-card-header { display: flex; align-items: center; gap: 12px; padding: 12px 16px 8px; }
+    .soc-caption-radio { width: 18px; height: 18px; accent-color: var(--navy); cursor: pointer; flex-shrink: 0; }
+    .soc-caption-label { font-size: 0.75rem; font-weight: 700; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.05em; }
+    .soc-caption-text { width: 100%; border: none; resize: none; font-size: 15px; line-height: 1.55; color: var(--text); background: transparent; font-family: 'Inter', sans-serif; padding: 0 16px 16px; outline: none; min-height: 110px; }
+
+    .soc-post-wrap { display: none; margin-top: 20px; }
+    .soc-btn-post {
+      width: 100%; padding: 17px;
+      background: linear-gradient(135deg, var(--navy), var(--navy-soft));
+      color: white; border: none; border-radius: 12px;
+      font-size: 1.05rem; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      font-family: 'Inter', sans-serif; transition: opacity 0.2s;
+      box-shadow: 0 4px 20px rgba(13,27,42,0.25);
+    }
+    .soc-btn-post:disabled { opacity: 0.5; cursor: not-allowed; }
+    .soc-btn-post:not(:disabled):hover { opacity: 0.9; }
+    .soc-result-wrap { display: none; margin-top: 16px; }
+    .soc-result-row { display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; border-radius: 10px; margin-bottom: 8px; font-size: 0.9rem; font-weight: 600; }
+    .soc-result-row.ok  { background: #E8F5E9; color: #2E7D32; border: 1.5px solid #A5D6A7; }
+    .soc-result-row.err { background: #FDECEA; color: #B71C1C; border: 1.5px solid #EF9A9A; }
+    .soc-result-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .soc-result-detail { font-size: 0.78rem; font-weight: 400; margin-top: 3px; opacity: 0.8; word-break: break-all; }
+    .soc-post-again { display: block; text-align: center; margin-top: 14px; font-size: 0.9rem; color: var(--navy); font-weight: 700; text-decoration: none; padding: 13px; background: white; border-radius: 10px; border: 1.5px solid var(--border); }
+    .soc-post-again:hover { border-color: var(--gold); }
   </style>
 </head>
 <body>
@@ -302,60 +466,250 @@
   </div>
 </header>
 
-<!-- ── STATS BAR ── -->
-<div class="stats-bar" id="statsBar">
-  <div class="stat-card" onclick="setFilter('All')">
-    <div class="stat-num" id="stat-total">0</div>
-    <div class="stat-label">Total Leads</div>
-  </div>
-  <div class="stat-card new" onclick="setFilter('New')">
-    <div class="stat-num" id="stat-new">0</div>
-    <div class="stat-label">New</div>
-  </div>
-  <div class="stat-card rent" onclick="setFilter('rent')">
-    <div class="stat-num" id="stat-rent">0</div>
-    <div class="stat-label">Renters</div>
-  </div>
-  <div class="stat-card buy" onclick="setFilter('buy')">
-    <div class="stat-num" id="stat-buy">0</div>
-    <div class="stat-label">Buyers</div>
-  </div>
-  <div class="stat-card new" onclick="setFilter('sell')" style="--accent:#E65100">
-    <div class="stat-num" id="stat-sell" style="color:#E65100">0</div>
-    <div class="stat-label">Sellers</div>
-  </div>
-  <div class="stat-card closed" onclick="setFilter('Closed')">
-    <div class="stat-num" id="stat-closed">0</div>
-    <div class="stat-label">Closed</div>
-  </div>
-</div>
-
-<!-- ── AI DAILY DIGEST ── -->
-<div class="digest-bar" id="digestBar"></div>
-
-<!-- ── CONTROLS ── -->
-<div class="controls">
-  <div class="filter-tabs" id="filterTabs">
-    <button class="filter-tab active" onclick="setFilter('All')">All</button>
-    <button class="filter-tab" onclick="setFilter('New')">New</button>
-    <button class="filter-tab" onclick="setFilter('Called')">Called</button>
-    <button class="filter-tab" onclick="setFilter('Showing')">Showing</button>
-    <button class="filter-tab" onclick="setFilter('Active')">Active</button>
-    <button class="filter-tab" onclick="setFilter('Closed')">Closed</button>
-    <button class="filter-tab" onclick="setFilter('Lost')">Lost</button>
-    <button class="filter-tab" onclick="setFilter('sell')" style="border-color:#E65100;color:#E65100">🏠 Sellers</button>
-  </div>
-  <button class="add-sample-btn" onclick="addSampleLeads()">
-    <i class="fas fa-plus"></i> Add Sample Data
+<!-- ── TAB NAV ── -->
+<div class="tab-nav">
+  <button class="tab-btn active" data-tab="leads" onclick="switchTab('leads')">
+    <i class="fas fa-users"></i> Leads
   </button>
-  <div class="search-wrap">
-    <i class="fas fa-search"></i>
-    <input class="search-input" type="text" placeholder="Search leads…" oninput="renderTable()" id="searchInput" />
-  </div>
+  <button class="tab-btn" data-tab="properties" onclick="switchTab('properties')">
+    <i class="fas fa-building"></i> Properties
+  </button>
+  <button class="tab-btn" data-tab="social" onclick="switchTab('social')">
+    <i class="fas fa-share-alt"></i> Social
+  </button>
 </div>
 
-<!-- ── TABLE ── -->
-<div class="table-wrap" id="tableWrap"></div>
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECTION: LEADS                                                            -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<div id="section-leads">
+
+  <!-- ── STATS BAR ── -->
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-card" onclick="setFilter('All')">
+      <div class="stat-num" id="stat-total">0</div>
+      <div class="stat-label">Total Leads</div>
+    </div>
+    <div class="stat-card new" onclick="setFilter('New')">
+      <div class="stat-num" id="stat-new">0</div>
+      <div class="stat-label">New</div>
+    </div>
+    <div class="stat-card rent" onclick="setFilter('rent')">
+      <div class="stat-num" id="stat-rent">0</div>
+      <div class="stat-label">Renters</div>
+    </div>
+    <div class="stat-card buy" onclick="setFilter('buy')">
+      <div class="stat-num" id="stat-buy">0</div>
+      <div class="stat-label">Buyers</div>
+    </div>
+    <div class="stat-card new" onclick="setFilter('sell')" style="--accent:#E65100">
+      <div class="stat-num" id="stat-sell" style="color:#E65100">0</div>
+      <div class="stat-label">Sellers</div>
+    </div>
+    <div class="stat-card closed" onclick="setFilter('Closed')">
+      <div class="stat-num" id="stat-closed">0</div>
+      <div class="stat-label">Closed</div>
+    </div>
+  </div>
+
+  <!-- ── AI DAILY DIGEST ── -->
+  <div class="digest-bar" id="digestBar"></div>
+
+  <!-- ── CONTROLS ── -->
+  <div class="controls">
+    <div class="filter-tabs" id="filterTabs">
+      <button class="filter-tab active" onclick="setFilter('All')">All</button>
+      <button class="filter-tab" onclick="setFilter('New')">New</button>
+      <button class="filter-tab" onclick="setFilter('Called')">Called</button>
+      <button class="filter-tab" onclick="setFilter('Showing')">Showing</button>
+      <button class="filter-tab" onclick="setFilter('Active')">Active</button>
+      <button class="filter-tab" onclick="setFilter('Closed')">Closed</button>
+      <button class="filter-tab" onclick="setFilter('Lost')">Lost</button>
+      <button class="filter-tab" onclick="setFilter('sell')" style="border-color:#E65100;color:#E65100">🏠 Sellers</button>
+    </div>
+    <button class="add-sample-btn" onclick="addSampleLeads()">
+      <i class="fas fa-plus"></i> Add Sample Data
+    </button>
+    <div class="search-wrap">
+      <i class="fas fa-search"></i>
+      <input class="search-input" type="text" placeholder="Search leads…" oninput="renderTable()" id="searchInput" />
+    </div>
+  </div>
+
+  <!-- ── TABLE ── -->
+  <div class="table-wrap" id="tableWrap"></div>
+
+</div><!-- /section-leads -->
+
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECTION: PROPERTIES                                                       -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<div id="section-properties" style="display:none">
+  <div class="section-wrap">
+    <div class="section-hd">
+      <h2>Preferred Properties</h2>
+      <p>Add apartments and homes you recommend. The AI chatbot reads this list and shows matching options to clients after they share their budget and bedroom preferences.</p>
+    </div>
+
+    <button class="prop-add-btn" onclick="showPropForm(null)">
+      <i class="fas fa-plus"></i> Add a Property
+    </button>
+
+    <!-- Add / Edit Form -->
+    <div class="prop-form-card" id="propFormCard">
+      <h3 id="propFormTitle">Add a Property</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Property / Community Name *</label>
+          <input class="form-input" id="propName" type="text" placeholder="e.g. The Monarch at Stone Oak" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <select class="form-select" id="propType">
+            <option value="apartment">Apartment</option>
+            <option value="house">House</option>
+            <option value="condo">Condo</option>
+            <option value="townhome">Townhome</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Street Address</label>
+          <input class="form-input" id="propAddress" type="text" placeholder="1234 Stone Oak Pkwy" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">City, TX</label>
+          <input class="form-input" id="propCity" type="text" placeholder="San Antonio, TX" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Min Price ($/mo)</label>
+          <input class="form-input" id="propMinPrice" type="number" placeholder="900" min="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Max Price ($/mo)</label>
+          <input class="form-input" id="propMaxPrice" type="number" placeholder="1400" min="0" />
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:16px">
+        <label class="form-label">Bedrooms Available</label>
+        <div class="bed-checks">
+          <label class="bed-label" id="blStudio"><input type="checkbox" id="bed-Studio" value="Studio" onchange="updateBedLabel(this)" />Studio</label>
+          <label class="bed-label" id="bl1Bed"><input type="checkbox" id="bed-1Bed" value="1 Bedroom" onchange="updateBedLabel(this)" />1 Bedroom</label>
+          <label class="bed-label" id="bl2Bed"><input type="checkbox" id="bed-2Bed" value="2 Bedrooms" onchange="updateBedLabel(this)" />2 Bedrooms</label>
+          <label class="bed-label" id="bl3Bed"><input type="checkbox" id="bed-3Bed" value="3 Bedrooms" onchange="updateBedLabel(this)" />3 Bedrooms</label>
+          <label class="bed-label" id="bl3Plus"><input type="checkbox" id="bed-3Plus" value="3+ Bedrooms" onchange="updateBedLabel(this)" />3+ Bedrooms</label>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Amenities</label>
+          <input class="form-input" id="propAmenities" type="text" placeholder="Pet-friendly, Pool, Gym, In-unit W/D" />
+        </div>
+        <div class="form-group" style="justify-content:flex-end">
+          <label class="form-label">Chatbot Visibility</label>
+          <label class="active-toggle">
+            <input type="checkbox" id="propActive" checked />
+            Show to clients in the chatbot
+          </label>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Private Notes (not shown to clients)</label>
+          <textarea class="form-textarea" id="propNotes" placeholder="Good for credit-challenged clients, flexible screening. No previous eviction required…"></textarea>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-save" onclick="savePropForm()"><i class="fas fa-save"></i> Save Property</button>
+        <button class="btn-cancel" onclick="hidePropForm()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Property Grid -->
+    <div class="prop-grid" id="propGrid"></div>
+  </div>
+</div><!-- /section-properties -->
+
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECTION: SOCIAL                                                           -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<div id="section-social" style="display:none">
+  <div class="section-wrap">
+    <div class="section-hd">
+      <h2>Social Poster</h2>
+      <p>Upload a property photo — AI writes 3 caption options for Facebook and Instagram.</p>
+    </div>
+
+    <div class="social-notice">
+      <i class="fas fa-info-circle fa-lg"></i>
+      <p><strong>Posting requires a token:</strong> Caption generation works right now. To enable live posting to Facebook &amp; Instagram, ask Chris to add <code style="background:rgba(255,255,255,0.12);padding:1px 5px;border-radius:4px">WSTN_FB_PAGE_TOKEN</code>, <code style="background:rgba(255,255,255,0.12);padding:1px 5px;border-radius:4px">WSTN_FB_PAGE_ID</code>, and <code style="background:rgba(255,255,255,0.12);padding:1px 5px;border-radius:4px">WSTN_IG_USER_ID</code> to the server when you're ready.</p>
+    </div>
+
+    <div style="max-width:600px">
+
+      <!-- Upload zone -->
+      <div class="soc-upload-zone" id="socUploadZone">
+        <input type="file" id="socPhotoInput" accept="image/*" />
+        <div class="soc-upload-icon">🏠</div>
+        <h2>Upload a property photo</h2>
+        <p>AI will write 3 captions for Facebook &amp; Instagram</p>
+        <div class="soc-upload-btn">Choose Photo</div>
+      </div>
+
+      <!-- Camera shortcuts -->
+      <div class="soc-camera-row" id="socCameraRow">
+        <button class="soc-camera-btn">
+          <input type="file" id="socCameraInput" accept="image/*" capture="environment" />
+          📸 Take Photo
+        </button>
+        <button class="soc-camera-btn">
+          <input type="file" id="socGalleryInput" accept="image/*" />
+          🖼️ Gallery
+        </button>
+      </div>
+
+      <div class="soc-gap"></div>
+
+      <!-- Preview -->
+      <div class="soc-preview-wrap" id="socPreviewWrap">
+        <div class="soc-preview-img-wrap">
+          <img id="socPreviewImg" src="" alt="Preview" />
+        </div>
+        <div class="soc-preview-actions">
+          <span class="soc-preview-filename" id="socFilename"></span>
+          <button class="soc-btn-ghost" onclick="socResetAll()">Change Photo</button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div class="soc-loading-wrap" id="socLoadingWrap">
+        <div class="soc-spinner"></div>
+        <p>AI is analyzing the photo<br>and writing captions…</p>
+      </div>
+
+      <!-- Captions -->
+      <div class="soc-captions-wrap" id="socCaptionsWrap">
+        <div class="soc-captions-header">
+          <h2>Pick a caption</h2>
+          <button class="soc-btn-again" onclick="socGenerateCaptions()">↻ New Captions</button>
+        </div>
+        <div id="socCaptionsList"></div>
+      </div>
+
+      <!-- Post button -->
+      <div class="soc-post-wrap" id="socPostWrap">
+        <button class="soc-btn-post" id="socBtnPost" onclick="socPostNow()">
+          <span>📤</span>
+          <span>Post to Facebook &amp; Instagram</span>
+        </button>
+      </div>
+
+      <!-- Result -->
+      <div class="soc-result-wrap" id="socResultWrap"></div>
+
+    </div>
+  </div>
+</div><!-- /section-social -->
 
 <!-- ── DETAIL MODAL ── -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnBg(event)">
@@ -369,7 +723,6 @@
     </div>
     <div class="modal-body">
 
-      <!-- AI Brief -->
       <div class="ai-brief">
         <div class="ai-brief-icon"><i class="fas fa-robot"></i></div>
         <div class="ai-brief-content">
@@ -378,10 +731,8 @@
         </div>
       </div>
 
-      <!-- Details grid -->
       <div class="details-grid" id="mDetails"></div>
 
-      <!-- Status -->
       <div class="modal-section">
         <h4>Lead Status</h4>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
@@ -399,20 +750,17 @@
         </div>
       </div>
 
-      <!-- Internal Notes -->
       <div class="modal-section">
         <h4>Internal Notes</h4>
         <textarea class="notes-textarea" id="mNotes" placeholder="Add your notes about this lead…"></textarea>
         <button class="save-btn" onclick="saveNotes()"><i class="fas fa-save"></i> Save Notes</button>
       </div>
 
-      <!-- SMS Templates -->
       <div class="modal-section">
         <h4>Quick Outreach Templates</h4>
         <div class="sms-cards" id="mSmsCards"></div>
       </div>
 
-      <!-- Action row -->
       <div class="modal-actions" id="mActions"></div>
     </div>
   </div>
@@ -420,6 +768,8 @@
 
 <script>
   const PASSWORD = 'WSTN2025!';
+  const SOC_SERVER = 'https://foodtruck-cymz.onrender.com';
+
   let allLeads = [];
   let currentFilter = 'All';
   let activeLead = null;
@@ -442,6 +792,7 @@
     updateStats();
     renderDigest();
     renderTable();
+    initSocial();
   }
 
   function loadLeads() {
@@ -455,7 +806,339 @@
     localStorage.setItem('wstn_leads', JSON.stringify(allLeads));
   }
 
-  /* ── SAMPLE DATA ── */
+  /* ── TAB SWITCHING ── */
+  const TABS = ['leads', 'properties', 'social'];
+  function switchTab(tab) {
+    TABS.forEach(t => {
+      document.getElementById(`section-${t}`).style.display = t === tab ? '' : 'none';
+    });
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tab === tab);
+    });
+    if (tab === 'properties') {
+      loadProperties();
+      renderProperties();
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════════
+     PROPERTIES
+  ══════════════════════════════════════════════════════════════════════════ */
+  const BED_IDS = [
+    { id: 'bed-Studio', val: 'Studio',      labelId: 'blStudio' },
+    { id: 'bed-1Bed',   val: '1 Bedroom',   labelId: 'bl1Bed'   },
+    { id: 'bed-2Bed',   val: '2 Bedrooms',  labelId: 'bl2Bed'   },
+    { id: 'bed-3Bed',   val: '3 Bedrooms',  labelId: 'bl3Bed'   },
+    { id: 'bed-3Plus',  val: '3+ Bedrooms', labelId: 'bl3Plus'  },
+  ];
+
+  let properties = [];
+  let editingPropId = null;
+
+  function loadProperties() {
+    properties = JSON.parse(localStorage.getItem('wstn_properties') || '[]');
+  }
+
+  function saveProperties() {
+    localStorage.setItem('wstn_properties', JSON.stringify(properties));
+  }
+
+  function updateBedLabel(chk) {
+    const entry = BED_IDS.find(b => b.id === chk.id);
+    if (entry) document.getElementById(entry.labelId).classList.toggle('checked', chk.checked);
+  }
+
+  function showPropForm(prop) {
+    editingPropId = prop ? prop.id : null;
+    const card = document.getElementById('propFormCard');
+    card.classList.add('open');
+    document.getElementById('propFormTitle').textContent = prop ? 'Edit Property' : 'Add a Property';
+    document.getElementById('propName').value     = prop?.name      || '';
+    document.getElementById('propAddress').value  = prop?.address   || '';
+    document.getElementById('propCity').value     = prop?.city      || '';
+    document.getElementById('propType').value     = prop?.type      || 'apartment';
+    document.getElementById('propMinPrice').value = prop?.minPrice  || '';
+    document.getElementById('propMaxPrice').value = prop?.maxPrice  || '';
+    document.getElementById('propAmenities').value = prop?.amenities || '';
+    document.getElementById('propNotes').value    = prop?.notes     || '';
+    document.getElementById('propActive').checked = prop ? prop.active !== false : true;
+    BED_IDS.forEach(b => {
+      const chk = document.getElementById(b.id);
+      chk.checked = prop?.beds?.includes(b.val) || false;
+      document.getElementById(b.labelId).classList.toggle('checked', chk.checked);
+    });
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function hidePropForm() {
+    document.getElementById('propFormCard').classList.remove('open');
+    editingPropId = null;
+  }
+
+  function savePropForm() {
+    const name = document.getElementById('propName').value.trim();
+    if (!name) { alert('Property name is required.'); return; }
+
+    const beds = BED_IDS.filter(b => document.getElementById(b.id).checked).map(b => b.val);
+
+    const prop = {
+      id:        editingPropId || `prop_${Date.now()}`,
+      name,
+      address:   document.getElementById('propAddress').value.trim(),
+      city:      document.getElementById('propCity').value.trim(),
+      type:      document.getElementById('propType').value,
+      beds,
+      minPrice:  parseInt(document.getElementById('propMinPrice').value) || 0,
+      maxPrice:  parseInt(document.getElementById('propMaxPrice').value) || 0,
+      amenities: document.getElementById('propAmenities').value.trim(),
+      notes:     document.getElementById('propNotes').value.trim(),
+      active:    document.getElementById('propActive').checked,
+    };
+
+    if (editingPropId) {
+      const idx = properties.findIndex(p => p.id === editingPropId);
+      if (idx >= 0) properties[idx] = prop;
+    } else {
+      properties.unshift(prop);
+    }
+
+    saveProperties();
+    hidePropForm();
+    renderProperties();
+  }
+
+  function deleteProp(id) {
+    const p = properties.find(x => x.id === id);
+    if (!p || !confirm(`Delete "${p.name}"?`)) return;
+    properties = properties.filter(x => x.id !== id);
+    saveProperties();
+    renderProperties();
+  }
+
+  function renderProperties() {
+    const grid = document.getElementById('propGrid');
+    if (!properties.length) {
+      grid.innerHTML = `<div class="prop-empty" style="grid-column:1/-1"><i class="fas fa-building"></i><h3>No properties yet</h3><p>Add apartments or homes Brogan recommends — the chatbot will suggest matching ones to clients based on their budget and bedroom needs.</p></div>`;
+      return;
+    }
+    grid.innerHTML = properties.map(p => {
+      const priceStr = (p.minPrice && p.maxPrice) ? `$${p.minPrice.toLocaleString()} – $${p.maxPrice.toLocaleString()}/mo`
+                     : p.minPrice ? `From $${p.minPrice.toLocaleString()}/mo`
+                     : p.maxPrice ? `Up to $${p.maxPrice.toLocaleString()}/mo` : '';
+      const bedTags  = (p.beds || []).map(b => `<span class="prop-tag">${b}</span>`).join('');
+      const vis      = p.active !== false;
+      return `
+        <div class="prop-card${vis ? '' : ' inactive'}">
+          <div class="prop-card-top">
+            <div class="prop-card-name">${escHtml(p.name)}</div>
+            <span class="prop-tag ${vis ? 'on-tag' : 'off-tag'}">${vis ? 'Active' : 'Hidden'}</span>
+          </div>
+          ${(p.address || p.city) ? `<div class="prop-card-addr"><i class="fas fa-map-marker-alt" style="color:var(--gold);margin-right:4px;font-size:0.75rem"></i>${[p.address, p.city].filter(Boolean).join(', ')}</div>` : ''}
+          <div class="prop-tags">
+            <span class="prop-tag type-tag">${escHtml(p.type)}</span>
+            ${bedTags}
+          </div>
+          ${priceStr ? `<div class="prop-price"><i class="fas fa-tag" style="color:var(--gold);margin-right:5px;font-size:0.75rem"></i>${priceStr}</div>` : ''}
+          ${p.amenities ? `<div class="prop-amenities"><i class="fas fa-star" style="color:var(--gold);margin-right:4px;font-size:0.72rem"></i>${escHtml(p.amenities)}</div>` : ''}
+          ${p.notes ? `<div class="prop-notes"><i class="fas fa-lock" style="margin-right:4px;font-size:0.7rem"></i>${escHtml(p.notes)}</div>` : ''}
+          <div class="prop-actions">
+            <button class="prop-btn prop-btn-edit" onclick='showPropForm(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
+              <i class="fas fa-pencil"></i> Edit
+            </button>
+            <button class="prop-btn prop-btn-del" onclick="deleteProp('${p.id}')">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════════
+     SOCIAL POSTER
+  ══════════════════════════════════════════════════════════════════════════ */
+  let socFile = null;
+  let socImageUrl = null;
+  let socSelectedCaption = null;
+
+  function initSocial() {
+    const zone = document.getElementById('socUploadZone');
+    zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault(); zone.classList.remove('drag-over');
+      const f = e.dataTransfer.files[0];
+      if (f?.type.startsWith('image/')) socHandleFile(f);
+    });
+    document.getElementById('socPhotoInput').addEventListener('change',  e => { if (e.target.files[0]) socHandleFile(e.target.files[0]); });
+    document.getElementById('socCameraInput').addEventListener('change', e => { if (e.target.files[0]) socHandleFile(e.target.files[0]); });
+    document.getElementById('socGalleryInput').addEventListener('change',e => { if (e.target.files[0]) socHandleFile(e.target.files[0]); });
+  }
+
+  function socHandleFile(file) {
+    socFile = file; socImageUrl = null; socSelectedCaption = null;
+    const reader = new FileReader();
+    reader.onload = e => { document.getElementById('socPreviewImg').src = e.target.result; };
+    reader.readAsDataURL(file);
+    socHide('socUploadZone'); socHide('socCameraRow');
+    socShow('socPreviewWrap');
+    document.getElementById('socFilename').textContent = file.name;
+    socGenerateCaptions();
+  }
+
+  function socCompressImage(file, maxPx = 1600, quality = 0.82) {
+    return new Promise(resolve => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let { width, height } = img;
+        if (width > maxPx || height > maxPx) {
+          if (width > height) { height = Math.round(height * maxPx / width); width = maxPx; }
+          else                { width  = Math.round(width  * maxPx / height); height = maxPx; }
+        }
+        const ratio = width / height;
+        let cw = width, ch = height;
+        if (ratio < 0.8)  cw = Math.round(height * 0.8);
+        if (ratio > 1.91) ch = Math.round(width / 1.91);
+        const canvas = document.createElement('canvas');
+        canvas.width = cw; canvas.height = ch;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, cw, ch);
+        ctx.drawImage(img, Math.round((cw - width) / 2), Math.round((ch - height) / 2), width, height);
+        canvas.toBlob(blob => resolve(blob || file), 'image/jpeg', quality);
+      };
+      img.onerror = () => resolve(file);
+      img.src = url;
+    });
+  }
+
+  async function socGenerateCaptions() {
+    socShow('socLoadingWrap');
+    socHide('socCaptionsWrap'); socHide('socPostWrap'); socHide('socResultWrap');
+    socSelectedCaption = null;
+    const compressed = await socCompressImage(socFile);
+    const form = new FormData();
+    form.append('photo', compressed, 'photo.jpg');
+    try {
+      const res  = await fetch(`${SOC_SERVER}/wstn/social/caption`, { method: 'POST', body: form });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || 'Caption generation failed');
+      socImageUrl = data.imageUrl;
+      socRenderCaptions(data.captions);
+      socHide('socLoadingWrap'); socShow('socCaptionsWrap');
+    } catch (err) {
+      socHide('socLoadingWrap');
+      socShowError(err.message);
+    }
+  }
+
+  function socRenderCaptions(captions) {
+    const list = document.getElementById('socCaptionsList');
+    list.innerHTML = '';
+    captions.forEach((text, i) => {
+      const card = document.createElement('div');
+      card.className = 'soc-caption-card';
+      card.id = `soc-card-${i}`;
+      card.innerHTML = `
+        <div class="soc-caption-card-header">
+          <input type="radio" class="soc-caption-radio" name="soc-caption" id="soc-radio-${i}" value="${i}" />
+          <label class="soc-caption-label" for="soc-radio-${i}">Option ${i + 1}</label>
+        </div>
+        <textarea class="soc-caption-text" id="soc-text-${i}" rows="5">${escHtml(text)}</textarea>
+      `;
+      list.appendChild(card);
+      card.addEventListener('click', e => {
+        if (e.target.tagName === 'TEXTAREA') return;
+        document.getElementById(`soc-radio-${i}`).checked = true;
+        socSelectCaption(i);
+      });
+      document.getElementById(`soc-radio-${i}`).addEventListener('change', () => socSelectCaption(i));
+    });
+  }
+
+  function socSelectCaption(i) {
+    document.querySelectorAll('.soc-caption-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById(`soc-card-${i}`).classList.add('selected');
+    socSelectedCaption = i;
+    socShow('socPostWrap'); socHide('socResultWrap');
+    setTimeout(() => document.getElementById('socBtnPost').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+  }
+
+  async function socPostNow() {
+    if (socSelectedCaption === null || !socImageUrl) return;
+    const caption = document.getElementById(`soc-text-${socSelectedCaption}`).value.trim();
+    if (!caption) { alert('Caption is empty.'); return; }
+    const btn = document.getElementById('socBtnPost');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="soc-spinner" style="width:20px;height:20px;border-width:3px;border-top-color:white;display:inline-block"></span><span style="margin-left:8px">Posting…</span>';
+    try {
+      const res  = await fetch(`${SOC_SERVER}/wstn/social/post`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl: socImageUrl, caption }),
+      });
+      const data = await res.json();
+      socRenderResult(data);
+    } catch (err) {
+      socRenderResult({ facebook: { error: err.message }, instagram: { error: err.message } });
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span>📤</span><span>Post to Facebook &amp; Instagram</span>';
+    }
+  }
+
+  function socRenderResult(data) {
+    const wrap = document.getElementById('socResultWrap');
+    const fbOk = data.facebook && !data.facebook.error;
+    const igOk = data.instagram && !data.instagram.error;
+    wrap.innerHTML = `
+      <div class="soc-result-row ${fbOk ? 'ok' : 'err'}">
+        <span class="soc-result-icon">${fbOk ? '✅' : '❌'}</span>
+        <div>
+          <div>Facebook — ${fbOk ? 'Posted successfully' : 'Failed'}</div>
+          ${fbOk ? `<div class="soc-result-detail">Post ID: ${data.facebook.postId}</div>`
+                 : `<div class="soc-result-detail">${escHtml(data.facebook?.error || 'Unknown error')}</div>`}
+        </div>
+      </div>
+      <div class="soc-result-row ${igOk ? 'ok' : 'err'}">
+        <span class="soc-result-icon">${igOk ? '✅' : '❌'}</span>
+        <div>
+          <div>Instagram — ${igOk ? 'Posted successfully' : 'Failed'}</div>
+          ${igOk ? `<div class="soc-result-detail">Media ID: ${data.instagram.postId}</div>`
+                 : `<div class="soc-result-detail">${escHtml(data.instagram?.error || 'Unknown error')}</div>`}
+        </div>
+      </div>
+      ${(fbOk || igOk) ? `<a href="#" class="soc-post-again" onclick="socResetAll();return false;">📷 Post Another Photo</a>` : ''}
+    `;
+    socShow('socResultWrap');
+    wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function socShowError(msg) {
+    const wrap = document.getElementById('socResultWrap');
+    wrap.innerHTML = `<div class="soc-result-row err"><span class="soc-result-icon">❌</span><div>${escHtml(msg)}</div></div>`;
+    socShow('socResultWrap');
+  }
+
+  function socResetAll() {
+    socFile = null; socImageUrl = null; socSelectedCaption = null;
+    ['socPhotoInput', 'socCameraInput', 'socGalleryInput'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    const pi = document.getElementById('socPreviewImg'); if (pi) pi.src = '';
+    const cl = document.getElementById('socCaptionsList'); if (cl) cl.innerHTML = '';
+    socShow('socUploadZone'); socShow('socCameraRow');
+    ['socPreviewWrap', 'socLoadingWrap', 'socCaptionsWrap', 'socPostWrap', 'socResultWrap'].forEach(socHide);
+  }
+
+  function socShow(id) { const el = document.getElementById(id); if (el) el.style.display = 'block'; }
+  function socHide(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+
+  /* ══════════════════════════════════════════════════════════════════════════
+     LEADS — sample data, scoring, AI brief, digest, stats, filter, table, modal
+  ══════════════════════════════════════════════════════════════════════════ */
+
   function addSampleLeads() {
     const samples = [
       { id:'wstn_s1', type:'rent', name:'Sarah Mitchell', phone:'(512) 889-4421', email:'sarah.m@gmail.com', budget:'$1,200–$1,600', beds:'2 Bedrooms', movedate:'ASAP', area:'Austin (East Side)', notes:'Has a small dog, Goldendoodle. Credit score around 640.', status:'New', source:'website', submittedAt: new Date(Date.now()-3600000).toISOString() },
@@ -467,13 +1150,11 @@
     ];
     const existing = JSON.parse(localStorage.getItem('wstn_leads') || '[]');
     const existingIds = new Set(existing.map(l => l.id));
-    const toAdd = samples.filter(s => !existingIds.has(s.id));
-    const merged = [...toAdd, ...existing];
+    const merged = [...samples.filter(s => !existingIds.has(s.id)), ...existing];
     localStorage.setItem('wstn_leads', JSON.stringify(merged));
     loadLeads(); updateStats(); renderDigest(); renderTable();
   }
 
-  /* ── SCORING ── */
   function scoreLead(lead) {
     let score = 0;
     const move = (lead.movedate || lead.timeline || '').toLowerCase();
@@ -494,7 +1175,6 @@
     return                 { cls: 'cool', label: '🧊 Cool' };
   }
 
-  /* ── AI BRIEF ── */
   function generateBrief(lead) {
     const isSell = lead.type === 'sell';
     const type   = lead.type === 'rent' ? 'renter' : isSell ? 'home seller' : 'home buyer';
@@ -522,28 +1202,24 @@
         if (notes.includes('school')) line += '. School district is a priority.';
       }
     }
-    const score = scoreLead(lead);
-    const { label } = scoreLabel(score);
-    line += `. Lead score: ${label}`;
-    return line + '.';
+    const { label } = scoreLabel(scoreLead(lead));
+    return line + `. Lead score: ${label}.`;
   }
 
-  /* ── DAILY DIGEST ── */
   function renderDigest() {
-    const newCount = allLeads.filter(l => l.status === 'New').length;
+    const newCount     = allLeads.filter(l => l.status === 'New').length;
     const showingCount = allLeads.filter(l => l.status === 'Showing').length;
-    const hotLeads = allLeads.filter(l => scoreLead(l) >= 4 && l.status === 'New');
+    const hotLeads     = allLeads.filter(l => scoreLead(l) >= 4 && l.status === 'New');
     let text = `<strong>Today's snapshot:</strong> `;
     const parts = [];
-    if (newCount > 0) parts.push(`<strong>${newCount} new lead${newCount > 1 ? 's' : ''}</strong> waiting for a call`);
+    if (newCount > 0)     parts.push(`<strong>${newCount} new lead${newCount > 1 ? 's' : ''}</strong> waiting for a call`);
     if (showingCount > 0) parts.push(`<strong>${showingCount} showing${showingCount > 1 ? 's' : ''}</strong> in progress`);
-    if (hotLeads.length > 0) parts.push(`<strong>${hotLeads[0].name ? hotLeads[0].name.split(' ')[0] : 'A lead'}</strong> is 🔥 hot — call first`);
-    if (parts.length === 0) parts.push('No new leads yet — share the site link to start getting inquiries!');
+    if (hotLeads.length)  parts.push(`<strong>${hotLeads[0].name?.split(' ')[0] || 'A lead'}</strong> is 🔥 hot — call first`);
+    if (!parts.length)    parts.push('No new leads yet — share the site link to start getting inquiries!');
     text += parts.join(' · ');
     document.getElementById('digestBar').innerHTML = `<i class="fas fa-robot digest-icon" style="color:var(--gold)"></i><div class="digest-text">${text}</div>`;
   }
 
-  /* ── STATS ── */
   function updateStats() {
     document.getElementById('stat-total').textContent  = allLeads.length;
     document.getElementById('stat-new').textContent    = allLeads.filter(l => l.status === 'New').length;
@@ -553,37 +1229,31 @@
     document.getElementById('stat-closed').textContent = allLeads.filter(l => l.status === 'Closed').length;
   }
 
-  /* ── FILTER ── */
   function setFilter(f) {
     currentFilter = f;
     document.querySelectorAll('.filter-tab').forEach(t => t.classList.toggle('active', t.textContent.trim() === f));
     renderTable();
   }
 
-  /* ── TABLE ── */
   function renderTable() {
     const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
     let leads = allLeads.filter(l => {
       if (currentFilter === 'All') return true;
       if (currentFilter === 'rent' || currentFilter === 'buy' || currentFilter === 'sell') return l.type === currentFilter;
       return l.status === currentFilter;
-    }).filter(l => {
-      if (!q) return true;
-      return (l.name + l.phone + l.area + l.budget + l.email).toLowerCase().includes(q);
-    });
+    }).filter(l => !q || (l.name + l.phone + l.area + l.budget + l.email).toLowerCase().includes(q));
 
     const wrap = document.getElementById('tableWrap');
-    if (leads.length === 0) {
+    if (!leads.length) {
       wrap.innerHTML = `<div class="empty-state"><i class="fas fa-inbox"></i><h3>No leads yet</h3><p>Share the site link or click "Add Sample Data" to see how this works.</p></div>`;
       return;
     }
-
     wrap.innerHTML = `<table class="leads-table">
       <thead><tr>
         <th>Date</th><th>Name</th><th>Phone</th><th>Type</th>
         <th>Area</th><th>Budget</th><th>Lead Score</th><th>Status</th>
       </tr></thead>
-      <tbody>${leads.map(l => tableRow(l)).join('')}</tbody>
+      <tbody>${leads.map(tableRow).join('')}</tbody>
     </table>`;
   }
 
@@ -606,7 +1276,6 @@
     </tr>`;
   }
 
-  /* ── MODAL ── */
   function openModal(id) {
     activeLead = allLeads.find(l => l.id === id);
     if (!activeLead) return;
@@ -621,12 +1290,10 @@
       <span class="score-label ${cls}" style="font-size:0.8rem">${slabel}</span>
       ${l.source === 'chat' ? '<span style="font-size:0.75rem;color:rgba(255,255,255,0.5)">📱 via AI Chat</span>' : ''}
     `;
-
     document.getElementById('mBrief').textContent = generateBrief(l);
     document.getElementById('mStatus').value = l.status || 'New';
-    document.getElementById('mNotes').value = l.internalNotes || '';
+    document.getElementById('mNotes').value  = l.internalNotes || '';
 
-    // Details grid
     const detailFields = l.type === 'rent'
       ? [['Phone', l.phone], ['Email', l.email || '—'], ['Area', l.area], ['Budget', l.budget], ['Bedrooms', l.beds], ['Move Date', l.movedate]]
       : l.type === 'sell'
@@ -639,36 +1306,24 @@
       document.getElementById('mDetails').innerHTML += `<div class="detail-item" style="grid-column:1/-1"><label>Client Notes</label><span style="font-weight:400;font-size:0.85rem;color:var(--text-mid)">${l.notes}</span></div>`;
     }
 
-    // SMS templates
     const firstName = (l.name || 'there').split(' ')[0];
-    const typeStr = l.type === 'rent' ? `a ${l.beds || ''} apartment`.trim() : 'a home';
+    const typeStr   = l.type === 'rent' ? `a ${l.beds || ''} apartment`.trim() : 'a home';
     const smsTemplates = l.type === 'sell' ? [
-      {
-        icon: 'fa-hand-wave', title: 'Initial Outreach',
-        body: `Hi ${firstName}! This is Westin from WSTN — I saw you're thinking about selling${l.address ? ` at ${l.address}` : ''}. I'd love to run a free market analysis and show you what your home could sell for. When's a good time to connect? 🏠`,
-      },
-      {
-        icon: 'fa-chart-line', title: 'Free Market Analysis',
-        body: `Hey ${firstName}! Based on recent sales in your area, I think your home could be worth more than you expect. I can have a free CMA report ready for you within 24 hours — want me to run the numbers? 📊`,
-      },
-      {
-        icon: 'fa-sign', title: 'Listing Consultation',
-        body: `${firstName}, homes like yours are selling fast right now! I'd love to do a quick walkthrough and put together a no-obligation listing plan. Takes about 30 minutes — interested? Let's get you top dollar! 💰`,
-      },
+      { icon: 'fa-hand-wave', title: 'Initial Outreach',
+        body: `Hi ${firstName}! This is Brogan from WSTN — I saw you're thinking about selling${l.address ? ` at ${l.address}` : ''}. I'd love to run a free market analysis and show you what your home could sell for. When's a good time to connect? 🏠` },
+      { icon: 'fa-chart-line', title: 'Free Market Analysis',
+        body: `Hey ${firstName}! Based on recent sales in your area, I think your home could be worth more than you expect. I can have a free CMA report ready for you within 24 hours — want me to run the numbers? 📊` },
+      { icon: 'fa-sign', title: 'Listing Consultation',
+        body: `${firstName}, homes like yours are selling fast right now! I'd love to do a quick walkthrough and put together a no-obligation listing plan. Takes about 30 minutes — interested? Let's get you top dollar! 💰` },
     ] : [
-      {
-        icon: 'fa-hand-wave', title: 'Initial Outreach',
-        body: `Hi ${firstName}! This is Westin from WSTN Apartment Locating 👋 I saw your request for ${typeStr} in ${l.area || 'Texas'} around ${l.budget || 'your budget'}. I have some great options — when's a good time to chat? 🏠`,
-      },
-      {
-        icon: 'fa-calendar-check', title: 'Schedule a Tour',
-        body: `Hey ${firstName}! Great news — I found a few places that match exactly what you're looking for. Want to schedule some tours this week? I can do mornings or afternoons, just let me know! 🗓️`,
-      },
-      {
-        icon: 'fa-star', title: 'Exclusive Listing Alert',
-        body: `${firstName}, just got access to an exclusive listing in ${l.area || 'your area'} that's NOT on Zillow yet — fits your budget and everything you mentioned. Want me to send over the details? 🔑`,
-      },
+      { icon: 'fa-hand-wave', title: 'Initial Outreach',
+        body: `Hi ${firstName}! This is Brogan from WSTN Apartment Locating 👋 I saw your request for ${typeStr} in ${l.area || 'Texas'} around ${l.budget || 'your budget'}. I have some great options — when's a good time to chat? 🏠` },
+      { icon: 'fa-calendar-check', title: 'Schedule a Tour',
+        body: `Hey ${firstName}! Great news — I found a few places that match exactly what you're looking for. Want to schedule some tours this week? I can do mornings or afternoons, just let me know! 🗓️` },
+      { icon: 'fa-star', title: 'Exclusive Listing Alert',
+        body: `${firstName}, just got access to an exclusive listing in ${l.area || 'your area'} that's NOT on Zillow yet — fits your budget and everything you mentioned. Want me to send over the details? 🔑` },
     ];
+
     document.getElementById('mSmsCards').innerHTML = smsTemplates.map((t, i) => `
       <div class="sms-card">
         <div class="sms-card-icon"><i class="fas ${t.icon}"></i></div>
@@ -688,12 +1343,11 @@
     `).join('');
     window._smsTexts = smsTemplates.map(t => t.body);
 
-    // Actions
     document.getElementById('mActions').innerHTML = `
       <a class="action-btn action-call" href="tel:${(l.phone||'').replace(/\D/g,'')}">
         <i class="fas fa-phone"></i> Call ${firstName}
       </a>
-      ${l.email ? `<a class="action-btn action-email" href="mailto:${l.email}?subject=WSTN — Your ${l.type === 'rent' ? 'Apartment' : 'Home'} Search&body=Hi ${firstName},%0A%0AThanks for reaching out to WSTN!%0A%0AWestin">
+      ${l.email ? `<a class="action-btn action-email" href="mailto:${l.email}?subject=WSTN — Your ${l.type === 'rent' ? 'Apartment' : 'Home'} Search&body=Hi ${firstName},%0A%0AThanks for reaching out to WSTN!%0A%0ABrogan">
         <i class="fas fa-envelope"></i> Email
       </a>` : ''}
       <button class="action-btn action-delete" onclick="deleteLead()">
@@ -739,6 +1393,14 @@
 
   function copyText(i) {
     navigator.clipboard.writeText(window._smsTexts[i]).then(() => alert('Copied to clipboard!'));
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 </script>
 </body>
