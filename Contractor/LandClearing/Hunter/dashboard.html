@@ -176,6 +176,11 @@
     .filter-search::placeholder { color: var(--text-mid); }
     .filter-search:focus { border-color: var(--green); background: rgba(255,255,255,0.09); }
 
+    /* ── VIEW TOGGLE ─────────────────────────────────────────────────────── */
+    .view-toggle { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .view-btn { padding: 7px 16px; background: transparent; border: none; cursor: pointer; font-size: .82rem; font-weight: 500; color: var(--text-mid); transition: all .15s; font-family: inherit; }
+    .view-btn.active { background: var(--green-dark); color: white; }
+
     /* ── CALENDAR ── */
     #calendar-view { display:none; padding: 0 28px 40px; }
     .cal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
@@ -568,6 +573,10 @@
     <button class="filter-btn" data-status="Lost"   onclick="setFilter('Lost', this)">❌ Lost</button>
     <button class="filter-btn cal-tab" id="cal-tab-btn" onclick="toggleCalendar(this)">📅 Calendar</button>
     <input class="filter-search" id="search-input" placeholder="🔍  Search name, address..." oninput="renderTable()" />
+    <div class="view-toggle">
+      <button class="view-btn active" id="btn-list-view" onclick="setView('list')">☰ List</button>
+      <button class="view-btn"        id="btn-cal-view"  onclick="setView('cal')">📅 Calendar</button>
+    </div>
     <button class="filter-btn" style="background:var(--green-mid);color:#fff;border-color:var(--green-mid);white-space:nowrap;" onclick="openAddLead()">➕ Add Lead</button>
   </div>
 
@@ -879,6 +888,7 @@
   let activeView = 'list';
   let calYear  = new Date().getFullYear();
   let calMonth = new Date().getMonth();
+  let calVisible = false;
 
   // ── AUTH ──────────────────────────────────────────────────────────────────
   function doLogin() {
@@ -978,8 +988,8 @@
     activeView = v;
     document.getElementById('btn-list-view').classList.toggle('active', v === 'list');
     document.getElementById('btn-cal-view').classList.toggle('active', v === 'cal');
-    document.querySelector('.table-wrap').style.display  = v === 'list' ? 'block' : 'none';
-    document.querySelector('.filters').style.display = 'flex';
+    document.querySelector('.table-wrap').style.display     = v === 'list' ? 'block' : 'none';
+    document.querySelector('.filters').style.display      = 'flex';
     document.getElementById('calendar-view').style.display = v === 'cal'  ? 'block' : 'none';
     if (v === 'cal') renderCalendar();
   }
@@ -1086,10 +1096,12 @@
     };
 
     if (e.quotedPrice != null) set('quote', `Quoted $${fmt$(e.quotedPrice)}`, true);
+    // Schedule
     if (e.scheduledDate) {
       const endStr = e.scheduledEndDate ? ` – ${fmtDate(e.scheduledEndDate)}` : '';
       set('schedule', `Scheduled ${fmtDate(e.scheduledDate)}${endStr}`, true);
     }
+    // Start
     if (e.startedDate) set('start', `Started ${fmtDate(e.startedDate)}`, true);
     if (e.percentComplete != null && e.percentComplete > 0) set('progress', `${e.percentComplete}% complete`, e.percentComplete >= 100);
     if (e.completedDate) set('complete', `Completed ${fmtDate(e.completedDate)}`, true);
@@ -1163,13 +1175,15 @@
     }
   }
 
-  // ── Send to customer — email if on file, else SMS copy modal ──────────────
+  const EMAIL_API = 'https://w6zmfgv2d1.execute-api.us-east-1.amazonaws.com/email';
+
+  // ── Send email to customer, fallback to SMS copy modal if no email on file ──
   async function openSMS(phone, msg) {
     const est = allEstimates.find(x => x.id === activeId);
     if (est?.email) {
-      const subject = `Hunter Land Clearing — update for ${(est.address || 'your property').split(',')[0]}`;
-      sendEmail(est.email, subject, msg, null, null);
+      await sendCustomerEmail(est, msg);
     } else {
+      // No email — show copy-paste modal for phone
       if (!phone) { alert('No contact info on file for this customer.'); return; }
       document.getElementById('sms-modal-phone').textContent = phone;
       document.getElementById('sms-modal-msg').textContent   = msg;
@@ -1178,12 +1192,32 @@
     }
   }
 
+  async function sendCustomerEmail(est, message) {
+    const subject = `Hunter Land Clearing — update for ${est.address ? est.address.split(',')[0] : 'your property'}`;
+    const btn = event?.target;
+    const origText = btn?.textContent;
+    if (btn) { btn.textContent = '⏳ Sending...'; btn.disabled = true; }
+    try {
+      const res = await fetch(EMAIL_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: est.email, subject, message, estimateId: est.id }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'Send failed');
+      flashSaved('✉️ Email sent');
+    } catch(e) {
+      alert('Email failed: ' + e.message);
+    } finally {
+      if (btn) { btn.textContent = origText; btn.disabled = false; }
+    }
+  }
+
   function closeSMSModal() {
     document.getElementById('sms-modal-overlay').style.display = 'none';
   }
 
   // ── CALENDAR ──────────────────────────────────────────────────────────────
-  let calVisible = false;
 
   function toggleCalendar(btn) {
     calVisible = !calVisible;
@@ -1226,6 +1260,7 @@
     const grid   = document.getElementById('cal-days');
     grid.innerHTML = '';
 
+    // Pad start
     for (let i = 0; i < first.getDay(); i++) {
       const el = document.createElement('div');
       el.className = 'cal-day other-month';
@@ -1234,6 +1269,7 @@
       grid.appendChild(el);
     }
 
+    // Days in month
     for (let d = 1; d <= last.getDate(); d++) {
       const el  = document.createElement('div');
       const key = `${calYear}-${calMonth}-${d}`;
@@ -1251,6 +1287,7 @@
       grid.appendChild(el);
     }
 
+    // Pad end
     const endPad = 6 - last.getDay();
     for (let i = 1; i <= endPad; i++) {
       const el = document.createElement('div');
@@ -1266,6 +1303,7 @@
     const picked  = document.getElementById('f-scheduled').value;
     const booked  = getBookedDays();
 
+    // Show all upcoming booked dates as context
     const upcoming = Object.entries(booked)
       .map(([key, ests]) => {
         const [y, m, d] = key.split('-').map(Number);
@@ -1283,6 +1321,7 @@
       return `${label} (${names})`;
     });
 
+    // Check if picked date conflicts
     if (picked) {
       const [py, pm, pd] = picked.split('-').map(Number);
       const conflictKey  = `${py}-${pm - 1}-${pd}`;
@@ -1302,14 +1341,14 @@
   async function actionRescheduleNotify() {
     const est = allEstimates.find(x => x.id === activeId); if (!est) return;
     if (!est.email) { alert('No email on file — use the SMS copy button instead.'); return; }
-    const d       = document.getElementById('f-scheduled').value;
-    const day     = d ? new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' }) : 'a new date';
-    const body    = `Hi ${firstName(est)}, I need to move your land clearing appointment. Your new scheduled date is ${day}. We'll arrive between 7–9am. Sorry for any inconvenience — call me at (830) 832-7065 with any questions. — Jason, Hunter Land Clearing`;
+    const d   = document.getElementById('f-scheduled').value;
+    const day = d ? new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' }) : 'a new date';
+    const msg = `Hi ${firstName(est)}, I need to move your land clearing appointment. Your new scheduled date is ${day}. We'll arrive between 7–9am. Sorry for any inconvenience — call me at (830) 832-7065 with any questions. — Jason, Hunter Land Clearing`;
     const subject = `Reschedule Notice — Hunter Land Clearing`;
     try {
-      const res  = await fetch(SEND_EMAIL_URL, {
+      const res  = await fetch(EMAIL_API, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: est.email, subject, body, from: FROM_ADDRESS }),
+        body: JSON.stringify({ to: est.email, subject, message: msg, estimateId: est.id }),
       });
       const data = await res.json();
       if (!data.ok) throw new Error(data.error || 'Send failed');
@@ -1378,6 +1417,7 @@
     try {
       await applyAndRefresh({ id: activeId, jobStatus: 'Scheduled', scheduledDate: iso, scheduledEndDate: endIso }, '✓ Scheduled');
       if (wasAlready) {
+        // Rescheduled — show notify button instead of auto-sending
         document.getElementById('btn-reschedule-notify').style.display = 'inline-block';
       } else {
         const msg = `Hi ${firstName(est)}, we're scheduled to start clearing your property on ${fmtDay(iso)}. We'll arrive between 7-9am. — Jason, Hunter Land Clearing`;
@@ -1578,6 +1618,73 @@
       else if (g.type === 'MultiPolygon') g.coordinates.forEach(poly => poly.forEach(ring => ring.forEach(c => into.push(c))));
     };
     walk(geojson);
+  }
+
+  // ── NEW LEAD MODAL ────────────────────────────────────────────────────────
+  function openNewLead(dateStr) {
+    ['nl-name','nl-phone','nl-email','nl-acres','nl-address','nl-county','nl-notes'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('nl-status').value    = 'New';
+    document.getElementById('nl-sched').value     = dateStr || '';
+    document.getElementById('nl-sched-end').value = '';
+    document.getElementById('nl-title').textContent = dateStr
+      ? `➕ Add Lead — ${fmtDate(dateStr + 'T12:00:00')}`
+      : '➕ Add New Lead';
+    document.getElementById('nl-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('nl-name').focus(), 80);
+  }
+
+  function closeNewLead() {
+    document.getElementById('nl-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  async function submitNewLead() {
+    const name    = document.getElementById('nl-name').value.trim();
+    const phone   = document.getElementById('nl-phone').value.trim();
+    const address = document.getElementById('nl-address').value.trim();
+    if (!name || !phone || !address) { alert('Name, phone, and address are required.'); return; }
+
+    const acres    = parseFloat(document.getElementById('nl-acres').value) || null;
+    const email    = document.getElementById('nl-email').value.trim()   || null;
+    const county   = document.getElementById('nl-county').value.trim()  || null;
+    const status   = document.getElementById('nl-status').value;
+    const notes    = document.getElementById('nl-notes').value.trim()   || null;
+    const sched    = document.getElementById('nl-sched').value;
+    const schedEnd = document.getElementById('nl-sched-end').value;
+
+    const input = { name, phone, address, status, submittedAt: new Date().toISOString() };
+    if (email)    input.email          = email;
+    if (acres)    input.acres          = acres;
+    if (county)   input.parcelCounty   = county;
+    if (notes)    input.notes          = notes;
+    if (sched)  { input.scheduledDate  = new Date(sched    + 'T12:00:00').toISOString(); input.jobStatus = 'Scheduled'; }
+    if (schedEnd) input.scheduledEndDate = new Date(schedEnd + 'T12:00:00').toISOString();
+
+    const btn = document.querySelector('.btn-nl-submit');
+    btn.textContent = 'Saving…'; btn.disabled = true;
+    try {
+      const data = await gql(`
+        mutation Create($input: CreateHunterEstimateInput!) {
+          createHunterEstimate(input: $input) {
+            id name phone email address acres parcelCounty
+            status notes jobStatus scheduledDate scheduledEndDate submittedAt createdAt
+          }
+        }`, { input });
+      const created = data.createHunterEstimate;
+      allEstimates.unshift(created);
+      updateStats();
+      renderTable();
+      if (activeView === 'cal') renderCalendar();
+      closeNewLead();
+      openModal(created.id);
+    } catch(e) {
+      alert('Failed to save: ' + e.message);
+    } finally {
+      btn.textContent = '➕ Add Lead'; btn.disabled = false;
+    }
   }
 
   // ── CALENDAR POPOVER ─────────────────────────────────────────────────────

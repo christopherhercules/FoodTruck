@@ -10,6 +10,7 @@ amplifyconfiguration*
 .env
 .env.*
 *.env
+credentials.md
 
 # CDK output (large generated artifacts, not source)
 **/cdk.out/

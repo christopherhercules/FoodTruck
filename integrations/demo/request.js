@@ -49,6 +49,7 @@ router.post('/demo-request', express.json(), async (req, res) => {
 
   const htmlBody = `
 <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#1e293b;">
+  <div style="margin-bottom:16px;"><img src="https://aiagentassistance.com/assets/logo.png" alt="AI Agent Assistance" style="width:48px;height:48px;border-radius:8px;object-fit:cover;"></div>
   <h2 style="color:#1e40af;margin-bottom:4px;">New Demo Request</h2>
   <p style="color:#64748b;margin-top:0;font-size:13px;">Submitted via aiagentassistance.com</p>
   <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;">

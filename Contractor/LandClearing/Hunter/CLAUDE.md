@@ -9,12 +9,12 @@
 A lead-capture + job-tracking web app for **Hunter Land Clearing**, a land clearing
 contractor run by Jason Merz in New Braunfels, TX area. Hosted at:
 
-- **Public site:** `https://hunter.myserviceflows.com/` (index.html)
-- **Estimate tool:** `https://hunter.myserviceflows.com/estimate.html`
-- **Jason's dashboard:** `https://hunter.myserviceflows.com/dashboard.html` — Password: `Hunter2025!`
-- **Customer job tracker:** `https://hunter.myserviceflows.com/job.html?id=<estimateId>`
+- **Public site:** `https://hunter.aiagentassistance.com/` (index.html)
+- **Estimate tool:** `https://hunter.aiagentassistance.com/estimate.html`
+- **Jason's dashboard:** `https://hunter.aiagentassistance.com/dashboard.html` — Password: `Hunter2025!`
+- **Customer job tracker:** `https://hunter.aiagentassistance.com/job.html?id=<estimateId>`
 
-Hosted on the **contractor** AWS account (`082569478855`, profile: `contractor`).
+Hosted on the same AWS S3 + CloudFront infrastructure as the FoodTruck project.
 
 ---
 
@@ -22,10 +22,10 @@ Hosted on the **contractor** AWS account (`082569478855`, profile: `contractor`)
 
 | Thing | Detail |
 |---|---|
-| S3 bucket | `hunter.myserviceflows.com` |
-| CloudFront distribution ID | `E1DP8O49HIGKA1` (contractor account) |
-| AWS profile | `contractor` |
-| Backend (AppSync) | Contractor backend — `Contractor/platform-backend/` |
+| S3 bucket | `hunter.aiagentassistance.com` |
+| CloudFront distribution ID | `E2P421R4KKX8BY` |
+| Route53 hosted zone | same as FoodTruck: `Z07479021E42SUEMRPV9M` |
+| Backend (AppSync) | Contractor backend — `Contractor/platform-backend/amplify/` |
 | AppSync endpoint | `https://hri5vhqwvjd3flmcdxk6rzvi4e.appsync-api.us-east-1.amazonaws.com/graphql` |
 | API Key | `da2-56ubwyy3q5fc5km4msrx6m75ge` |
 | DynamoDB table | `HunterEstimate` (managed by Amplify, not Terraform) |
@@ -33,11 +33,11 @@ Hosted on the **contractor** AWS account (`082569478855`, profile: `contractor`)
 ### Deploy workflow
 
 ```powershell
-# Upload a file (MUST use --profile contractor):
-aws s3 cp Contractor\LandClearing\Hunter\<file>.html s3://hunter.myserviceflows.com/<file>.html --content-type "text/html" --cache-control "no-cache" --profile contractor
+# Upload a file:
+aws s3 cp HunterLandClearing\<file>.html s3://hunter.aiagentassistance.com/<file>.html --content-type "text/html" --cache-control "no-cache"
 
-# Invalidate CloudFront (MUST use --profile contractor):
-aws cloudfront create-invalidation --distribution-id E1DP8O49HIGKA1 --paths "/*" --profile contractor
+# Invalidate CloudFront:
+aws cloudfront create-invalidation --distribution-id E2P421R4KKX8BY --paths "/*"
 ```
 
 ---

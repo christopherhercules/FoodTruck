@@ -2,7 +2,7 @@
 source: claude-code-session
 captured: 2026-05-27
 topic_hint: platform-backend-split
-status: unprocessed
+status: processed
 ---
 
 # Backend Split — Completion Report

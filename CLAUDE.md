@@ -124,8 +124,8 @@ as redeploy-able demo material, not under active improvement.
 | 2 | Mas Chingon Food Truck | Food / hospitality | `maschingonfoodtruck.aiagentassistance.com` | POC, active |
 | 3 | Bar 1859 | Food / hospitality | `bar1859.aiagentassistance.com` | POC, active |
 | 4 | Hunter (Land Clearing) | Contractor | `hunter.myserviceflows.com` | POC, active |
-| 5 | Cabinet | Contractor | TBD on `myserviceflows.com` | Scaffolded — to be approached/built |
-| 6 | WSTN (apartment locating) | Real estate | TBD | Built, not yet tested or deployed |
+| 5 | Cabinet | Contractor | `cabinets.myserviceflows.com` | Live |
+| 6 | WSTN (apartment locating) | Real estate | `livewstn.myserviceflows.com` | Live — AppSync not yet wired |
 
 ### Dormant — redeploy-able demos (12)
 
@@ -145,7 +145,7 @@ sodafusion
 ### Domains and Terraform stacks
 
 - **`aiagentassistance.com`** — food vertical. Terraform stack: `terraform/`. All 15 food sites (active + dormant) currently in `variable "sites"`.
-- **`myserviceflows.com`** — contractor and real-estate verticals. Terraform stack: `Contractor/terraform/` (independent from the food stack). Currently only `hunter` in `variable "contractors"`. Cabinet and WSTN not yet wired in.
+- **`myserviceflows.com`** — contractor and real-estate verticals. Terraform stack: `Contractor/terraform/` (independent from the food stack). Hunter, Cabinet, and WSTN are all deployed (S3 + CloudFront). Cabinet: CloudFront `EKL5C73BJZJER`. WSTN: CloudFront `E3PM5DNV9RRO3N`.
 
 ### Backends
 

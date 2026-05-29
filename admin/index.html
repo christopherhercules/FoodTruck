@@ -370,6 +370,8 @@
       <button class="tab" onclick="switchTab('clients',this)">🏪 Client Sites</button>
       <button class="tab" onclick="switchTab('prospects',this)">🎯 Prospects</button>
       <button class="tab" onclick="switchTab('costs',this)">☁️ AWS Costs</button>
+      <button class="tab" onclick="switchTab('creds',this)">🔐 Credentials</button>
+      <a class="tab" href="/admin/social-poster.html" style="text-decoration:none;margin-left:auto;">📲 Social Poster</a>
     </div>
 
     <!-- ══ PITCH TAB ══ -->
@@ -547,6 +549,112 @@
       </div>
     </div>
 
+    <!-- ══ CREDENTIALS TAB ══ -->
+    <div class="tab-panel" id="tab-creds">
+      <div style="display:flex;flex-direction:column;gap:20px;">
+
+        <!-- Platform admin -->
+        <div class="cost-section">
+          <h3>Platform Admin</h3>
+          <table class="cost-table">
+            <thead><tr><th>Resource</th><th>URL</th><th>Password</th></tr></thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:600;white-space:nowrap">Admin Dashboard</td>
+                <td><a href="https://aiagentassistance.com/admin/index.html" target="_blank" class="link-btn link-site" style="font-size:12px">🌐 Open</a></td>
+                <td><div class="pass-cell"><span class="pass-val pass-hidden" id="cp_admin">Michele2025!</span><button class="icon-btn" onclick="togglePass('cp_admin')">👁</button><button class="icon-btn" onclick="copyPass('cp_admin',this)">📋</button></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Active sites -->
+        <div class="cost-section">
+          <h3>Active Sites — Staff Passwords</h3>
+          <table class="cost-table">
+            <thead><tr><th>Site</th><th>Staff Dashboard</th><th>Password</th></tr></thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:600;white-space:nowrap">Mas Chingon Restaurant</td>
+                <td><a href="https://maschingonrestaurant.aiagentassistance.com/staff-dashboard.html" target="_blank" class="link-btn link-staff" style="font-size:12px">🖥 Dashboard</a></td>
+                <td><div class="pass-cell"><span class="pass-val pass-hidden" id="cp_mcr">MasChingon2025!</span><button class="icon-btn" onclick="togglePass('cp_mcr')">👁</button><button class="icon-btn" onclick="copyPass('cp_mcr',this)">📋</button></div></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;white-space:nowrap">Mas Chingon Food Truck</td>
+                <td><a href="https://maschingonfoodtruck.aiagentassistance.com/staff-dashboard.html" target="_blank" class="link-btn link-staff" style="font-size:12px">🖥 Dashboard</a></td>
+                <td><div class="pass-cell"><span class="pass-val pass-hidden" id="cp_mcft">FoodTruck2025!</span><button class="icon-btn" onclick="togglePass('cp_mcft')">👁</button><button class="icon-btn" onclick="copyPass('cp_mcft',this)">📋</button></div></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;white-space:nowrap">Bar 1859</td>
+                <td><a href="https://bar1859.aiagentassistance.com/staff-dashboard.html" target="_blank" class="link-btn link-staff" style="font-size:12px">🖥 Dashboard</a></td>
+                <td><div class="pass-cell"><span class="pass-val pass-hidden" id="cp_bar">1859Bar2025!</span><button class="icon-btn" onclick="togglePass('cp_bar')">👁</button><button class="icon-btn" onclick="copyPass('cp_bar',this)">📋</button></div></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;white-space:nowrap">Hunter (Land Clearing)</td>
+                <td><a href="https://hunter.myserviceflows.com/dashboard.html" target="_blank" class="link-btn link-staff" style="font-size:12px">🖥 Dashboard</a></td>
+                <td><div class="pass-cell"><span class="pass-val pass-hidden" id="cp_hunter">Hunter2025!</span><button class="icon-btn" onclick="togglePass('cp_hunter')">👁</button><button class="icon-btn" onclick="copyPass('cp_hunter',this)">📋</button></div></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;white-space:nowrap">Cabinet</td>
+                <td><a href="https://cabinets.myserviceflows.com/dashboard.html" target="_blank" class="link-btn link-staff" style="font-size:12px">🖥 Dashboard</a></td>
+                <td><div class="pass-cell"><span class="pass-val pass-hidden" id="cp_cab">Cabinets2025!</span><button class="icon-btn" onclick="togglePass('cp_cab')">👁</button><button class="icon-btn" onclick="copyPass('cp_cab',this)">📋</button></div></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;white-space:nowrap">WSTN (Apt Locating)</td>
+                <td><a href="https://livewstn.myserviceflows.com/dashboard.html" target="_blank" class="link-btn link-staff" style="font-size:12px">🖥 Dashboard</a></td>
+                <td><div class="pass-cell"><span class="pass-val pass-hidden" id="cp_wstn">WSTN2025!</span><button class="icon-btn" onclick="togglePass('cp_wstn')">👁</button><button class="icon-btn" onclick="copyPass('cp_wstn',this)">📋</button></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Service credentials -->
+        <div class="cost-section">
+          <h3>Service Credentials</h3>
+          <table class="cost-table">
+            <thead><tr><th>Service</th><th>Detail</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:600;white-space:nowrap">AWS (Food)</td>
+                <td style="font-family:monospace;font-size:12px">Account 699242704305 · profile: default</td>
+                <td style="color:var(--muted);font-size:13px">aiagentassistance.com</td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;white-space:nowrap">AWS (Contractor)</td>
+                <td style="font-family:monospace;font-size:12px">Account 082569478855 · profile: contractor</td>
+                <td style="color:var(--muted);font-size:13px">myserviceflows.com</td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;white-space:nowrap">Twilio</td>
+                <td style="font-family:monospace;font-size:12px">+1 (844) 321-4664</td>
+                <td style="color:var(--yellow);font-size:13px">⏳ Verification in progress</td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;white-space:nowrap">Render</td>
+                <td><a href="https://foodtruck-cymz.onrender.com" target="_blank" class="phone-link" style="font-size:13px">foodtruck-cymz.onrender.com</a></td>
+                <td style="color:var(--muted);font-size:13px">Webhook server (Twilio + Toast)</td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;white-space:nowrap">GitLab</td>
+                <td style="font-family:monospace;font-size:12px">git@gitlab.com:aiagentassistant/FoodTruck.git</td>
+                <td style="color:var(--muted);font-size:13px">SSH key auth</td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;white-space:nowrap">GitHub</td>
+                <td style="font-family:monospace;font-size:12px">git@github.com:christopherhercules/FoodTruck.git</td>
+                <td style="color:var(--muted);font-size:13px">SSH key auth</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="font-size:12px;color:var(--muted);padding:4px 0">
+          Dormant site passwords are in the <strong style="color:var(--text)">Client Sites</strong> tab. Full list also in <code style="background:var(--bg3);border:1px solid var(--border);padding:2px 7px;border-radius:4px;font-size:11px">credentials.md</code> in the FoodTruck repo (gitignored).
+        </div>
+
+      </div>
+    </div>
+
     <!-- ══ AWS COSTS TAB ══ -->
     <div class="tab-panel" id="tab-costs">
       <div class="cost-meta">
@@ -611,22 +719,13 @@ const DASHBOARD_PASSWORD = "Michele2025!";
 const BASE = "aiagentassistance.com";
 
 const SITES = [
-  { name:"Main Landing Page",       type:"Platform",          sub:"",                    phone:null,           location:"aiagentassistance.com",         password:null,                isMain:true  },
-  { name:"Mas Chingon Restaurant",  type:"Restaurant",        sub:"maschingonrestaurant",phone:"(254) 721-5510",location:"Salado, TX",                    password:"MasChingon2025!"               },
-  { name:"Mas Chingon Food Truck",  type:"Food Truck",        sub:"maschingonfoodtruck", phone:"(254) 721-5510",location:"Mobile — Salado, TX",           password:"FoodTruck2025!"                },
-  { name:"Bar 1859",                type:"Bar",               sub:"bar1859",             phone:"(254) 721-5510",location:"21 N. Main St., Salado, TX",    password:"1859Bar2025!"                  },
-  { name:"Sylvia's Tacos",          type:"Food Truck",        sub:"sylviastacos",        phone:"(254) 718-1873",location:"Salado, TX",                    password:"Sylvias2025!"                  },
-  { name:"Don Julio's Tacos",       type:"Food Truck",        sub:"donjuliostacos",      phone:"(254) 768-6409",location:"FM 1670, Salado, TX",           password:"DonJulios2025!"                },
-  { name:"Hecho En Queso",          type:"Food Truck",        sub:"hechoenqueso",        phone:"(254) 768-7336",location:"Salado, TX",                    password:"HechoEnQueso2025!"             },
-  { name:"Happy Pizza",             type:"Food Truck",        sub:"happypizza",          phone:"(254) 226-1684",location:"Barrow Brewing, Salado, TX",    password:"HappyPizza2025!"               },
-  { name:"Sacred Sandwich",         type:"Food Truck",        sub:"sacredsandwich",      phone:null,           location:"Barrow Brewing, Salado, TX",    password:"Sacred2025!"                   },
-  { name:"That Green Trailer",      type:"Food Truck",        sub:"thatgreentrailer",    phone:"(254) 563-9095",location:"FM 2484, Salado, TX",           password:"GreenTrailer2025!"             },
-  { name:"Big Tony's",              type:"Food Truck",        sub:"bigtonys",            phone:null,           location:"Mobile — Salado, TX",           password:"BigTonys2025!"                 },
-  { name:"Potato Wagon",            type:"Food Truck",        sub:"potatowagon",         phone:null,           location:"Salado, TX",                    password:"PotatoWagon2025!"              },
-  { name:"Rib Tips",                type:"Food Truck / Catering", sub:"ribtips",         phone:"(512) 661-7548",location:"Salado, TX",                   password:"RibTips2025!"                  },
-  { name:"Simply Porkfection",      type:"Food Truck",        sub:"simplyporkfection",   phone:"(512) 466-3102",location:"Salado, TX",                   password:"PorkFection2025!"              },
-  { name:"Bobby Que",               type:"Food Truck",        sub:"bobbyque",            phone:null,           location:"Barrow Brewing, Salado, TX",    password:"BobbyQue2025!"                 },
-  { name:"Soda Fusion",             type:"Food Truck",        sub:"sodafusion",          phone:"(812) 391-4403",location:"Salado, TX",                   password:"SodaFusion2025!"               },
+  { name:"Main Landing Page",       type:"Platform",     sub:"",                    phone:null,            location:"aiagentassistance.com",         password:null,            isMain:true },
+  { name:"Mas Chingon Restaurant",  type:"Restaurant",   sub:"maschingonrestaurant",phone:"(254) 721-5510",location:"Salado, TX",                    password:"MasChingon2025!"              },
+  { name:"Mas Chingon Food Truck",  type:"Food Truck",   sub:"maschingonfoodtruck", phone:"(254) 721-5510",location:"Mobile — Salado, TX",           password:"FoodTruck2025!"               },
+  { name:"Bar 1859",                type:"Bar",          sub:"bar1859",             phone:"(254) 721-5510",location:"21 N. Main St., Salado, TX",    password:"1859Bar2025!"                 },
+  { name:"Hunter (Land Clearing)",  type:"Contractor",   sub:"hunter",              phone:null,            location:"myserviceflows.com",            password:"Hunter2025!",   siteUrl:"https://hunter.myserviceflows.com",  staffUrl:"https://hunter.myserviceflows.com/dashboard.html" },
+  { name:"Cabinet",                 type:"Contractor",   sub:"cabinet",             phone:null,            location:"myserviceflows.com",            password:"Cabinets2025!", siteUrl:"https://cabinets.myserviceflows.com",   staffUrl:"https://cabinets.myserviceflows.com/dashboard.html" },
+  { name:"WSTN (Apt Locating)",     type:"Real Estate",  sub:"wstn",                phone:null,            location:"myserviceflows.com",            password:"WSTN2025!",     siteUrl:"https://livewstn.myserviceflows.com", staffUrl:"https://livewstn.myserviceflows.com/dashboard.html" },
 ];
 
 // ── Auth ──
@@ -687,8 +786,8 @@ function buildTable() {
   const tbody = document.getElementById("tableBody");
   tbody.innerHTML = "";
   SITES.forEach(s => {
-    const siteUrl  = s.isMain ? `https://${BASE}` : `https://${s.sub}.${BASE}`;
-    const staffUrl = s.isMain ? null : `https://${s.sub}.${BASE}/staff-dashboard.html`;
+    const siteUrl  = s.siteUrl !== undefined ? s.siteUrl : (s.isMain ? `https://${BASE}` : `https://${s.sub}.${BASE}`);
+    const staffUrl = s.staffUrl !== undefined ? s.staffUrl : (s.isMain ? null : `https://${s.sub}.${BASE}/staff-dashboard.html`);
     const passId   = `pass_${s.sub||"main"}`;
     const key      = s.sub || "main";
     const c        = getContact(key);
