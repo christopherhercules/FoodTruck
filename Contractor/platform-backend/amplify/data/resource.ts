@@ -83,6 +83,21 @@ const schema = a.schema({
     })
     .authorization((allow) => [allow.publicApiKey()]),
 
+  WSTNProperty: a
+    .model({
+      name:      a.string().required(),
+      type:      a.string(),        // apartment | house | condo | townhome
+      address:   a.string(),
+      city:      a.string(),
+      minPrice:  a.integer(),
+      maxPrice:  a.integer(),
+      beds:      a.string().array(),
+      amenities: a.string(),
+      notes:     a.string(),        // private — never shown to clients
+      active:    a.boolean(),
+    })
+    .authorization((allow) => [allow.publicApiKey()]),
+
   WSTNLead: a
     .model({
       // Contact

@@ -863,7 +863,7 @@
 
   /* ── TAB SWITCHING ── */
   const TABS = ['leads', 'properties', 'social'];
-  function switchTab(tab) {
+  async function switchTab(tab) {
     TABS.forEach(t => {
       document.getElementById(`section-${t}`).style.display = t === tab ? '' : 'none';
     });
@@ -871,7 +871,7 @@
       btn.classList.toggle('active', btn.dataset.tab === tab);
     });
     if (tab === 'properties') {
-      loadProperties();
+      await loadProperties();
       renderProperties();
     }
   }
@@ -890,12 +890,18 @@
   let properties = [];
   let editingPropId = null;
 
-  function loadProperties() {
-    properties = JSON.parse(localStorage.getItem('wstn_properties') || '[]');
-  }
-
-  function saveProperties() {
-    localStorage.setItem('wstn_properties', JSON.stringify(properties));
+  async function loadProperties() {
+    try {
+      const data = await gql(`query {
+        listWSTNProperties(limit: 500) {
+          items { id name type address city minPrice maxPrice beds amenities notes active }
+        }
+      }`);
+      properties = data.listWSTNProperties.items || [];
+    } catch (err) {
+      console.error('loadProperties failed:', err.message);
+      properties = JSON.parse(localStorage.getItem('wstn_properties') || '[]');
+    }
   }
 
   function updateBedLabel(chk) {
@@ -930,44 +936,52 @@
     editingPropId = null;
   }
 
-  function savePropForm() {
+  async function savePropForm() {
     const name = document.getElementById('propName').value.trim();
     if (!name) { alert('Property name is required.'); return; }
 
     const beds = BED_IDS.filter(b => document.getElementById(b.id).checked).map(b => b.val);
 
-    const prop = {
-      id:        editingPropId || `prop_${Date.now()}`,
+    const input = {
       name,
-      address:   document.getElementById('propAddress').value.trim(),
-      city:      document.getElementById('propCity').value.trim(),
+      address:   document.getElementById('propAddress').value.trim() || null,
+      city:      document.getElementById('propCity').value.trim() || null,
       type:      document.getElementById('propType').value,
       beds,
-      minPrice:  parseInt(document.getElementById('propMinPrice').value) || 0,
-      maxPrice:  parseInt(document.getElementById('propMaxPrice').value) || 0,
-      amenities: document.getElementById('propAmenities').value.trim(),
-      notes:     document.getElementById('propNotes').value.trim(),
+      minPrice:  parseInt(document.getElementById('propMinPrice').value) || null,
+      maxPrice:  parseInt(document.getElementById('propMaxPrice').value) || null,
+      amenities: document.getElementById('propAmenities').value.trim() || null,
+      notes:     document.getElementById('propNotes').value.trim() || null,
       active:    document.getElementById('propActive').checked,
     };
 
-    if (editingPropId) {
-      const idx = properties.findIndex(p => p.id === editingPropId);
-      if (idx >= 0) properties[idx] = prop;
-    } else {
-      properties.unshift(prop);
+    try {
+      if (editingPropId) {
+        await gql(`mutation U($input: UpdateWSTNPropertyInput!) { updateWSTNProperty(input: $input) { id } }`,
+          { input: { id: editingPropId, ...input } });
+      } else {
+        await gql(`mutation C($input: CreateWSTNPropertyInput!) { createWSTNProperty(input: $input) { id } }`,
+          { input });
+      }
+      hidePropForm();
+      await loadProperties();
+      renderProperties();
+    } catch (err) {
+      alert('Failed to save property: ' + err.message);
     }
-
-    saveProperties();
-    hidePropForm();
-    renderProperties();
   }
 
-  function deleteProp(id) {
+  async function deleteProp(id) {
     const p = properties.find(x => x.id === id);
     if (!p || !confirm(`Delete "${p.name}"?`)) return;
-    properties = properties.filter(x => x.id !== id);
-    saveProperties();
-    renderProperties();
+    try {
+      await gql(`mutation D($input: DeleteWSTNPropertyInput!) { deleteWSTNProperty(input: $input) { id } }`,
+        { input: { id } });
+      properties = properties.filter(x => x.id !== id);
+      renderProperties();
+    } catch (err) {
+      alert('Failed to delete: ' + err.message);
+    }
   }
 
   function renderProperties() {

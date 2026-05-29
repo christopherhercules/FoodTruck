@@ -31,7 +31,7 @@
 | AppSync endpoint | `https://fatiu5musjes5clnyalazphytu.appsync-api.us-east-1.amazonaws.com/graphql` |
 | API key | `da2-k2xaghsoq5ggjdsgta4tzf2zha` |
 | Amplify stack | `amplify-contractorplatform-chris-sandbox-6c197c7d8a` |
-| Models | `WSTNLead` |
+| Models | `WSTNLead`, `WSTNProperty` |
 | Dashboard | https://livewstn.myserviceflows.com/dashboard.html |
 
 ## Render Env Vars
@@ -46,6 +46,6 @@
 
 ## Open Items
 - [ ] Twilio toll-free approval — SMS blocked until approved
-- [ ] Wire properties to AppSync (currently localStorage — broken cross-device)
+- [ ] Deploy WSTNProperty model: `cd Contractor/platform-backend && npx ampx sandbox --profile contractor`; verify API key in `amplify_outputs.json` after deploy, then push HTML to S3
 - [ ] Social poster: create S3 bucket `wstn-social.myserviceflows.com`, add FB/IG env vars
 - [ ] Add WSTN to `variable "contractors"` in `Contractor/terraform/variables.tf`

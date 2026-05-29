@@ -1028,7 +1028,7 @@
     <div class="testimonial-card">
       <div class="testimonial-stars">★★★★★</div>
       <p class="testimonial-text">
-        Westin listed our home and we had three offers within a week — one above asking price. He handled everything from staging advice to the final walkthrough. We couldn't have done it without him.
+        Brogan listed our home and we had three offers within a week — one above asking price. He handled everything from staging advice to the final walkthrough. We couldn't have done it without him.
       </p>
       <div class="testimonial-author">
         <div class="testimonial-avatar">MK</div>
@@ -1046,7 +1046,7 @@
   <div class="container text-center">
     <span class="section-label">Get Started — It's Free</span>
     <h2 class="section-title">Tell us what you need</h2>
-    <p class="section-sub">Fill out the form and Westin will reach out within the hour.</p>
+    <p class="section-sub">Fill out the form and Brogan will reach out within the hour.</p>
   </div>
 
   <div class="lead-tabs" style="max-width:560px">
@@ -1068,7 +1068,7 @@
       <div id="success-rent" class="form-success">
         <i class="fas fa-check-circle"></i>
         <h3>You're all set!</h3>
-        <p>Westin will call or text you at the number you provided — usually within the hour. Get ready to find your perfect place.</p>
+        <p>Brogan will call or text you at the number you provided — usually within the hour. Get ready to find your perfect place.</p>
         <p style="margin-top:16px">Questions? Call or text <a href="tel:2103940238" style="color:var(--gold);font-weight:600">(210) 394-0238</a></p>
       </div>
       <form id="form-rent" onsubmit="submitForm(event, 'rent')">
@@ -1131,7 +1131,7 @@
       <div id="success-buy" class="form-success">
         <i class="fas fa-check-circle"></i>
         <h3>Request received!</h3>
-        <p>Westin will be in touch shortly to start your home search. We're excited to help you find the right home.</p>
+        <p>Brogan will be in touch shortly to start your home search. We're excited to help you find the right home.</p>
         <p style="margin-top:16px">Questions? Call or text <a href="tel:2103940238" style="color:var(--gold);font-weight:600">(210) 394-0238</a></p>
       </div>
       <form id="form-buy" onsubmit="submitForm(event, 'buy')">
@@ -1199,7 +1199,7 @@
       <div id="success-sell" class="form-success">
         <i class="fas fa-check-circle"></i>
         <h3>We'll be in touch!</h3>
-        <p>Westin will call or text you within the hour to discuss listing your home and what it could sell for in today's market.</p>
+        <p>Brogan will call or text you within the hour to discuss listing your home and what it could sell for in today's market.</p>
         <p style="margin-top:16px">Questions? Call or text <a href="tel:2103940238" style="color:var(--gold);font-weight:600">(210) 394-0238</a></p>
       </div>
       <form id="form-sell" onsubmit="submitForm(event, 'sell')">
@@ -1455,7 +1455,7 @@
   }
 
   function startChat() {
-    showBotMessage("Hi! I'm Westin's AI assistant 👋 I can help you find a place, buy a home, sell your property, or answer any questions.\n\nWhat brings you here today?", [
+    showBotMessage("Hi! I'm Brogan's AI assistant 👋 I can help you find a place, buy a home, sell your property, or answer any questions.\n\nWhat brings you here today?", [
       { label: '🏢 Find an Apartment', action: () => startRentFlow() },
       { label: '🏡 Buy a Home',        action: () => startBuyFlow() },
       { label: '🏠 Sell My Home',      action: () => startSellFlow() },
@@ -1517,7 +1517,7 @@
   }
 
   function askNotes() {
-    askWithInput("Anything Westin should know upfront? Pets, credit concerns, broken lease… no judgment here — we handle it all.", 'notes', val => {
+    askWithInput("Anything Brogan should know upfront? Pets, credit concerns, broken lease… no judgment here — we handle it all.", 'notes', val => {
       chatState.notes = val;
       if (val.toLowerCase().match(/credit|score|bad|low|broken|record/)) {
         setTimeout(() => showBotMessage("No worries at all — we specialize in exactly this. We've helped 1,000+ clients in similar situations get approved. ✅"), 400);
@@ -1546,7 +1546,7 @@
   function setSellPrice(val) {
     chatState.askingprice = val;
     if (val === 'Need market analysis') {
-      setTimeout(() => showBotMessage("No problem — Westin will pull comps and give you a free valuation. 📊"), 400);
+      setTimeout(() => showBotMessage("No problem — Brogan will pull comps and give you a free valuation. 📊"), 400);
     }
     setTimeout(() => {
       showBotMessage("When are you hoping to sell?", [
@@ -1609,7 +1609,7 @@
   function setPreapproved(val) {
     chatState.preapproved = val;
     if (val === 'Not yet' || val === 'Need guidance') {
-      setTimeout(() => showBotMessage("No problem — Westin can connect you with trusted lenders who get deals done fast. 🏦"), 400);
+      setTimeout(() => showBotMessage("No problem — Brogan can connect you with trusted lenders who get deals done fast. 🏦"), 400);
     }
     askWithInput("What's your ideal move-in timeline?", 'timeline', val => {
       chatState.timeline = val;
@@ -1646,7 +1646,7 @@
   function collectContact() {
     askWithInput("Almost done! What's your name?", 'name', val => {
       chatState.name = val;
-      askWithInput(`Nice to meet you, ${val.split(' ')[0]}! 😊 What's the best phone number for Westin to reach you?`, 'phone', val => {
+      askWithInput(`Nice to meet you, ${val.split(' ')[0]}! 😊 What's the best phone number for Brogan to reach you?`, 'phone', val => {
         chatState.phone = val;
         submitChatLead();
       });
@@ -1695,9 +1695,24 @@
     }).catch(err => console.warn('[WSTN] AppSync write failed:', err.message));
   }
 
-  function showPreferredProperties() {
-    const all = JSON.parse(localStorage.getItem('wstn_properties') || '[]');
-    const active = all.filter(p => p.active !== false);
+  async function showPreferredProperties() {
+    let active = [];
+    try {
+      const res = await fetch(GQL_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': GQL_KEY },
+        body: JSON.stringify({
+          query: `query { listWSTNProperties(filter: { active: { eq: true } }) { items {
+            name type address city minPrice maxPrice beds amenities
+          }}}`,
+        }),
+      });
+      const json = await res.json();
+      active = json.data?.listWSTNProperties?.items || [];
+    } catch (e) {
+      active = JSON.parse(localStorage.getItem('wstn_properties') || '[]')
+                 .filter(p => p.active !== false);
+    }
     if (!active.length) return;
 
     // Parse user budget string into [min, max] numbers
