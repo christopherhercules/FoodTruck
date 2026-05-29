@@ -12,6 +12,7 @@ const router   = express.Router();
 const twilio   = require('twilio');
 const { SESv2Client, SendEmailCommand } = require('@aws-sdk/client-sesv2');
 const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER } = require('../twilio/config');
+const { resolveNotification } = require('../notify-mode');
 
 const WESTIN_PHONE = process.env.WSTN_NOTIFY_PHONE || '+12103940238';
 const NOTIFY_FROM  = process.env.WSTN_EMAIL_FROM   || 'WSTN Apartment Locating <notifications@myserviceflows.com>';
@@ -73,20 +74,8 @@ router.post('/wstn/lead', express.json(), async (req, res) => {
       (source === 'chat' ? `\n📱 Via AI chat widget\n` : '') +
       `\nDashboard: ${DASH_URL}`;
 
-  try {
-    const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
-    await client.messages.create({
-      body: smsBody,
-      from: TWILIO_FROM_NUMBER,
-      to:   WESTIN_PHONE,
-    });
-    console.log(`[wstn/lead] SMS sent to ${WESTIN_PHONE} — ${name}`);
-  } catch (err) {
-    console.warn('[wstn/lead] Twilio SMS failed (may be pending approval):', err.message);
-  }
-
   // ── Email to Westin via SES ────────────────────────────────────────────────
-  const subject = isSell
+  const rawSubject = isSell
     ? `${emoji} New Home Seller: ${name} — ${address || 'Texas'}`
     : `${emoji} New ${typeLabel}: ${name} — ${area || 'Texas'}`;
 
@@ -178,10 +167,31 @@ router.post('/wstn/lead', express.json(), async (req, res) => {
   </div>
 </div>`;
 
+  const { to: resolvedTo, subject, smsBody: resolvedSms, suppressSms } = resolveNotification({
+    to:      NOTIFY_TO,
+    subject: rawSubject,
+    smsBody,
+    siteEnv: process.env.WSTN_APP_ENV,
+  });
+
+  if (!suppressSms) {
+    try {
+      const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+      await client.messages.create({
+        body: resolvedSms,
+        from: TWILIO_FROM_NUMBER,
+        to:   WESTIN_PHONE,
+      });
+      console.log(`[wstn/lead] SMS sent to ${WESTIN_PHONE} — ${name}`);
+    } catch (err) {
+      console.warn('[wstn/lead] SMS failed:', err.message);
+    }
+  }
+
   try {
     await ses.send(new SendEmailCommand({
       FromEmailAddress: NOTIFY_FROM,
-      Destination: { ToAddresses: [NOTIFY_TO] },
+      Destination: { ToAddresses: [resolvedTo] },
       Content: {
         Simple: {
           Subject: { Data: subject },
@@ -189,7 +199,7 @@ router.post('/wstn/lead', express.json(), async (req, res) => {
         },
       },
     }));
-    console.log(`[wstn/lead] Email sent to ${NOTIFY_TO} — ${name} (${phone})`);
+    console.log(`[wstn/lead] Email sent to ${resolvedTo} — ${name} (${phone})`);
   } catch (err) {
     console.error('[wstn/lead] SES error:', err.message);
   }
