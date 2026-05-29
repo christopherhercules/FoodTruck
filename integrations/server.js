@@ -61,8 +61,10 @@ async function start() {
   // ── SHAWN CABINETS ROUTES ─────────────────────────────────────────────────
   const cabinetsApp        = require('./cabinets/estimate');
   const cabinetsAnalyzeApp = require('./cabinets/analyze-plan');
+  const cabinetsSocialApp  = require('./cabinets/social');
   app.use(cabinetsApp);
   app.use(cabinetsAnalyzeApp);
+  app.use(cabinetsSocialApp);
 
   // ── WSTN APARTMENT LOCATING ROUTES ────────────────────────────────────────
   const wstnLeadApp    = require('./wstn/lead');
