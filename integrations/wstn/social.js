@@ -35,10 +35,16 @@ const upload = multer({
 
 const ANTHROPIC_API  = 'https://api.anthropic.com/v1/messages';
 const META_API       = 'https://graph.facebook.com/v19.0';
-const UPLOADS_BUCKET = 'wstn-social.myserviceflows.com';
+const UPLOADS_BUCKET = 'contractor-social.myserviceflows.com';
 const UPLOADS_URL    = `https://s3.amazonaws.com/${UPLOADS_BUCKET}`;
 
-const s3 = new S3Client({ region: process.env.AWS_DEFAULT_REGION || 'us-east-1' });
+const s3 = new S3Client({
+  region:      process.env.AWS_DEFAULT_REGION || 'us-east-1',
+  credentials: {
+    accessKeyId:     process.env.CONTRACTOR_AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.CONTRACTOR_AWS_SECRET_ACCESS_KEY,
+  },
+});
 
 router.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -58,7 +64,7 @@ router.post('/wstn/social/caption', upload.single('photo'), async (req, res) => 
   let imageUrl = null;
   try {
     const ext = path.extname(originalname || 'photo').toLowerCase() || '.jpg';
-    const key = `social/${Date.now()}-${crypto.randomBytes(6).toString('hex')}${ext}`;
+    const key = `wstn/social/${Date.now()}-${crypto.randomBytes(6).toString('hex')}${ext}`;
     await s3.send(new PutObjectCommand({
       Bucket:      UPLOADS_BUCKET,
       Key:         key,
