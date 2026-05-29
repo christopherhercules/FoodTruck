@@ -9,6 +9,7 @@
 const express  = require('express');
 const router   = express.Router();
 const { SESv2Client, SendEmailCommand } = require('@aws-sdk/client-sesv2');
+const { resolveNotification } = require('../notify-mode');
 
 const NOTIFY_FROM = process.env.CABINETS_EMAIL_FROM || "Shawn's Cabinets <noreply@myserviceflows.com>";
 const NOTIFY_TO   = process.env.CABINETS_NOTIFY_EMAIL || 'christopherhercules@outlook.com';
@@ -31,7 +32,7 @@ router.post('/cabinets/estimate', express.json(), async (req, res) => {
     return res.status(400).json({ error: 'Missing required fields: name, phone' });
   }
 
-  const emailSubject = `New cabinet estimate: ${name} — ${address ? address.split(',')[0] : 'address unknown'}`;
+  const rawSubject = `New cabinet estimate: ${name} — ${address ? address.split(',')[0] : 'address unknown'}`;
 
   const emailText = [
     "New estimate request from Shawn's Cabinets website.",
@@ -83,10 +84,17 @@ router.post('/cabinets/estimate', express.json(), async (req, res) => {
   <a href="${DASH_URL}" style="display:inline-block;background:#c4a35a;color:#000;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:600;">Open Dashboard</a>
 </div>`;
 
+  const { to: resolvedTo, subject: emailSubject } = resolveNotification({
+    to:      NOTIFY_TO,
+    subject: rawSubject,
+    smsBody: null,
+    siteEnv: process.env.CABINETS_APP_ENV,
+  });
+
   try {
     await ses.send(new SendEmailCommand({
       FromEmailAddress: NOTIFY_FROM,
-      Destination: { ToAddresses: [NOTIFY_TO] },
+      Destination: { ToAddresses: [resolvedTo] },
       Content: {
         Simple: {
           Subject: { Data: emailSubject },
@@ -94,7 +102,7 @@ router.post('/cabinets/estimate', express.json(), async (req, res) => {
         },
       },
     }));
-    console.log(`[cabinets/estimate] Email sent to ${NOTIFY_TO} — from ${name} (${phone})`);
+    console.log(`[cabinets/estimate] Email sent to ${resolvedTo} — from ${name} (${phone})`);
   } catch (err) {
     console.error('[cabinets/estimate] SES error:', err.message);
   }

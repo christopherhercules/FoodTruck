@@ -15,6 +15,7 @@ const router   = express.Router();
 const twilio   = require('twilio');
 const { SESv2Client, SendEmailCommand } = require('@aws-sdk/client-sesv2');
 const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER } = require('../twilio/config');
+const { resolveNotification } = require('../notify-mode');
 
 const JASON_PHONE = process.env.HUNTER_NOTIFY_PHONE || '+18308327065';
 const NOTIFY_FROM = process.env.HUNTER_EMAIL_FROM   || 'Hunter Land Clearing <notifications@myserviceflows.com>';
@@ -58,7 +59,7 @@ router.post('/hunter/estimate', express.json(), async (req, res) => {
 
   // ── EMAIL via SES (primary — always attempt) ──────────────────────────────
   const acresStr   = acres && parseFloat(acres) > 0 ? `${parseFloat(acres).toFixed(2)} acres` : 'unknown';
-  const emailSubject = `New estimate: ${name} — ${address ? address.split(',')[0] : 'address unknown'}`;
+  const rawSubject = `New estimate: ${name} — ${address ? address.split(',')[0] : 'address unknown'}`;
   const emailText  = [
     'New estimate request from Hunter Land Clearing website.',
     '',
@@ -95,10 +96,17 @@ router.post('/hunter/estimate', express.json(), async (req, res) => {
   <a href="${DASH_URL}" style="display:inline-block;background:#b45309;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:600;">Open Dashboard</a>
 </div>`;
 
+  const { to: resolvedTo, subject: emailSubject, smsBody: resolvedSms, suppressSms } = resolveNotification({
+    to:      NOTIFY_TO,
+    subject: rawSubject,
+    smsBody,
+    siteEnv: process.env.HUNTER_APP_ENV,
+  });
+
   try {
     await ses.send(new SendEmailCommand({
       FromEmailAddress: NOTIFY_FROM,
-      Destination: { ToAddresses: [NOTIFY_TO] },
+      Destination: { ToAddresses: [resolvedTo] },
       Content: {
         Simple: {
           Subject: { Data: emailSubject },
@@ -106,22 +114,23 @@ router.post('/hunter/estimate', express.json(), async (req, res) => {
         },
       },
     }));
-    console.log(`[hunter/estimate] Email sent to ${NOTIFY_TO} — from ${name} (${phone})`);
+    console.log(`[hunter/estimate] Email sent to ${resolvedTo} — from ${name} (${phone})`);
   } catch (emailErr) {
     console.error('[hunter/estimate] SES error:', emailErr.message);
   }
 
-  // ── SMS via Twilio (secondary — best-effort, blocked until toll-free approved) ──
-  try {
-    const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
-    const message = await client.messages.create({
-      body: smsBody,
-      from: TWILIO_FROM_NUMBER,
-      to:   JASON_PHONE,
-    });
-    console.log(`[hunter/estimate] SMS sent to Jason — SID ${message.sid}`);
-  } catch (smsErr) {
-    console.warn('[hunter/estimate] SMS skipped (Twilio not yet approved):', smsErr.message);
+  if (!suppressSms) {
+    try {
+      const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+      const message = await client.messages.create({
+        body: resolvedSms,
+        from: TWILIO_FROM_NUMBER,
+        to:   JASON_PHONE,
+      });
+      console.log(`[hunter/estimate] SMS sent to Jason — SID ${message.sid}`);
+    } catch (smsErr) {
+      console.warn('[hunter/estimate] SMS failed:', smsErr.message);
+    }
   }
 
   return res.json({ ok: true });
