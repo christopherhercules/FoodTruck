@@ -28,8 +28,7 @@ suppression per site. Created shared helper, wired into all three handlers.
 - `CABINETS_APP_ENV=dev` — Cabinets emails go to admin@, SMS suppressed (no SMS anyway)
 - `APP_ENV=dev` — global fallback
 
-**Not yet deployed** — changes are in branch `claude/gallant-panini-7d6656`, needs PR
-and merge to master before Render picks them up.
+**Deployed** — merged to master and pushed to GitHub. Render auto-deploying.
 
 ---
 
@@ -74,7 +73,7 @@ Live posting blocked until these SSM params are added:
 
 ## Pending / follow-up
 
-- [ ] Merge branch `claude/gallant-panini-7d6656` → master so APP_ENV changes deploy to Render
+- [x] Merged branch `claude/gallant-panini-7d6656` → master, pushed to GitHub, Render deploying
 - [ ] Get Shawn's Meta tokens (FB Page token, Page ID, IG Business ID) and add to SSM
 - [ ] Set `CABINETS_APP_ENV=demo` in Render once Shawn is actively testing
 - [ ] WSTN social poster already built last session — same token-pending state
