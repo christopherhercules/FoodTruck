@@ -260,7 +260,7 @@ This gives Chris the technical access needed to connect the social poster. It do
 2. Click **"Manage"** at the top (or the gear/settings icon)
 3. In the left sidebar, click **"Page Access"**
 4. Under "People with Facebook Access," click **"Add New"**
-5. Search for: **christopherhercules@outlook.com**
+5. In the search box, type **Christopher Hercules** — his Facebook account is under that name (email: herculesbroncos98@yahoo.com). If a few results come up, look for the profile photo to confirm it's him before sending.
 6. Toggle on **"Allow this person to have full control of your Page"**
 7. Click **"Give Access"** and confirm with your Facebook password
 
