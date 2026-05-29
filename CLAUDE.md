@@ -286,8 +286,9 @@ Amplify. This is intentional. Do not import them.
       approved, remove `SKIP_TWILIO_VALIDATION=true` from Render and set real
       `TWILIO_AUTH_TOKEN` env var.
 - [ ] **Cognito** — add when real customers need accounts (not needed yet)
-- [ ] **Render → GitLab** — check if Render service is connected to GitHub; if so,
-      switch to GitLab repo for auto-deploys
+- [ ] **Render → GitLab** ⚠️ CONFIRMED: Render is connected to GitHub not GitLab.
+      Every push to GitLab only leaves Render behind. Must switch Render to GitLab
+      or add `git push github master` to every deploy workflow until fixed.
 - [ ] **Enable S3 versioning on state bucket** — one-liner:
       `aws s3api put-bucket-versioning --bucket terraform-state-foodtruck-699242704305 --versioning-configuration Status=Enabled`
 - [ ] **Enable DynamoDB PITR** — point-in-time recovery on Orders table
