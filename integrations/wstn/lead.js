@@ -14,8 +14,8 @@ const { SESv2Client, SendEmailCommand } = require('@aws-sdk/client-sesv2');
 const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER } = require('../twilio/config');
 
 const WESTIN_PHONE = process.env.WSTN_NOTIFY_PHONE || '+12103940238';
-const NOTIFY_FROM  = process.env.WSTN_EMAIL_FROM   || 'WSTN Apartment Locating <noreply@myserviceflows.com>';
-const NOTIFY_TO    = process.env.WSTN_NOTIFY_EMAIL || 'wstnapartmentlocating@gmail.com';
+const NOTIFY_FROM  = process.env.WSTN_EMAIL_FROM   || 'christopherhercules@outlook.com';
+const NOTIFY_TO    = process.env.WSTN_NOTIFY_EMAIL || 'chris@aiagentassistance.com';
 const DASH_URL     = 'https://livewstn.myserviceflows.com/dashboard.html';
 
 const ses = new SESv2Client({ region: process.env.AWS_DEFAULT_REGION || 'us-east-1' });

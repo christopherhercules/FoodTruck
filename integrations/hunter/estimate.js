@@ -18,7 +18,7 @@ const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER } = require('.
 
 const JASON_PHONE = process.env.HUNTER_NOTIFY_PHONE || '+18308327065';
 const NOTIFY_FROM = process.env.HUNTER_EMAIL_FROM   || 'christopherhercules@outlook.com';
-const NOTIFY_TO   = process.env.HUNTER_EMAIL_TO     || 'christopherhercules@outlook.com';
+const NOTIFY_TO   = process.env.HUNTER_EMAIL_TO     || 'hunterlandclearing@yahoo.com';
 const DASH_URL    = 'https://hunter.aiagentassistance.com/dashboard.html';
 
 const ses = new SESv2Client({ region: process.env.AWS_DEFAULT_REGION || 'us-east-1' });
