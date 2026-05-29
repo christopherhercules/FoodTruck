@@ -25,6 +25,7 @@ Active POCs on the platform. One page per client — durable context, traceable 
 
 ## Operations / Business
 
+- [[client-onboarding-guide-template]] — reusable template for per-client plain-language guides (site walkthrough, dashboard, notifications, FB/IG setup); reference impl: WSTN/BROGAN_GUIDE.md
 - [[expense-tracking]] — Zoho Books + Zapier + optional Claude MCP for expense categorization; setup not yet done
 - [[twilio]] — account, phone numbers, toll-free verification status, and post-approval checklist
 
