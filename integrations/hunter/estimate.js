@@ -3,7 +3,7 @@
  *
  * POST /hunter/estimate
  *
- * Receives a lead from the estimate intake tool on hunter.aiagentassistance.com
+ * Receives a lead from the estimate intake tool on hunter.myserviceflows.com
  * and fires an SMS to Jason at (830) 832-7065.
  *
  * Body (JSON):
@@ -20,11 +20,11 @@ const { resolveNotification } = require('../notify-mode');
 const JASON_PHONE = process.env.HUNTER_NOTIFY_PHONE || '+18308327065';
 const NOTIFY_FROM = process.env.HUNTER_EMAIL_FROM   || 'Hunter Land Clearing <notifications@myserviceflows.com>';
 const NOTIFY_TO   = process.env.HUNTER_EMAIL_TO     || 'hunterlandclearing@yahoo.com';
-const DASH_URL    = 'https://hunter.aiagentassistance.com/dashboard.html';
+const DASH_URL    = 'https://hunter.myserviceflows.com/dashboard.html';
 
 const ses = new SESv2Client({ region: process.env.AWS_DEFAULT_REGION || 'us-east-1' });
 
-// ── CORS for hunter.aiagentassistance.com ──────────────────────────────────
+// ── CORS ──────────────────────────────────────────────────────────────────
 router.use('/hunter', (req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
