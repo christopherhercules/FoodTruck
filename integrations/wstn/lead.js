@@ -15,7 +15,7 @@ const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER } = require('.
 
 const WESTIN_PHONE = process.env.WSTN_NOTIFY_PHONE || '+12103940238';
 const NOTIFY_FROM  = process.env.WSTN_EMAIL_FROM   || 'christopherhercules@outlook.com';
-const NOTIFY_TO    = process.env.WSTN_NOTIFY_EMAIL || 'chris@aiagentassistance.com';
+const NOTIFY_TO    = process.env.WSTN_NOTIFY_EMAIL || 'admin@aiagentassistance.com';
 const DASH_URL     = 'https://livewstn.myserviceflows.com/dashboard.html';
 
 const ses = new SESv2Client({ region: process.env.AWS_DEFAULT_REGION || 'us-east-1' });
@@ -148,9 +148,13 @@ router.post('/wstn/lead', express.json(), async (req, res) => {
   const htmlBody = `
 <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#222;">
   <div style="background:#0D1B2A;padding:20px 24px;border-radius:8px 8px 0 0;">
-    <h2 style="color:#C8913A;margin:0;font-size:20px;">${emoji} New ${typeLabel}</h2>
-    <p style="color:rgba(255,255,255,0.6);margin:4px 0 0;font-size:13px;">
-      WSTN Apartment Locating — ${source === 'chat' ? 'via AI Chat' : 'via Contact Form'}
+    <div style="margin-bottom:14px;">
+      <div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:700;color:#C8913A;letter-spacing:0.08em;line-height:1;">WSTN</div>
+      <div style="font-size:9px;font-weight:500;color:rgba(255,255,255,0.45);letter-spacing:0.18em;text-transform:uppercase;margin-top:3px;">Apartment Locating</div>
+    </div>
+    <h2 style="color:#fff;margin:0;font-size:18px;font-weight:600;">${emoji} New ${typeLabel}</h2>
+    <p style="color:rgba(255,255,255,0.5);margin:4px 0 0;font-size:12px;">
+      ${source === 'chat' ? 'via AI Chat' : 'via Contact Form'}
     </p>
   </div>
   <div style="background:#FDF8F3;padding:20px 24px;">

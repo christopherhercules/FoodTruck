@@ -282,9 +282,9 @@ Amplify. This is intentional. Do not import them.
 
 ## Pending / Next Steps
 
-- [ ] **Twilio toll-free approval** — waiting on Twilio (submitted 2026-05-08). Once
+- [ ] **Twilio toll-free approval** — resubmitted 2026-05-23 (SID `HH532fb1e5ebfb188e1e30bab227586e28`), status **IN_REVIEW** as of 2026-05-29. Once
       approved, remove `SKIP_TWILIO_VALIDATION=true` from Render and set real
-      `TWILIO_AUTH_TOKEN` env var.
+      `TWILIO_AUTH_TOKEN` env var. See `Knowledge/Wiki/twilio.md` for full details.
 - [ ] **Cognito** — add when real customers need accounts (not needed yet)
 - [ ] **Render → GitLab** ⚠️ CONFIRMED: Render is connected to GitHub not GitLab.
       Every push to GitLab only leaves Render behind. Must switch Render to GitLab
