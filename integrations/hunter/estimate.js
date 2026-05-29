@@ -17,7 +17,7 @@ const { SESv2Client, SendEmailCommand } = require('@aws-sdk/client-sesv2');
 const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER } = require('../twilio/config');
 
 const JASON_PHONE = process.env.HUNTER_NOTIFY_PHONE || '+18308327065';
-const NOTIFY_FROM = process.env.HUNTER_EMAIL_FROM   || 'christopherhercules@outlook.com';
+const NOTIFY_FROM = process.env.HUNTER_EMAIL_FROM   || 'Hunter Land Clearing <notifications@myserviceflows.com>';
 const NOTIFY_TO   = process.env.HUNTER_EMAIL_TO     || 'hunterlandclearing@yahoo.com';
 const DASH_URL    = 'https://hunter.aiagentassistance.com/dashboard.html';
 
