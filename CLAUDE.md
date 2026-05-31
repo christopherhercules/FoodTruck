@@ -233,7 +233,7 @@ AiagentAssistance/                     ← local folder name (GitLab repo: FoodT
 | From number | `+18443214664` (toll-free) |
 | Render URL | `https://foodtruck-cymz.onrender.com` |
 | Signature validation | `SKIP_TWILIO_VALIDATION=true` on Render (toll-free pending) |
-| Verification status | **In progress** as of 2026-05-26 — outbound SMS blocked until approved |
+| Verification status | **IN_REVIEW** as of 2026-05-29 — resubmitted 2026-05-23, SID `HH532fb1e5ebfb188e1e30bab227586e28`. See `Knowledge/Wiki/twilio.md` |
 
 ---
 
@@ -280,20 +280,51 @@ Amplify. This is intentional. Do not import them.
 
 ---
 
+## 🔜 TOP PRIORITY — Next Session
+
+**Mas Chingon Food Truck** (`maschingonfoodtruck.aiagentassistance.com`) needs to be brought up to full restaurant parity with Stripe checkout. This is the most important client.
+
+### Step 1 — Seed the food truck menu
+Script is ready at `scripts/seed-menu-maschingonfoodtruck.js` (42 items, pickup-focused, breakfast + lunch).
+
+```powershell
+$env:FOOD_APPSYNC_URL="https://d2zlzofjerf4hd6gltypy2rnlm.appsync-api.us-east-1.amazonaws.com/graphql"
+$env:FOOD_API_KEY="da2-<key>"   # get from AppSync console or .env
+node scripts/seed-menu-maschingonfoodtruck.js
+```
+
+Use `FOOD_RESTAURANT_ID=maschingonfoodtruck` (default in script). Item IDs use `FT-` prefix — no collision with restaurant items.
+
+### Step 2 — Build the food truck site
+Reference: `Food/MasChingonRestaurant/website/order.html` — match look & feel exactly.
+Key differences from restaurant site:
+- **Pickup only** — no dine-in, no table selection
+- Food truck-specific copy and context
+- Same Stripe checkout flow (`POST /food/checkout` on Render)
+
+Files to create/update in `Food/MasChingonFoodTruck/`:
+- `index.html` — homepage
+- `order.html` — ordering flow (pickup only, with Stripe)
+- `staff-dashboard.html` — order management
+
+### Step 3 — Deploy
+```powershell
+aws s3 sync Food/MasChingonFoodTruck/ s3://maschingonfoodtruck.aiagentassistance.com/ --delete
+aws cloudfront create-invalidation --distribution-id <DIST_ID> --paths "/*"
+```
+
+---
+
 ## Pending / Next Steps
 
-- [ ] **Twilio toll-free approval** — resubmitted 2026-05-23 (SID `HH532fb1e5ebfb188e1e30bab227586e28`), status **IN_REVIEW** as of 2026-05-29. Once
-      approved, remove `SKIP_TWILIO_VALIDATION=true` from Render and set real
-      `TWILIO_AUTH_TOKEN` env var. See `Knowledge/Wiki/twilio.md` for full details.
+- [ ] **Twilio toll-free approval** — resubmitted 2026-05-23 (SID `HH532fb1e5ebfb188e1e30bab227586e28`), status **IN_REVIEW** as of 2026-05-29. Once approved, remove `SKIP_TWILIO_VALIDATION=true` from Render and confirm `TWILIO_AUTH_TOKEN` env var is live. See `Knowledge/Wiki/twilio.md`.
+- [x] **Render → GitLab** ✓ Completed 2026-05-31. Render now deploys from `gitlab.com/aiagentassistant/FoodTruck` (master). Single push to GitLab (`git push origin master`) is sufficient — no more dual-push needed. GitHub remote still exists but is no longer the deploy source.
 - [ ] **Cognito** — add when real customers need accounts (not needed yet)
-- [ ] **Render → GitLab** ⚠️ CONFIRMED: Render is connected to GitHub not GitLab.
-      Every push to GitLab only leaves Render behind. Must switch Render to GitLab
-      or add `git push github master` to every deploy workflow until fixed.
-- [ ] **Enable S3 versioning on state bucket** — one-liner:
-      `aws s3api put-bucket-versioning --bucket terraform-state-foodtruck-699242704305 --versioning-configuration Status=Enabled`
+- [ ] **Enable S3 versioning on state bucket** — `aws s3api put-bucket-versioning --bucket terraform-state-foodtruck-699242704305 --versioning-configuration Status=Enabled`
 - [ ] **Enable DynamoDB PITR** — point-in-time recovery on Orders table
 - [ ] **Delete IAM user corp-tf-test** when done testing second GitLab env
-- [ ] **Second GitLab environment** — in progress, Terraform setup for corp environment
+- [ ] **WSTN social poster** — blocked on Brogan granting FB Page Admin + providing Page ID + IG account ID
+- [ ] **WSTN_NOTIFY_EMAIL** — update Render env var to Brogan's email (`wstnapartmentlocating@gmail.com`) once confirmed with her
 
 ---
 
@@ -317,6 +348,42 @@ aws ce get-cost-and-usage --time-period Start=2026-05-01,End=2026-05-31 --granul
 ```
 
 Flag anything not in: S3, CloudFront, Route53, ACM, AppSync, DynamoDB, Amplify, Lambda
+
+---
+
+## Secrets Architecture — Do Not Add to Render
+
+All client secrets (tokens, emails, phone numbers, API keys) live in **AWS SSM Parameter Store**, not Render env vars. The server loads them at startup via `integrations/secrets.js`.
+
+**Render only needs these env vars** (non-secrets, already set):
+`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `CONTRACTOR_AWS_ACCESS_KEY_ID`, `CONTRACTOR_AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`, `PUBLIC_URL`, `SKIP_TWILIO_VALIDATION`, `NODE_ENV`, `PORT`, `APP_ENV`
+
+**APP_ENV controls notification behavior across all sites:**
+- `dev` — all emails → `admin@aiagentassistance.com` with `[DEV]` prefix, SMS suppressed
+- `demo` — real client credentials, `[DEMO]` prefix on email subject + SMS
+- `live` — full production, no prefix, no overrides
+
+Each site has its own env var (`HUNTER_APP_ENV`, `WSTN_APP_ENV`, `CABINETS_APP_ENV`) with `APP_ENV` as global fallback. Default if unset = `dev` (fail safe).
+
+**Current state:** `HUNTER_APP_ENV=demo`, everything else `dev`.
+See `Knowledge/RAW/2026-05-29_app-env-pattern-handoff.md` for implementation details.
+
+**Adding a new secret = create SSM parameter, not a Render env var.**
+
+| Site | SSM path prefix | AWS account |
+|---|---|---|
+| Food / Twilio / Toast | `/foodtruck/` | default (`699242704305`) |
+| Hunter | `/contractor/hunter/` | contractor (`082569478855`) |
+| Cabinets | `/contractor/cabinets/` | contractor (`082569478855`) |
+| WSTN | `/contractor/wstn/` | contractor (`082569478855`) |
+| Platform / AiAgent | `/platform/aiagent/` | default (`699242704305`) |
+
+All mapped paths are in `integrations/secrets.js`. To add a new secret:
+```powershell
+aws ssm put-parameter --name "/contractor/hunter/facebook_token" --value "YOUR_TOKEN" --type SecureString --profile contractor
+```
+
+**Exception:** `CABINETS_NOTIFY_EMAIL` was temporarily set as a Render env var — move to SSM at `/contractor/cabinets/notify_email` (already mapped in secrets.js). Remove from Render once SSM parameter is created.
 
 ---
 
