@@ -660,13 +660,17 @@
         document.getElementById('modalItemPrice').textContent = `$${parseFloat(item.price).toFixed(2)}`;
 
         // Meat / required choice
+        // opts may be flat strings ["Carne Asada", ...] or group objects [{ name, required, options: [...] }]
         const meatDiv = document.getElementById('modalMeatSection');
-        if (opts.length > 0) {
+        const flatOpts = opts.length > 0 && typeof opts[0] === 'object'
+            ? opts.flatMap(g => g.options || [])
+            : opts;
+        if (flatOpts.length > 0) {
             meatDiv.style.display = 'block';
             meatDiv.innerHTML = `
                 <div class="modal-section-label">Meat <span style="color:var(--red)">*</span></div>
                 <div class="modal-radio-group">
-                    ${opts.map((o, i) => `
+                    ${flatOpts.map((o, i) => `
                         <label class="modal-radio-label">
                             <input type="radio" name="modalMeat" value="${o}" ${i === 0 ? 'checked' : ''}>
                             ${o}
