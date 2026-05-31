@@ -214,15 +214,6 @@
         .item-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 0.5rem; }
         .item-price { font-weight: 700; font-size: 1.1rem; color: var(--yellow); }
 
-        .customize-select {
-            font-size: 0.78rem;
-            padding: 0.3rem 0.5rem;
-            margin: 0.3rem 0;
-            background: var(--bg2);
-            border-color: #444;
-            border-radius: 6px;
-        }
-
         .add-btn {
             background: var(--red);
             color: white;
@@ -375,7 +366,25 @@
             letter-spacing: 1px;
         }
         .new-order-btn:hover { background: #1e4d38; }
-    .consent-label{display:flex;align-items:flex-start;gap:0.6rem;cursor:pointer;font-size:0.78rem;color:var(--text-muted,#888);line-height:1.4;padding:0.6rem 0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px}.consent-label input[type=checkbox]{margin-top:2px;accent-color:#D62828;width:15px;height:15px;flex-shrink:0;cursor:pointer}.consent-label span a{color:inherit;text-decoration:underline}.sms-consent-wrap{margin-bottom:0.75rem}</style>
+        .consent-label{display:flex;align-items:flex-start;gap:0.6rem;cursor:pointer;font-size:0.78rem;color:var(--text-muted,#888);line-height:1.4;padding:0.6rem 0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px}.consent-label input[type=checkbox]{margin-top:2px;accent-color:#D62828;width:15px;height:15px;flex-shrink:0;cursor:pointer}.consent-label span a{color:inherit;text-decoration:underline}.sms-consent-wrap{margin-bottom:0.75rem}
+
+        /* CUSTOMIZE MODAL */
+        #customizeModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.78); z-index:500; align-items:center; justify-content:center; padding:1rem; }
+        .modal-box { background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:1.5rem; max-width:460px; width:100%; max-height:85vh; overflow-y:auto; }
+        .modal-section-label { font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin:1rem 0 0.5rem; }
+        .modal-radio-group { display:flex; flex-wrap:wrap; gap:0.5rem; }
+        .modal-radio-label { display:flex; align-items:center; gap:0.4rem; padding:0.4rem 0.85rem; border:1.5px solid var(--border); border-radius:6px; cursor:pointer; font-size:0.88rem; transition:border-color .15s,background .15s; }
+        .modal-radio-label:has(input:checked) { border-color:var(--red); background:rgba(214,40,40,0.12); }
+        .modal-radio-label input[type=radio] { accent-color:var(--red); cursor:pointer; }
+        .modal-checkbox-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.4rem; }
+        .modal-check-label { display:flex; align-items:center; gap:0.4rem; padding:0.4rem 0.7rem; border:1.5px solid var(--border); border-radius:6px; cursor:pointer; font-size:0.88rem; transition:border-color .15s,background .15s; }
+        .modal-check-label:has(input:checked) { border-color:var(--yellow); background:rgba(245,197,24,0.1); }
+        .modal-check-label input[type=checkbox] { accent-color:var(--yellow); cursor:pointer; }
+        .modal-actions { display:flex; gap:0.75rem; margin-top:1.5rem; }
+        .modal-cancel { flex:1; padding:0.75rem; background:var(--bg3); border:1.5px solid var(--border); border-radius:8px; color:var(--text); font-family:'Outfit',sans-serif; font-size:0.95rem; cursor:pointer; }
+        .modal-add { flex:2; padding:0.75rem; background:var(--red); border:none; border-radius:8px; color:white; font-family:'Bebas Neue',cursive; font-size:1.15rem; letter-spacing:1px; cursor:pointer; }
+        .modal-add:hover { background:var(--red-dark); }
+    </style>
 </head>
 <body>
 
@@ -451,7 +460,7 @@
                     </div>
                 </div>
                 <button class="place-order-btn" id="placeOrderBtn" disabled onclick="placeOrder()">
-                    Place Pickup Order
+                    Proceed to Payment
                 </button>
             </div>
         </div>
@@ -486,9 +495,29 @@
     <button class="new-order-btn" onclick="location.reload()">Place Another Order</button>
 </div>
 
+<!-- CUSTOMIZE MODAL -->
+<div id="customizeModal">
+    <div class="modal-box">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.25rem;">
+            <div>
+                <div id="modalItemName" style="font-family:'Bebas Neue',cursive;font-size:1.5rem;color:var(--yellow);letter-spacing:1px;"></div>
+                <div id="modalItemPrice" style="font-weight:700;color:var(--yellow);font-size:1.05rem;margin-top:2px;"></div>
+            </div>
+            <button onclick="window.closeCustomize()" style="background:none;border:none;color:var(--text-muted);font-size:1.3rem;cursor:pointer;line-height:1;padding:0.2rem 0.3rem;">&#x2715;</button>
+        </div>
+        <div id="modalMeatSection"></div>
+        <div id="modalToppingsSection"></div>
+        <div class="modal-actions">
+            <button class="modal-cancel" onclick="window.closeCustomize()">Cancel</button>
+            <button class="modal-add" onclick="window.addFromModal()">Add to Order</button>
+        </div>
+    </div>
+</div>
+
 <script type="module">
     const APPSYNC_URL = "https://d2zlzofjerf4hd6gltypy2rnlm.appsync-api.us-east-1.amazonaws.com/graphql";
     const API_KEY = "da2-6l2dtmahczbbnlp3m2vmgihqby";
+    const CHECKOUT_URL = 'https://foodtruck-cymz.onrender.com/food/checkout';
 
     async function gql(query, variables = {}) {
         const res = await fetch(APPSYNC_URL, {
@@ -502,20 +531,25 @@
     }
 
     let allMenuItems = [];
+    let itemMap = {};
     let cart = [];
     let activeCategory = "All";
+    let currentModalItem = null;
+
+    const TOPPINGS = ['Cheese', 'Lettuce', 'Onion', 'Cilantro', 'Sour Cream', 'Pico de Gallo', 'Jalapenos', 'Guacamole'];
     const CATEGORIES = ["All", "Breakfast", "Main", "Antojitos", "Specialty", "Drinks"];
 
     async function loadMenu() {
         try {
-            const data = await gql(`query { listMenuItems(limit: 200, filter: { itemId: { beginsWith: "ITEM-" } }) { items { id itemId name description price category available customizationOptions } } }`);
+            const data = await gql('query { listMenuItems(limit: 200, filter: { itemId: { beginsWith: "ITEM-FT-" } }) { items { id itemId name description price category available customizationOptions } } }');
             allMenuItems = (data.listMenuItems.items || [])
                 .filter(i => i.available !== false)
                 .sort((a, b) => a.name.localeCompare(b.name));
+            allMenuItems.forEach(i => { itemMap[i.itemId] = i; });
             renderCategoryTabs();
             renderMenu();
         } catch (err) {
-            document.getElementById("menuContainer").innerHTML = `<div class="error-msg">⚠️ Could not load menu.<br><small>${err.message}</small></div>`;
+            document.getElementById("menuContainer").innerHTML = '<div class="error-msg">Could not load menu.<br><small>' + err.message + '</small></div>';
         }
     }
 
@@ -526,51 +560,95 @@
             .filter(c => c === "All" || counts[c])
             .map(c => {
                 const count = c === "All" ? allMenuItems.length : (counts[c] || 0);
-                return `<button class="cat-tab ${c === activeCategory ? 'active' : ''}" onclick="window.setCategory('${c}')">${c} (${count})</button>`;
+                return '<button class="cat-tab ' + (c === activeCategory ? 'active' : '') + '" onclick="window.setCategory(\'' + c + '\')">' + c + ' (' + count + ')</button>';
             }).join('');
     }
 
     function renderMenu() {
         const items = activeCategory === "All" ? allMenuItems : allMenuItems.filter(i => i.category === activeCategory);
         if (items.length === 0) {
-            document.getElementById("menuContainer").innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:2rem">No items found.</p>`;
+            document.getElementById("menuContainer").innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:2rem">No items found.</p>';
             return;
         }
-        document.getElementById("menuContainer").innerHTML = `
-            <div class="menu-grid">
-                ${items.map(item => {
-                    let opts = [];
-                    try { opts = JSON.parse(item.customizationOptions || "[]"); } catch(e) {}
-                    const hasOpts = opts.length > 0;
-                    const selectId = `opt_${item.itemId}`;
-                    return `
-                        <div class="menu-item">
-                            <div class="item-name">${item.name}</div>
-                            <div class="item-desc">${item.description || ''}</div>
-                            ${hasOpts ? `<select class="customize-select" id="${selectId}"><option value="">Choose option...</option>${opts.map(o => `<option value="${o}">${o}</option>`).join('')}</select>` : ''}
-                            <div class="item-footer">
-                                <span class="item-price">$${parseFloat(item.price).toFixed(2)}</span>
-                                <button class="add-btn" onclick="window.addToCart('${item.itemId}', '${item.name.replace(/'/g,"\\'")}', ${item.price}, '${selectId}', ${hasOpts})">+ Add</button>
-                            </div>
-                        </div>`;
-                }).join('')}
-            </div>`;
+        document.getElementById("menuContainer").innerHTML = '<div class="menu-grid">' +
+            items.map(item =>
+                '<div class="menu-item">' +
+                '<div class="item-name">' + item.name + '</div>' +
+                '<div class="item-desc">' + (item.description || '') + '</div>' +
+                '<div class="item-footer">' +
+                '<span class="item-price">$' + parseFloat(item.price).toFixed(2) + '</span>' +
+                '<button class="add-btn" onclick="window.openCustomize(\'' + item.itemId + '\')">+ Add</button>' +
+                '</div></div>'
+            ).join('') +
+            '</div>';
     }
 
-    window.addToCart = function(itemId, name, price, selectId, hasOpts) {
-        if (hasOpts) {
-            const sel = document.getElementById(selectId);
-            if (!sel || !sel.value) {
-                sel.style.borderColor = 'var(--yellow)';
-                sel.focus();
-                setTimeout(() => { sel.style.borderColor = ''; }, 2000);
-                return;
-            }
-            cart.push({ itemId, name, price: parseFloat(price), customization: sel.value });
+    window.openCustomize = function(itemId) {
+        const item = itemMap[itemId];
+        if (!item) return;
+        currentModalItem = item;
+
+        let opts = [];
+        try { opts = JSON.parse(item.customizationOptions || '[]'); } catch(e) {}
+
+        document.getElementById('modalItemName').textContent = item.name;
+        document.getElementById('modalItemPrice').textContent = '$' + parseFloat(item.price).toFixed(2);
+
+        const meatDiv = document.getElementById('modalMeatSection');
+        const flatOpts = opts.length > 0 && typeof opts[0] === 'object'
+            ? opts.flatMap(g => g.options || [])
+            : opts;
+        if (flatOpts.length > 0) {
+            meatDiv.style.display = 'block';
+            meatDiv.innerHTML = '<div class="modal-section-label">Choice <span style="color:var(--red)">*</span></div>' +
+                '<div class="modal-radio-group">' +
+                flatOpts.map((o, i) =>
+                    '<label class="modal-radio-label"><input type="radio" name="modalMeat" value="' + o + '" ' + (i === 0 ? 'checked' : '') + '> ' + o + '</label>'
+                ).join('') +
+                '</div>';
         } else {
-            cart.push({ itemId, name, price: parseFloat(price), customization: '' });
+            meatDiv.style.display = 'none';
         }
+
+        const topsDiv = document.getElementById('modalToppingsSection');
+        if (item.category === 'Drinks') {
+            topsDiv.style.display = 'none';
+        } else {
+            topsDiv.style.display = 'block';
+            topsDiv.innerHTML = '<div class="modal-section-label">Toppings <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.78rem">- optional</span></div>' +
+                '<div class="modal-checkbox-grid">' +
+                TOPPINGS.map(t =>
+                    '<label class="modal-check-label"><input type="checkbox" name="modalTopping" value="' + t + '"> ' + t + '</label>'
+                ).join('') +
+                '</div>';
+        }
+
+        document.getElementById('customizeModal').style.display = 'flex';
+    };
+
+    window.closeCustomize = function() {
+        document.getElementById('customizeModal').style.display = 'none';
+        currentModalItem = null;
+    };
+
+    window.addFromModal = function() {
+        if (!currentModalItem) return;
+        const item = currentModalItem;
+
+        let opts = [];
+        try { opts = JSON.parse(item.customizationOptions || '[]'); } catch(e) {}
+
+        const parts = [];
+        if (opts.length > 0) {
+            const meatEl = document.querySelector('input[name="modalMeat"]:checked');
+            if (!meatEl) { alert('Please make a selection.'); return; }
+            parts.push(meatEl.value);
+        }
+        document.querySelectorAll('input[name="modalTopping"]:checked').forEach(el => parts.push(el.value));
+
+        cart.push({ itemId: item.itemId, name: item.name, price: parseFloat(item.price), customization: parts.join(', ') });
         renderCart();
+        window.closeCustomize();
     };
 
     window.removeFromCart = function(i) { cart.splice(i, 1); renderCart(); };
@@ -580,65 +658,82 @@
         document.getElementById("cartCount").textContent = cart.length;
         document.getElementById("placeOrderBtn").disabled = cart.length === 0;
         if (cart.length === 0) {
-            document.getElementById("cartContent").innerHTML = `<div class="cart-empty"><span class="emoji">🌮</span><p>Add items to get started!</p></div>`;
+            document.getElementById("cartContent").innerHTML = '<div class="cart-empty"><span class="emoji">🌮</span><p>Add items to get started!</p></div>';
             return;
         }
-        document.getElementById("cartContent").innerHTML = `
-            ${cart.map((item, i) => `
-                <div class="cart-item">
-                    <div class="cart-item-info">
-                        <div class="cart-item-name">${item.name}</div>
-                        ${item.customization ? `<div class="cart-item-customization">${item.customization}</div>` : ''}
-                    </div>
-                    <span class="cart-item-price">$${item.price.toFixed(2)}</span>
-                    <button class="remove-btn" onclick="window.removeFromCart(${i})">✕</button>
-                </div>`).join('')}
-            <div class="cart-total-row"><span>Total</span><span class="total-amount">$${total.toFixed(2)}</span></div>`;
+        document.getElementById("cartContent").innerHTML =
+            cart.map((item, i) =>
+                '<div class="cart-item">' +
+                '<div class="cart-item-info">' +
+                '<div class="cart-item-name">' + item.name + '</div>' +
+                (item.customization ? '<div class="cart-item-customization">' + item.customization + '</div>' : '') +
+                '</div>' +
+                '<span class="cart-item-price">$' + item.price.toFixed(2) + '</span>' +
+                '<button class="remove-btn" onclick="window.removeFromCart(' + i + ')">&#x2715;</button>' +
+                '</div>'
+            ).join('') +
+            '<div class="cart-total-row"><span>Total</span><span class="total-amount">$' + total.toFixed(2) + '</span></div>';
     }
 
     window.placeOrder = async function() {
         const name = document.getElementById("customerName").value.trim();
         const phone = document.getElementById("customerPhone").value.trim();
-        const smsConsent = document.getElementById("smsConsent")?.checked || false;
+        const smsConsent = document.getElementById("smsConsent") ? document.getElementById("smsConsent").checked : false;
         const specialInstructions = document.getElementById("specialInstructions").value.trim();
         if (!name) { alert("Please enter your name."); return; }
         if (cart.length === 0) { alert("Your cart is empty!"); return; }
 
         const btn = document.getElementById("placeOrderBtn");
         btn.disabled = true;
-        btn.textContent = "Placing Order...";
-
-        const orderId = `ORD-${Date.now()}`;
+        btn.textContent = "Redirecting to payment...";
 
         try {
-            await gql(`mutation CreateOrder($input: CreateOrderInput!) { createOrder(input: $input) { id orderId } }`, {
-                input: {
-                    orderId,
-                    customerName: name,
-                    customerPhone: phone || null,
-                    smsConsent: phone ? smsConsent : false,
-                    orderType: "Pickup",
-                    tableNumber: null,
-                    items: JSON.stringify(cart),
-                    totalPrice: cart.reduce((s, i) => s + i.price, 0),
-                    specialInstructions,
-                    status: "Pending",
-                    assignedServer: "Window",
-                    source: "FoodTruck",
-                    timestamp: new Date().toISOString()
-                }
+            const res = await fetch(CHECKOUT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    restaurantId:        'maschingonfoodtruck',
+                    restaurantName:      'Mas Chingon Food Truck',
+                    orderType:           'Pickup',
+                    tableNumber:         null,
+                    customerName:        name,
+                    customerPhone:       phone || null,
+                    specialInstructions: specialInstructions || null,
+                    smsConsent:          phone ? smsConsent : false,
+                    items: cart.map(i => ({
+                        itemId:         i.itemId,
+                        name:           i.name,
+                        price:          i.price,
+                        quantity:       1,
+                        customizations: i.customization || null
+                    }))
+                })
             });
 
+            const data = await res.json();
+            if (!res.ok || !data.url) throw new Error(data.error || 'Checkout failed');
+            window.location.href = data.url;
+
+        } catch (err) {
+            alert("Payment error: " + err.message);
+            btn.disabled = false;
+            btn.textContent = "Proceed to Payment";
+        }
+    };
+
+    (function handleStripeReturn() {
+        const params  = new URLSearchParams(window.location.search);
+        const orderId = params.get('orderId');
+        if (params.get('success') === 'true' && orderId) {
             document.getElementById("mainContent").style.display = "none";
             document.getElementById("confirmationScreen").style.display = "block";
             document.getElementById("confirmOrderNumber").textContent = orderId;
-            document.getElementById("trackOrderLink").href = `track-order.html?orderId=${orderId}`;
-        } catch (err) {
-            alert("Error placing order: " + err.message);
-            btn.disabled = false;
-            btn.textContent = "Place Pickup Order";
+            document.getElementById("trackOrderLink").href = "track-order.html?orderId=" + orderId;
+            window.history.replaceState({}, '', window.location.pathname);
+        } else if (params.get('cancelled') === 'true') {
+            window.history.replaceState({}, '', window.location.pathname);
         }
-    };
+    })();
 
     window.setCategory = function(cat) { activeCategory = cat; renderCategoryTabs(); renderMenu(); };
     window.scrollToCart = function() { document.getElementById("cartSection").scrollIntoView({ behavior: "smooth" }); };
