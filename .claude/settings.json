@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout master)",
+      "Bash(git merge *)",
+      "Bash(git push github master)",
+      "Bash(git push origin master)",
+      "Bash(git push github *)",
+      "Bash(git push origin *)",
+      "Bash(aws s3 cp *)",
+      "Bash(aws cloudfront create-invalidation *)"
+    ]
+  }
+}
