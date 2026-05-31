@@ -666,7 +666,7 @@ async function loadOrders() {
 
     const query = `
         query ListAllOrders {
-            listOrders(limit: 200, filter: { source: { eq: "FoodTruck" } }) {
+            listOrders(limit: 200, filter: { or: [ { source: { eq: "FoodTruck" } }, { source: { eq: "maschingonfoodtruck" } } ] }) {
                 items {
                     id orderId customerName orderType tableNumber items totalPrice
                     specialInstructions status assignedServer timestamp estimatedReadyTime source
