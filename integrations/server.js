@@ -47,6 +47,12 @@ async function start() {
 
   const app = express();
 
+  // ── FOOD ORDERING (Stripe) — MUST be first: webhook needs raw body ────────
+  const foodCheckoutApp = require('./food/checkout');
+  const foodWebhookApp  = require('./food/webhook');
+  app.use(foodWebhookApp);
+  app.use(foodCheckoutApp);
+
   // ── TWILIO ROUTES ────────────────────────────────────────────────────────
   const twilioApp = require('./twilio/webhook');
   app.use(twilioApp);
@@ -78,12 +84,6 @@ async function start() {
   // ── OUTBOUND EMAIL (contractor dashboards) ────────────────────────────────
   const sendEmailApp = require('./send-email');
   app.use(sendEmailApp);
-
-  // ── FOOD ORDERING (Stripe) ───────────────────────────────────────────────
-  const foodCheckoutApp = require('./food/checkout');
-  const foodWebhookApp  = require('./food/webhook');
-  app.use(foodWebhookApp);   // webhook FIRST — needs raw body before any json middleware
-  app.use(foodCheckoutApp);
 
   // ── DEMO REQUEST ──────────────────────────────────────────────────────────
   const demoApp = require('./demo/request');
