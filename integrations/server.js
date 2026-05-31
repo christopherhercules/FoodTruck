@@ -16,6 +16,9 @@
  *   POST /cabinets/estimate     ← Shawn Cabinets leads
  *   POST /cabinets/analyze-plan ← Shawn Cabinets plan analyzer
  *
+ *   POST /food/checkout         ← Stripe Checkout Session (food ordering)
+ *   POST /food/webhook          ← Stripe webhook (payment confirmed → AppSync Order)
+ *
  *   POST /demo-request          ← aiagentassistance.com demo form
  *   POST /aiagent/social/caption ← AI Agent social caption generation
  *   POST /aiagent/social/post    ← AI Agent social post to FB + IG
@@ -75,6 +78,12 @@ async function start() {
   // ── OUTBOUND EMAIL (contractor dashboards) ────────────────────────────────
   const sendEmailApp = require('./send-email');
   app.use(sendEmailApp);
+
+  // ── FOOD ORDERING (Stripe) ───────────────────────────────────────────────
+  const foodCheckoutApp = require('./food/checkout');
+  const foodWebhookApp  = require('./food/webhook');
+  app.use(foodWebhookApp);   // webhook FIRST — needs raw body before any json middleware
+  app.use(foodCheckoutApp);
 
   // ── DEMO REQUEST ──────────────────────────────────────────────────────────
   const demoApp = require('./demo/request');

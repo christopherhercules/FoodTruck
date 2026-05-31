@@ -25,6 +25,8 @@ const SSM_PARAMS = {
   '/platform/aiagent/facebook_token':     'AIAGENT_FB_PAGE_TOKEN',
   '/platform/aiagent/facebook_page_id':   'AIAGENT_FB_PAGE_ID',
   '/platform/aiagent/instagram_id':       'AIAGENT_IG_USER_ID',
+  '/foodtruck/stripe/secret_key':         'STRIPE_SECRET_KEY',
+  '/foodtruck/stripe/webhook_secret':     'STRIPE_WEBHOOK_SECRET',
 };
 
 async function loadSecrets() {
