@@ -25,7 +25,16 @@ const { createOrder }     = require('./appsync');
 
 const BASE_DOMAIN = process.env.FOOD_BASE_DOMAIN || 'aiagentassistance.com';
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin':  '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+};
+
+router.options('/food/checkout', (req, res) => res.set(CORS_HEADERS).sendStatus(204));
+
 router.post('/food/checkout', express.json(), async (req, res) => {
+  res.set(CORS_HEADERS);
   const {
     restaurantId        = 'maschingonrestaurant',
     restaurantName      = 'Mas Chingon Mexican Grill',
